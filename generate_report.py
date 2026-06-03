@@ -257,20 +257,58 @@ def build_optimized(raw, findings):
 optimized_cases = build_optimized(raw_cases, review_findings)
 
 # ═══════════════════════════════════════════════════════════════
+# CATEGORY CLASSIFICATION
+# ═══════════════════════════════════════════════════════════════
+
+def get_category(case_id, module):
+    """Determine test case category based on ID prefix and module."""
+    if case_id.startswith("Perf-"):
+        return "性能"
+    if case_id.startswith("Security-"):
+        return "安全"
+    if case_id.startswith("Compat-"):
+        return "兼容性"
+    if case_id.startswith("Maint-"):
+        return "可维护性"
+    if case_id.startswith("Perm-"):
+        return "权限"
+    if case_id.startswith("Exc-"):
+        return "异常"
+    if module == "用户端问答":
+        return "功能"
+    if module == "会话记录":
+        return "功能"
+    if module == "词条管理":
+        return "功能"
+    if module == "未知问题":
+        return "功能"
+    if module == "数据统计":
+        return "功能"
+    return "功能"
+
+# Add category to all optimized cases
+for case in optimized_cases:
+    cat = get_category(case[0], case[1])
+    # Insert category at index 2 (after 一级模块)
+    case.insert(2, cat)
+
+# ═══════════════════════════════════════════════════════════════
 # HTML GENERATION
 # ═══════════════════════════════════════════════════════════════
 
 def gen_case_rows(cases, include_opt=False):
     rows = []
     for case in cases:
-        cells = case[:9]
         if include_opt:
-            opt_val = case[9] if len(case) > 9 else ""
-            # Render optimization record with line breaks for readability
+            # Optimized cases: [cid, module, category, submod, func, title, pre, steps, expected, priority, opt_record]
+            cells = case[:10]
+            opt_val = case[10] if len(case) > 10 else ""
             opt_html = e(opt_val).replace("\n", "<br>")
             row = "".join("<td>" + e(c) + "</td>" for c in cells)
             row += '<td style="white-space:pre-wrap;line-height:1.6">' + opt_html + '</td>'
         else:
+            # Raw cases: [cid, module, submod, func, title, pre, steps, expected, priority]
+            cells = case[:9]
             row = "".join("<td>" + e(c) + "</td>" for c in cells)
         rows.append("<tr>" + row + "</tr>")
     return "\n".join(rows)
@@ -315,28 +353,29 @@ req_html += gen_req_table(ambiguities, ['编号','疑点描述','影响范围','
 req_html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与状态机专项覆盖</h3>'
 req_html += gen_req_table(interface_state_coverage, ['覆盖项','有效转换','无效转换','重复事件','延迟回调','乱序事件'])
 
-# Role scores
+# Role scores (recalculated per SKILL.md deduction rules)
+# Each finding scored by defect type + case priority, total findings = 30
 role_scores = {
-    "Arch": ("开发架构师", 86, "100 - 4(架构腐化风险x1) - 4(运维盲区x2) - 6(安全漏洞x1) = 86"),
-    "Dev":  ("开发工程师", 82, "100 - 8(逻辑遗漏x2) - 6(边界遗漏x2) - 4(可验证性不足x1) = 82"),
-    "QA":   ("测试工程师", 86, "100 - 8(场景遗漏x1) - 4(可验证性不足x2) - 2(表述不清x1) = 86"),
-    "PM":   ("产品经理", 94, "100 - 2(优先级不准x1) - 4(表述不清x2) = 94"),
-    "UX":   ("用户体验设计师", 90, "100 - 3(交互不符x2) - 4(易用性缺陷x2) - 2(表述不清x1) = 90"),
-    "Sec":  ("安全工程师", 94, "100 - 6(安全漏洞x1) = 94"),
-    "Ops":  ("运维工程师", 86, "100 - 4(运维盲区x3) - 6(安全漏洞x1) - 4(架构腐化风险x1) = 86"),
-    "Perf": ("性能工程师", 91, "100 - 6(性能风险x1) - 8(场景遗漏x1) - 4(可验证性不足x1) = 91"),
-    "DBA":  ("数据工程师", 93, "100 - 6(数据完整性风险x1) - 6(数据一致性风险x1) = 93"),
+    "Arch": ("开发架构师", 96, "100 - 4x1(架构腐化风险) = 96"),
+    "Dev":  ("开发工程师", 78, "100 - 8x1(P0逻辑遗漏) - 8x1(P1逻辑遗漏) - 6x1(P0边界遗漏) - 6x1(P1边界遗漏) - 4x1(可验证性不足) = 78"),
+    "QA":   ("测试工程师", 82, "100 - 8x1(P0场景遗漏) - 4x2(可验证性不足) = 82"),
+    "PM":   ("产品经理", 92, "100 - 2x1(优先级不准) - 2x2(表述不清) = 92"),
+    "UX":   ("用户体验设计师", 90, "100 - 3x2(交互不符) - 2x2(易用性缺陷) = 90"),
+    "Sec":  ("安全工程师", 82, "100 - 6x2(P0安全漏洞) - 6x1(P1安全漏洞) = 82"),
+    "Ops":  ("运维工程师", 84, "100 - 4x3(运维盲区) - 4x1(架构腐化风险) = 84"),
+    "Perf": ("性能工程师", 82, "100 - 6x1(P1性能风险) - 8x1(P0场景遗漏) - 4x1(可验证性不足) = 82"),
+    "DBA":  ("数据工程师", 88, "100 - 6x1(数据完整性风险) - 6x1(数据一致性风险) = 88"),
 }
 role_html = ""
 for key in ["Arch","Dev","QA","PM","UX","Sec","Ops","Perf","DBA"]:
     name, score, detail = role_scores[key]
     role_html += '<div class="metric"><span>' + e(name) + ' (' + key + ')</span><strong>' + str(score) + '</strong><div class="sub" style="font-size:11px;margin-top:4px">' + e(detail) + '</div></div>'
 
-# Defect distribution
+# Defect distribution (total=30 findings)
 defect_dist = [
-    ("逻辑遗漏",3,10.0),("场景遗漏",5,16.7),("表述不清",3,10.0),("边界遗漏",3,10.0),
+    ("逻辑遗漏",3,10.0),("场景遗漏",4,13.3),("表述不清",2,6.7),("边界遗漏",2,6.7),
     ("数据一致性风险",1,3.3),("数据完整性风险",1,3.3),("交互不符",2,6.7),("优先级不准",1,3.3),
-    ("可验证性不足",3,10.0),("安全漏洞",4,13.3),("性能风险",2,6.7),("运维盲区",3,10.0),
+    ("可验证性不足",2,6.7),("安全漏洞",4,13.3),("性能风险",2,6.7),("运维盲区",3,10.0),
     ("易用性缺陷",2,6.7),("架构腐化风险",1,3.3),
 ]
 defect_rows = ""
@@ -405,7 +444,8 @@ summary = (
     + str(modified) + '条需优化修改。新增' + str(opt_total - total) + '条用例补充覆盖，优化后共'
     + str(opt_total) + '条用例。功能点覆盖率从' + str(int(func_orig/40*100)) + '%提升至'
     + str(int(func_opt/40*100)) + '%，场景覆盖率从' + str(scen_orig) + '%提升至' + str(scen_opt)
-    + '%。主要问题集中在<b>场景遗漏</b>（5个）和<b>安全漏洞</b>（4个），建议重点关注。'
+    + '%。共发现30个评审问题，主要集中在<b>安全漏洞</b>（4个，13.3%）和<b>场景遗漏</b>（4个，13.3%），'
+    + '建议重点关注。各角色评分：Dev/Sec/Perf并列最低（82分），Ops次低（84分），需加强功能逻辑、安全防护和场景覆盖。'
 )
 
 # ── Assemble HTML ──
@@ -505,6 +545,8 @@ h.append('<section id="optimized">')
 h.append('<div class="filter-bar">')
 h.append('<label>一级模块</label>')
 h.append('<select id="optimized-module-filter" onchange="filterTable(\'optimized\')"><option value="">全部</option></select>')
+h.append('<label>分类</label>')
+h.append('<select id="optimized-category-filter" onchange="filterTable(\'optimized\')"><option value="">全部</option><option>功能</option><option>性能</option><option>安全</option><option>兼容性</option><option>可维护性</option><option>权限</option><option>异常</option></select>')
 h.append('<label>优先级</label>')
 h.append('<select id="optimized-priority-filter" onchange="filterTable(\'optimized\')"><option value="">全部</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>')
 h.append('<label>搜索</label>')
@@ -512,7 +554,7 @@ h.append('<input type="text" id="optimized-search" placeholder="关键词..." on
 h.append('<span class="filter-count" id="optimized-count"></span>')
 h.append('</div>')
 h.append('<table id="optimized-table"><thead><tr>')
-h.append('<th>用例编号</th><th>一级模块</th><th>二级模块</th><th>功能点</th><th>用例标题</th><th>前置条件</th><th>用例步骤</th><th>预期结果</th><th>用例优先级</th><th>优化记录</th>')
+h.append('<th>用例编号</th><th>一级模块</th><th>分类</th><th>二级模块</th><th>功能点</th><th>用例标题</th><th>前置条件</th><th>用例步骤</th><th>预期结果</th><th>用例优先级</th><th>优化记录</th>')
 h.append('</tr></thead><tbody>')
 h.append(gen_case_rows(optimized_cases, include_opt=True))
 h.append('</tbody></table>')
@@ -544,11 +586,18 @@ h.append('</section>')
 h.append('</main>')
 h.append('<div id="toast"></div>')
 
-# Fix the script: need to fix the FILTER_CONFIG for optimized (priorityFilter was wrong)
+# Fix the script: update FILTER_CONFIG for optimized table (category column added, priority shifted to col 9)
 js = template_js
-js = js.replace('priorityFilter:"optimized-priority-filter"', 'priorityFilter:"optimized-priority-filter"')
-# The template JS references 4 tabs but we have 5 - need to ensure it works with our tab structure
-# The template JS should work as-is since it uses data-tab attributes
+# Update optimized FILTER_CONFIG to include category filter and correct priority column index
+js = js.replace(
+    'optimized: { moduleFilter:"optimized-module-filter", moduleCol:1, priorityFilter:"optimized-priority-filter", priorityCol:8, search:"optimized-search", count:"optimized-count" },',
+    'optimized: { moduleFilter:"optimized-module-filter", moduleCol:1, categoryFilter:"optimized-category-filter", categoryCol:2, priorityFilter:"optimized-priority-filter", priorityCol:9, search:"optimized-search", count:"optimized-count" },'
+)
+# Add category filter support to filterTable function
+js = js.replace(
+    'if (module   && getCellText(row.cells[cfg.moduleCol])               !== module)             show = false;\n      if (priority',
+    'const category = cfg.categoryFilter ? document.getElementById(cfg.categoryFilter).value : "";\n      if (module   && getCellText(row.cells[cfg.moduleCol])               !== module)             show = false;\n      if (category && getCellText(row.cells[cfg.categoryCol])             !== category)           show = false;\n      if (priority'
+)
 
 h.append(js)
 h.append('</body>')
