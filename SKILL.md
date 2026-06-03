@@ -264,12 +264,53 @@ Include these sections when the product is workflow-heavy, interface-heavy, or c
 
 Create a complete standalone HTML page. Use `assets/report-template.html` as the visual and interaction pattern.
 
-The page must contain four tabs:
+The page must contain five tabs:
 
-1. 原始用例集
-2. AI评审详情
-3. 优化后用例集
-4. 评审与覆盖度报告
+1. 需求抽取清单
+2. 原始用例集
+3. AI评审详情
+4. 优化后用例集
+5. 评审与覆盖度报告
+
+### 需求抽取清单 Tab
+
+The first tab displays the structured requirement extraction from Stage 0. It must contain these sections:
+
+**模块与功能点** table with columns:
+- 一级模块
+- 二级模块
+- 功能点
+- 功能描述
+
+**接口与集成系统** table with columns:
+- 源系统
+- 目标系统
+- 接口/触发
+- 数据内容
+- 幂等/重试
+
+**状态转换** table with columns:
+- 触发事件
+- 源状态
+- 目标状态
+- 备注
+
+**需求疑点/待确认项** table with columns:
+- 编号
+- 疑点描述
+- 影响范围
+- 建议确认方
+- 风险等级 (render as colored badge: 高=P0, 中=P1, 低=P2)
+
+**接口与状态机专项覆盖** table with columns:
+- 覆盖项
+- 有效转换
+- 无效转换
+- 重复事件
+- 延迟回调
+- 乱序事件
+
+This tab does not need a filter bar since it is reference documentation, not case data.
 
 Each case table tab must include a **filter bar** with:
 
@@ -305,12 +346,15 @@ Inline editing requirements:
 
 Before finalizing:
 
+- Confirm the "需求抽取清单" tab contains all five sections: 模块与功能点, 接口与集成系统, 状态转换, 需求疑点/待确认项, 接口与状态机专项覆盖.
+- Confirm the requirement extraction tables accurately reflect the PRD content without遗漏.
+- Confirm risk levels in 需求疑点 are rendered as colored badges (高=P0, 中=P1, 低=P2).
 - Confirm all modules and function points from the requirements are represented.
 - Confirm each major function has positive and negative coverage.
 - Confirm all IDs match the required format and are stable relative to prior runs.
 - Confirm review findings map to optimizations.
 - Confirm coverage math is internally consistent.
-- Confirm the HTML has working tabs, filter bars, copy action, and the in-page xlsx download button.
+- Confirm the HTML has working tabs (5 tabs total), filter bars, copy action, and the in-page xlsx download button.
 - Confirm the edit mode toggle works: contenteditable cells, action column (delete/restore), add-row, reset-all, and the header edit badge.
 - Confirm the downloaded xlsx is generated from current in-page data (including edits), opens as a styled workbook with header row formatting, column widths, and priority color fills.
 - Confirm deleted rows are excluded from download and copy; new rows are included.

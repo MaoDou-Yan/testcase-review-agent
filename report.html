@@ -1,0 +1,1626 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>测试用例评审报告 - 知识库问答模块</title>
+<style>
+    :root {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --line: #d9dee8;
+      --accent: #1769aa;
+      --accent-soft: #e8f2fb;
+      --warn: #b45309;
+      --good: #047857;
+      --p0: #ffc7ce;
+      --p1: #ffeb9c;
+      --p2: #ffffcc;
+      --edit-bg: #fffde7;
+      --edit-border: #f59e0b;
+      --new-row: #e8f5e9;
+      --del-row: #fdecea;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 24px 32px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; }
+    .sub { color: var(--muted); font-size: 13px; }
+    .edit-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: var(--edit-bg);
+      border: 1px solid var(--edit-border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: #92400e;
+      font-weight: 600;
+    }
+    .edit-badge.visible { display: flex; }
+    .edit-dot {
+      width: 8px; height: 8px;
+      background: var(--edit-border);
+      border-radius: 50%;
+      animation: blink 1.2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    main { padding: 20px 32px 36px; }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .toolbar-sep { width: 1px; height: 28px; background: var(--line); margin: 0 4px; }
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    button.secondary { background: #fff; color: var(--accent); }
+    button.danger { background: #fff; color: #b91c1c; border-color: #fca5a5; }
+    button.success { background: #fff; color: var(--good); border-color: #6ee7b7; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .tab {
+      background: #fff;
+      color: var(--text);
+      border-color: var(--line);
+    }
+    .tab.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+    section {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+    }
+    section.active { display: block; }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    .filter-bar label { font-size: 13px; color: var(--muted); }
+    .filter-bar select, .filter-bar input[type="text"] {
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 0 10px;
+      font-size: 13px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent); }
+    .filter-count { font-size: 12px; color: var(--muted); }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+      line-height: 1.45;
+    }
+    th {
+      background: #d6e4f0;
+      font-weight: 700;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      user-select: none;
+    }
+    /* action column header */
+    th.col-action { width: 64px; text-align: center; }
+    td.col-action { text-align: center; vertical-align: middle; padding: 4px; white-space: nowrap; }
+
+    tr:hover td:not(.col-action) { background: #f0f6fb; }
+    tr.row-new td { background: var(--new-row) !important; }
+    tr.row-deleted td { background: var(--del-row) !important; opacity: .6; text-decoration: line-through; }
+    tr.hidden { display: none; }
+
+    /* Editable cell */
+    td[contenteditable="true"] {
+      outline: none;
+      min-width: 60px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    td[contenteditable="true"]:focus {
+      background: var(--edit-bg) !important;
+      box-shadow: inset 0 0 0 2px var(--edit-border);
+      border-radius: 2px;
+    }
+    td[contenteditable="true"]:empty::before {
+      content: attr(data-placeholder);
+      color: #ccc;
+      font-style: italic;
+    }
+
+    /* Priority badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-p0 { background: var(--p0); color: #9b1c1c; }
+    .badge-p1 { background: var(--p1); color: #7c4a00; }
+    .badge-p2 { background: var(--p2); color: #6b5900; }
+    .badge-p3 { background: #e5e7eb; color: #374151; }
+
+    /* Row action buttons */
+    .btn-row {
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 3px 5px;
+      border-radius: 4px;
+      font-size: 15px;
+      height: auto;
+      line-height: 1;
+    }
+    .btn-row:hover { background: #f3f4f6; }
+    .btn-row.del { color: #ef4444; }
+    .btn-row.restore { color: var(--good); }
+
+    /* Metrics */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+    .metric strong { display: block; font-size: 26px; margin-top: 6px; color: var(--accent); }
+    .metric.good strong { color: var(--good); }
+    .metric.warn strong { color: var(--warn); }
+    .notice {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      color: #123;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #1f2937;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<header>
+<div>
+<h1>测试用例评审报告 - 知识库问答模块</h1>
+<div class="sub">基于ISO 25010质量模型的AI九方评审 | 包含需求抽取、原始用例、AI评审、优化用例、评审与覆盖度分析</div>
+</div>
+<div class="edit-badge" id="edit-badge"><span class="edit-dot"></span><span id="edit-badge-text">编辑中</span></div>
+</header>
+<main>
+<div class="toolbar">
+<button type="button" onclick="downloadXlsx()" id="btn-download">⬇ 下载Excel（含编辑）</button>
+<button type="button" class="secondary" onclick="copyOptimized()">复制数据</button>
+<span class="toolbar-sep"></span>
+<button type="button" class="secondary" onclick="toggleEdit()" id="btn-edit">✏ 开启编辑</button>
+<button type="button" class="success" onclick="addRow()" id="btn-add" disabled>＋ 新增行</button>
+<button type="button" class="danger" onclick="resetEdits()" id="btn-reset" disabled">↩ 撤销全部</button>
+</div>
+<nav class="tabs" aria-label="报告标签页">
+<button class="tab active" type="button" data-tab="requirements">需求抽取清单</button>
+<button class="tab" type="button" data-tab="raw">原始用例集</button>
+<button class="tab" type="button" data-tab="review">AI评审详情</button>
+<button class="tab" type="button" data-tab="optimized">优化后用例集</button>
+<button class="tab" type="button" data-tab="report">评审与覆盖度报告</button>
+</nav>
+<section id="requirements" class="active">
+<h3 style="margin:0 0 12px;font-size:16px;color:var(--text)">模块与功能点</h3><table><thead><tr><th>一级模块</th><th>二级模块</th><th>功能点</th><th>功能描述</th></tr></thead><tbody><tr><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>支持自然语言输入，限制500字，回车发送，发送按钮未输入时置灰</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>优先语义匹配上架知识词条，不受关键词顺序影响</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>关键词匹配</td><td>语义匹配无结果时触发关键词模糊匹配</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>匹配优先级</td><td>精准完全匹配 &gt; 高语义相似度匹配 &gt; 关键词匹配 &gt; 无结果兜底</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>重复问题过滤</td><td>用户重复发送相同问题直接返回历史最优答案</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>相似问题推荐</td><td>低匹配度答案时推送3-5条关联相似问题</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>答案渲染</td><td>匹配成功展示标准答案，支持文本、换行、简单格式</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>兜底回复</td><td>匹配失败展示兜底话术并收录未知问题</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>加载动画</td><td>提交后展示加载动画，最长3s</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎语</td></tr><tr><td>用户端问答</td><td>反馈与评价</td><td>有用/无用评价</td><td>每条答案下方展示有用(点赞)/无用(差评)按钮</td></tr><tr><td>用户端问答</td><td>反馈与评价</td><td>评价状态固化</td><td>用户评价后按钮状态固化不可重复评价</td></tr><tr><td>用户端问答</td><td>会话操作</td><td>清空会话</td><td>一键清空当前页面所有问答记录</td></tr><tr><td>用户端问答</td><td>会话操作</td><td>重新唤起历史问答</td><td>点击历史问题快速重新唤起对应问答内容</td></tr><tr><td>会话记录</td><td>历史记录</td><td>记录入口</td><td>问答页面顶部历史记录按钮</td></tr><tr><td>会话记录</td><td>历史记录</td><td>记录列表</td><td>按时间倒序展示提问时间、用户问题、简略答案</td></tr><tr><td>会话记录</td><td>历史记录</td><td>单条删除</td><td>单条记录删除按钮，二次确认，删除后不可恢复</td></tr><tr><td>会话记录</td><td>历史记录</td><td>空状态提示</td><td>无历史记录时展示暂无问答历史记录</td></tr><tr><td>会话记录</td><td>批量清空</td><td>批量清空</td><td>列表页批量清空按钮，二次确认，不可恢复</td></tr><tr><td>会话记录</td><td>数据隔离</td><td>账号隔离</td><td>不同账号历史记录相互独立互不干扰</td></tr><tr><td>词条管理</td><td>筛选搜索</td><td>多条件筛选</td><td>支持按问题关键词、词条分类、上架状态、创建时间筛选</td></tr><tr><td>词条管理</td><td>新增词条</td><td>标准问题</td><td>必填1-200字，不可重复</td></tr><tr><td>词条管理</td><td>新增词条</td><td>相似问题</td><td>非必填，多条以换行分隔</td></tr><tr><td>词条管理</td><td>新增词条</td><td>标准答案</td><td>必填1-2000字，支持常规文本换行</td></tr><tr><td>词条管理</td><td>新增词条</td><td>词条分类</td><td>必选，预设分类</td></tr><tr><td>词条管理</td><td>新增词条</td><td>状态</td><td>默认下架，手动切换上架/下架</td></tr><tr><td>词条管理</td><td>编辑词条</td><td>编辑已上架词条</td><td>编辑已上架词条保存后实时生效</td></tr><tr><td>词条管理</td><td>删除词条</td><td>删除确认</td><td>删除二次确认，已关联问答记录支持删除</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量选择</td><td>支持多选词条</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量上架</td><td>批量上架操作</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量下架</td><td>批量下架操作</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量删除</td><td>批量删除操作</td></tr><tr><td>未知问题</td><td>自动收录</td><td>自动收录</td><td>所有未匹配有效词条的用户问题自动收录</td></tr><tr><td>未知问题</td><td>去重统计</td><td>去重统计</td><td>相同未知问题自动合并统计累计提问次数</td></tr><tr><td>未知问题</td><td>处理功能</td><td>基于未知问题新建词条</td><td>支持基于未知问题直接新建知识词条</td></tr><tr><td>未知问题</td><td>处理功能</td><td>标记已解决</td><td>处理后标记为已解决</td></tr><tr><td>未知问题</td><td>数据清理</td><td>手动清理</td><td>支持手动清理无效无意义的未知问题数据</td></tr><tr><td>数据统计</td><td>基础数据</td><td>总提问量/有效提问量/无答案提问量/活跃用户数</td><td>统计核心基础运营数据</td></tr><tr><td>数据统计</td><td>质量数据</td><td>命中率/好评率/差评率</td><td>统计问答质量数据</td></tr><tr><td>数据统计</td><td>热度数据</td><td>高频问题TOP10</td><td>高频提问问题TOP10、高频未知问题TOP10</td></tr><tr><td>数据统计</td><td>时间趋势</td><td>日/周/月趋势</td><td>支持按日/周/月查看问答数据变化趋势</td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与集成系统</h3><table><thead><tr><th>源系统</th><th>目标系统</th><th>接口/触发</th><th>数据内容</th><th>幂等/重试</th></tr></thead><tbody><tr><td>用户端</td><td>语义匹配引擎</td><td>语义匹配请求</td><td>用户问题文本、用户ID、会话ID</td><td>幂等：重复问题返回历史答案</td></tr><tr><td>语义匹配引擎</td><td>知识库</td><td>词条检索请求</td><td>分词结果、语义向量</td><td>超时3s返回兜底</td></tr><tr><td>用户端</td><td>后台服务</td><td>评价提交</td><td>问答ID、评价类型(有用/无用)、用户ID</td><td>不可重复评价</td></tr><tr><td>用户端</td><td>后台服务</td><td>未知问题收录</td><td>问题文本、用户ID、提问时间</td><td>去重：相同问题合并</td></tr><tr><td>后台服务</td><td>统计服务</td><td>数据统计聚合</td><td>时间范围、统计维度</td><td>异步聚合</td></tr><tr><td>用户端</td><td>后台服务</td><td>会话记录CRUD</td><td>会话ID、用户ID、操作类型</td><td>数据隔离</td></tr><tr><td>后台服务</td><td>敏感词服务</td><td>内容过滤检查</td><td>待检查文本</td><td>实时拦截</td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">状态转换</h3><table><thead><tr><th>触发事件</th><th>源状态</th><th>目标状态</th><th>备注</th></tr></thead><tbody><tr><td>新增词条</td><td>—</td><td>下架</td><td>新增词条默认下架状态</td></tr><tr><td>手动上架</td><td>下架</td><td>上架</td><td>运营管理员手动切换</td></tr><tr><td>手动下架</td><td>上架</td><td>下架</td><td>运营管理员手动切换</td></tr><tr><td>用户提问</td><td>—</td><td>匹配中</td><td>用户提交问题后系统检索</td></tr><tr><td>匹配成功</td><td>匹配中</td><td>已回答</td><td>返回标准答案</td></tr><tr><td>匹配失败</td><td>匹配中</td><td>无答案</td><td>返回兜底话术并收录</td></tr><tr><td>用户评价</td><td>已回答</td><td>已评价</td><td>用户点击有用/无用</td></tr><tr><td>未知问题收录</td><td>—</td><td>待处理</td><td>未匹配问题自动收录</td></tr><tr><td>问题已解决</td><td>待处理</td><td>已处理</td><td>运营基于未知问题新建词条</td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">需求疑点/待确认项</h3><table><thead><tr><th>编号</th><th>疑点描述</th><th>影响范围</th><th>建议确认方</th><th>风险等级</th></tr></thead><tbody><tr><td>AMB-001</td><td>相似问题的语义相似度阈值未定义，匹配精度标准不明确</td><td>智能匹配准确性</td><td>产品/算法</td><td><span class="risk-high">高</span></td></tr><tr><td>AMB-002</td><td>每个词条可录入的相似问题数量上限未说明</td><td>词条管理容量</td><td>产品</td><td><span class="risk-low">低</span></td></tr><tr><td>AMB-003</td><td>用户已评价后是否可以修改评价未明确</td><td>评价数据准确性</td><td>产品</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-004</td><td>「历史最优答案」的判定标准不明确（最新/最高好评率/最近使用）</td><td>重复问题处理逻辑</td><td>产品/开发</td><td><span class="risk-high">高</span></td></tr><tr><td>AMB-005</td><td>知识库词条总量上限未说明</td><td>系统容量规划</td><td>产品/架构</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-006</td><td>敏感词库维护方式和更新机制未明确</td><td>内容安全有效性</td><td>产品/运营</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-007</td><td>批量操作的单次处理上限未定义</td><td>批量操作性能</td><td>产品/开发</td><td><span class="risk-low">低</span></td></tr><tr><td>AMB-008</td><td>高频提问限制的触发条件（同一问题/任意问题）未明确</td><td>限流策略准确性</td><td>产品/开发</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-009</td><td>统计数据的时间粒度和保留周期未明确</td><td>数据统计准确性</td><td>产品/运营</td><td><span class="risk-low">低</span></td></tr><tr><td>AMB-010</td><td>词条被删除后关联的历史问答记录如何展示未说明</td><td>数据完整性</td><td>产品/开发</td><td><span class="risk-high">高</span></td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与状态机专项覆盖</h3><table><thead><tr><th>覆盖项</th><th>有效转换</th><th>无效转换</th><th>重复事件</th><th>延迟回调</th><th>乱序事件</th></tr></thead><tbody><tr><td>语义匹配</td><td>精准匹配/高相似度匹配/关键词匹配</td><td>无匹配/超时</td><td>重复问题直接返回缓存答案</td><td>匹配引擎超时3s返回兜底</td><td>暂无场景</td></tr><tr><td>评价提交</td><td>首次评价成功</td><td>重复评价/无效评价</td><td>重复评价被系统拒绝</td><td>—</td><td>—</td></tr><tr><td>未知问题收录</td><td>新问题自动收录</td><td>—</td><td>相同问题去重合并</td><td>—</td><td>—</td></tr><tr><td>会话记录</td><td>新增/查看/删除</td><td>越权访问</td><td>—</td><td>—</td><td>—</td></tr><tr><td>内容过滤</td><td>正常内容通过</td><td>敏感词拦截</td><td>—</td><td>—</td><td>—</td></tr><tr><td>词条管理</td><td>新增/编辑/上下架/删除</td><td>并发编辑冲突</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
+</section>
+<section id="raw">
+<div class="filter-bar">
+<label>一级模块</label>
+<select id="raw-module-filter" onchange="filterTable('raw')"><option value="">全部</option></select>
+<label>优先级</label>
+<select id="raw-priority-filter" onchange="filterTable('raw')"><option value="">全部</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>
+<label>搜索</label>
+<input type="text" id="raw-search" placeholder="关键词..." oninput="filterTable('raw')">
+<span class="filter-count" id="raw-count"></span>
+</div>
+<table id="raw-table"><thead><tr>
+<th>用例编号</th><th>一级模块</th><th>二级模块</th><th>功能点</th><th>用例标题</th><th>前置条件</th><th>用例步骤</th><th>预期结果</th><th>用例优先级</th>
+</tr></thead><tbody>
+<tr><td>QA-Send-001</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>正常输入并发送问题</td><td>用户已登录且有问答权限</td><td>1. 在问答输入框输入问题「如何重置密码？」
+2. 点击发送按钮</td><td>1. 问题成功发送
+2. 输入框清空
+3. 用户问题以对话气泡样式展示在会话窗口</td><td>P0</td></tr>
+<tr><td>QA-Send-002</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入为空时发送按钮置灰</td><td>用户已登录</td><td>1. 不输入任何内容
+2. 观察发送按钮状态</td><td>1. 发送按钮为置灰状态
+2. 点击无响应</td><td>P2</td></tr>
+<tr><td>QA-Send-003</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入500字边界值发送</td><td>用户已登录</td><td>1. 在输入框输入恰好500字的问题
+2. 点击发送</td><td>1. 问题成功发送
+2. 内容完整展示</td><td>P1</td></tr>
+<tr><td>QA-Send-004</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入超过500字限制</td><td>用户已登录</td><td>1. 在输入框输入501字及以上内容
+2. 尝试发送</td><td>1. 系统截断或提示超出限制
+2. 不发送超出部分内容</td><td>P1</td></tr>
+<tr><td>QA-Send-005</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>支持多行文本输入和回车发送</td><td>用户已登录</td><td>1. 在输入框输入多行文本（Shift+Enter换行）
+2. 点击发送</td><td>1. 多行文本正确展示
+2. 换行格式保留</td><td>P2</td></tr>
+<tr><td>QA-Match-001</td><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配返回高度契合答案</td><td>知识库已有上架相关词条</td><td>1. 输入「忘记密码怎么处理」（语义近似「如何重置密码」）
+2. 发送问题</td><td>1. 系统返回「如何重置密码」对应的标准答案
+2. 加载时长≤800ms</td><td>P0</td></tr>
+<tr><td>QA-Match-002</td><td>用户端问答</td><td>智能匹配</td><td>关键词匹配</td><td>语义匹配无结果时触发关键词匹配</td><td>知识库有包含关键词的词条但语义相似度低</td><td>1. 输入包含关键词但语义偏差的问题
+2. 观察匹配结果</td><td>1. 系统触发关键词模糊匹配
+2. 返回包含关键词的关联词条答案</td><td>P0</td></tr>
+<tr><td>QA-Match-003</td><td>用户端问答</td><td>智能匹配</td><td>匹配优先级</td><td>匹配优先级验证：精准&gt;语义&gt;关键词&gt;兜底</td><td>知识库有精准匹配、语义近似、仅关键词匹配的多个词条</td><td>1. 输入一个同时命中多个层级的问题
+2. 观察返回结果</td><td>1. 优先返回精准完全匹配的答案
+2. 不返回低优先级匹配结果</td><td>P0</td></tr>
+<tr><td>QA-Match-004</td><td>用户端问答</td><td>智能匹配</td><td>相似问题推荐</td><td>低匹配度时推送3-5条相似问题</td><td>知识库有相关但匹配度不高的词条</td><td>1. 输入模糊问题
+2. 观察推荐区域</td><td>1. 答案区域展示匹配度最高的答案
+2. 底部推荐3-5条关联相似问题</td><td>P1</td></tr>
+<tr><td>QA-Match-005</td><td>用户端问答</td><td>智能匹配</td><td>重复问题过滤</td><td>重复发送相同问题返回历史答案</td><td>用户已发送过某问题且已收到回答</td><td>1. 再次发送完全相同的问题</td><td>1. 系统直接返回历史最优答案
+2. 不重复收录未知问题
+3. 响应速度快于首次</td><td>P1</td></tr>
+<tr><td>QA-Match-006</td><td>用户端问答</td><td>智能匹配</td><td>兜底回复</td><td>所有匹配方式无结果时返回兜底话术</td><td>知识库无任何关联词条</td><td>1. 输入完全无关的问题
+2. 发送</td><td>1. 展示兜底回复
+2. 同步推送热门相似问题
+3. 问题收录至未知问题列表</td><td>P0</td></tr>
+<tr><td>QA-Display-001</td><td>用户端问答</td><td>答案展示</td><td>答案渲染</td><td>匹配成功时正确展示标准答案</td><td>已匹配到有效答案</td><td>1. 观察答案展示区域</td><td>1. 展示标准答案内容
+2. 支持文本、换行、简单格式
+3. 底部展示评价按钮</td><td>P0</td></tr>
+<tr><td>QA-Display-002</td><td>用户端问答</td><td>答案展示</td><td>加载动画</td><td>问答检索加载动画展示</td><td>用户已提交问题</td><td>1. 提交问题后观察页面</td><td>1. 展示加载动画「正在为您检索答案中...」
+2. 加载时长最长3s
+3. 超时返回兜底话术</td><td>P0</td></tr>
+<tr><td>QA-Display-003</td><td>用户端问答</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎话术</td><td>用户首次进入问答页面</td><td>1. 进入知识库问答页面</td><td>1. 展示欢迎话术</td><td>P2</td></tr>
+<tr><td>QA-Display-004</td><td>用户端问答</td><td>答案展示</td><td>兜底回复</td><td>匹配失败时展示兜底回复和热门相似问题</td><td>知识库无匹配词条</td><td>1. 输入无匹配问题
+2. 发送</td><td>1. 展示兜底回复话术
+2. 推送热门相似问题
+3. 问题自动收录至未知问题</td><td>P0</td></tr>
+<tr><td>QA-Display-005</td><td>用户端问答</td><td>答案展示</td><td>加载超时</td><td>加载超过3秒时展示超时提示</td><td>语义匹配引擎响应慢</td><td>1. 模拟匹配引擎超时（&gt;3s）
+2. 观察页面响应</td><td>1. 3秒后返回兜底话术
+2. 提示「问答检索超时，请稍后重试」</td><td>P0</td></tr>
+<tr><td>QA-Feedback-001</td><td>用户端问答</td><td>反馈与评价</td><td>有用评价</td><td>点赞评价答案有用</td><td>已展示系统答案</td><td>1. 点击答案下方「有用（点赞）」按钮</td><td>1. 按钮变为已选中状态
+2. 评价数据同步上传后台
+3. 按钮不可再次点击</td><td>P0</td></tr>
+<tr><td>QA-Feedback-002</td><td>用户端问答</td><td>反馈与评价</td><td>无用评价</td><td>差评答案无用</td><td>已展示系统答案</td><td>1. 点击答案下方「无用（差评）」按钮</td><td>1. 按钮变为已选中状态
+2. 评价数据同步上传后台
+3. 按钮不可再次点击</td><td>P0</td></tr>
+<tr><td>QA-Feedback-003</td><td>用户端问答</td><td>反馈与评价</td><td>评价状态固化</td><td>评价后不可重复评价</td><td>用户已对某答案完成评价</td><td>1. 尝试再次点击评价按钮</td><td>1. 按钮状态固化无响应
+2. 不产生重复评价数据</td><td>P1</td></tr>
+<tr><td>QA-Session-001</td><td>用户端问答</td><td>会话操作</td><td>清空会话</td><td>一键清空当前页面所有问答记录</td><td>当前会话有多条问答记录</td><td>1. 点击清空会话按钮</td><td>1. 页面所有问答记录清空
+2. 恢复至默认欢迎话术状态</td><td>P1</td></tr>
+<tr><td>Session-History-001</td><td>会话记录</td><td>历史记录</td><td>记录入口</td><td>历史记录按钮可点击进入</td><td>用户已登录</td><td>1. 点击问答页面顶部「历史记录」按钮</td><td>1. 跳转至历史记录列表页</td><td>P0</td></tr>
+<tr><td>Session-History-002</td><td>会话记录</td><td>历史记录</td><td>记录列表</td><td>按时间倒序展示历史记录</td><td>用户有多条历史问答记录</td><td>1. 进入历史记录页面</td><td>1. 记录按时间倒序排列
+2. 每条展示提问时间、用户问题、简略答案</td><td>P0</td></tr>
+<tr><td>Session-History-003</td><td>会话记录</td><td>历史记录</td><td>单条删除</td><td>删除单条历史记录</td><td>历史记录列表非空</td><td>1. 点击某条记录的「删除」按钮
+2. 确认删除</td><td>1. 弹出二次确认弹窗
+2. 确认后记录从列表移除
+3. 后台同步删除
+4. 删除后不可恢复</td><td>P0</td></tr>
+<tr><td>Session-History-004</td><td>会话记录</td><td>历史记录</td><td>空状态</td><td>无历史记录时展示空状态提示</td><td>用户无任何历史问答</td><td>1. 进入历史记录页面</td><td>1. 展示「暂无问答历史记录」提示</td><td>P2</td></tr>
+<tr><td>Session-History-005</td><td>会话记录</td><td>历史记录</td><td>数据隔离</td><td>不同账号历史记录相互独立</td><td>两个不同用户账号各有问答记录</td><td>1. 用账号A登录查看历史记录
+2. 用账号B登录查看历史记录</td><td>1. 账号A只能看到自己的记录
+2. 账号B只能看到自己的记录
+3. 两账号记录互不干扰</td><td>P0</td></tr>
+<tr><td>Session-History-006</td><td>会话记录</td><td>历史记录</td><td>数据永久留存</td><td>会话记录永久留存不自动清除</td><td>用户有历史问答记录</td><td>1. 等待较长时间后查看历史记录</td><td>1. 所有历史记录仍在
+2. 不会自动清除</td><td>P1</td></tr>
+<tr><td>Session-History-007</td><td>会话记录</td><td>历史记录</td><td>重新唤起问答</td><td>点击历史问题快速唤起对应问答</td><td>存在历史问答记录</td><td>1. 点击某条历史问题</td><td>1. 快速重新唤起对应问答内容
+2. 展示原始问题和答案</td><td>P1</td></tr>
+<tr><td>Session-Clear-001</td><td>会话记录</td><td>批量清空</td><td>批量清空</td><td>批量清空所有历史记录</td><td>历史记录列表非空</td><td>1. 点击「批量清空」按钮
+2. 确认清空</td><td>1. 弹出二次确认弹窗
+2. 确认后所有记录清空
+3. 后台同步清除
+4. 不可恢复</td><td>P0</td></tr>
+<tr><td>Session-Clear-002</td><td>会话记录</td><td>批量清空</td><td>删除二次确认</td><td>删除/清空操作需二次确认</td><td>历史记录列表非空</td><td>1. 点击删除或清空按钮
+2. 观察确认弹窗</td><td>1. 弹出确认弹窗
+2. 取消则不执行删除
+3. 确认后执行删除</td><td>P1</td></tr>
+<tr><td>KB-Filter-001</td><td>词条管理</td><td>筛选搜索</td><td>多条件筛选</td><td>按关键词、分类、状态、时间筛选</td><td>后台有多个词条数据</td><td>1. 使用问题关键词筛选
+2. 使用词条分类筛选
+3. 使用上架状态筛选
+4. 使用创建时间筛选</td><td>1. 各筛选条件独立生效
+2. 多条件组合筛选结果正确
+3. 列表实时更新</td><td>P0</td></tr>
+<tr><td>KB-Add-001</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-必填</td><td>标准问题为必填字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准问题
+2. 点击保存</td><td>1. 提示标准问题为必填项
+2. 保存失败</td><td>P0</td></tr>
+<tr><td>KB-Add-002</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-字数</td><td>标准问题限制1-200字</td><td>运营管理员已打开新增弹窗</td><td>1. 输入超过200字的标准问题
+2. 点击保存</td><td>1. 提示超出字数限制
+2. 保存失败</td><td>P1</td></tr>
+<tr><td>KB-Add-003</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-重复</td><td>标准问题不可重复</td><td>已存在某标准问题的词条</td><td>1. 输入已存在的标准问题
+2. 点击保存</td><td>1. 提示「该标准问题已存在」
+2. 保存失败</td><td>P0</td></tr>
+<tr><td>KB-Add-004</td><td>词条管理</td><td>新增词条</td><td>相似问题录入</td><td>支持多条相似问题以换行分隔</td><td>运营管理员已打开新增弹窗</td><td>1. 在相似问题字段输入多条问题（换行分隔）
+2. 保存词条</td><td>1. 多条相似问题正确保存
+2. 拓宽语义匹配范围</td><td>P1</td></tr>
+<tr><td>KB-Add-005</td><td>词条管理</td><td>新增词条</td><td>标准答案校验</td><td>标准答案为必填且限制1-2000字</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准答案点击保存
+2. 输入超过2000字的答案点击保存</td><td>1. 必填校验提示
+2. 超出字数提示
+3. 保存失败</td><td>P0</td></tr>
+<tr><td>KB-Add-006</td><td>词条管理</td><td>新增词条</td><td>词条分类必选</td><td>词条分类为必选字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不选择词条分类
+2. 点击保存</td><td>1. 提示词条分类为必选项
+2. 保存失败</td><td>P1</td></tr>
+<tr><td>KB-Add-007</td><td>词条管理</td><td>新增词条</td><td>默认下架状态</td><td>新增词条默认为下架状态</td><td>运营管理员已打开新增弹窗</td><td>1. 填写完整信息
+2. 保存新增词条</td><td>1. 新增词条状态为「下架」
+2. 不参与用户问答匹配</td><td>P0</td></tr>
+<tr><td>KB-Edit-001</td><td>词条管理</td><td>编辑词条</td><td>编辑上架词条实时生效</td><td>编辑已上架词条保存后实时生效</td><td>存在已上架词条</td><td>1. 编辑已上架词条的内容
+2. 保存修改</td><td>1. 修改保存成功
+2. 无需重新审核
+3. 用户端问答实时生效</td><td>P0</td></tr>
+<tr><td>KB-Delete-001</td><td>词条管理</td><td>删除词条</td><td>删除二次确认</td><td>删除词条需二次确认</td><td>存在可删除词条</td><td>1. 点击删除按钮
+2. 观察确认弹窗</td><td>1. 弹出二次确认弹窗
+2. 取消则不删除
+3. 确认后词条删除</td><td>P0</td></tr>
+<tr><td>KB-Delete-002</td><td>词条管理</td><td>删除词条</td><td>已关联词条支持删除</td><td>已关联用户问答记录的词条支持删除</td><td>存在已关联问答记录的词条</td><td>1. 删除已关联问答记录的词条
+2. 确认删除</td><td>1. 删除成功
+2. 词条不再参与新问答匹配
+3. 历史问答记录保留</td><td>P0</td></tr>
+<tr><td>KB-Delete-003</td><td>词条管理</td><td>删除词条</td><td>删除后数据清理</td><td>删除词条后不再参与匹配</td><td>已删除某词条</td><td>1. 用户输入与已删除词条匹配的问题
+2. 观察匹配结果</td><td>1. 已删除词条不参与匹配
+2. 可能匹配其他词条或返回兜底</td><td>P1</td></tr>
+<tr><td>KB-Batch-001</td><td>词条管理</td><td>批量操作</td><td>批量选择</td><td>支持多选词条进行批量操作</td><td>词条列表有多个词条</td><td>1. 勾选多个词条复选框</td><td>1. 多个词条被选中
+2. 批量操作按钮激活</td><td>P0</td></tr>
+<tr><td>KB-Batch-002</td><td>词条管理</td><td>批量操作</td><td>批量上架</td><td>批量上架选中的下架词条</td><td>已选中多个下架词条</td><td>1. 点击「批量上架」按钮
+2. 确认操作</td><td>1. 选中词条状态变为「上架」
+2. 可被用户检索匹配</td><td>P0</td></tr>
+<tr><td>KB-Batch-003</td><td>词条管理</td><td>批量操作</td><td>批量下架</td><td>批量下架选中的上架词条</td><td>已选中多个上架词条</td><td>1. 点击「批量下架」按钮
+2. 确认操作</td><td>1. 选中词条状态变为「下架」
+2. 不再参与用户问答匹配</td><td>P0</td></tr>
+<tr><td>KB-Batch-004</td><td>词条管理</td><td>批量操作</td><td>批量删除</td><td>批量删除选中的词条</td><td>已选中多个词条</td><td>1. 点击「批量删除」按钮
+2. 确认操作</td><td>1. 弹出二次确认
+2. 确认后选中词条全部删除</td><td>P0</td></tr>
+<tr><td>Unknown-Collect-001</td><td>未知问题</td><td>自动收录</td><td>自动收录</td><td>未匹配问题自动收录至后台</td><td>用户提问未匹配到有效词条</td><td>1. 用户发送未匹配问题
+2. 后台查看未知问题列表</td><td>1. 问题自动收录至未知问题列表
+2. 记录提问时间、提问用户、提问次数</td><td>P0</td></tr>
+<tr><td>Unknown-Dedup-001</td><td>未知问题</td><td>去重统计</td><td>去重统计</td><td>相同未知问题自动合并统计</td><td>多个用户发送相同未匹配问题</td><td>1. 多个用户发送相同的未匹配问题
+2. 查看未知问题列表</td><td>1. 相同问题自动合并为一条
+2. 累计提问次数正确统计</td><td>P0</td></tr>
+<tr><td>Unknown-Process-001</td><td>未知问题</td><td>处理功能</td><td>基于未知问题新建词条</td><td>支持基于未知问题直接新建词条</td><td>未知问题列表有待处理问题</td><td>1. 选择某未知问题
+2. 点击新建词条
+3. 填写答案并保存</td><td>1. 成功新建知识词条
+2. 词条关联原始未知问题
+3. 未知问题标记为「已解决」</td><td>P0</td></tr>
+<tr><td>Unknown-Process-002</td><td>未知问题</td><td>处理功能</td><td>标记已解决</td><td>处理后标记为已解决</td><td>未知问题列表有待处理问题</td><td>1. 处理某未知问题
+2. 观察状态变化</td><td>1. 未知问题状态变为「已解决」
+2. 不再出现在待处理列表</td><td>P1</td></tr>
+<tr><td>Unknown-Clean-001</td><td>未知问题</td><td>数据清理</td><td>手动清理</td><td>支持手动清理无效未知问题</td><td>未知问题列表有无效数据</td><td>1. 选择无效/无意义的未知问题
+2. 点击清理/删除</td><td>1. 无效数据被清除
+2. 不影响有效未知问题</td><td>P1</td></tr>
+<tr><td>Stats-Basic-001</td><td>数据统计</td><td>基础数据</td><td>总提问量</td><td>总提问量统计正确</td><td>系统有一定量的问答数据</td><td>1. 进入数据统计页面
+2. 查看总提问量</td><td>1. 总提问量数字准确
+2. 包含所有用户的历史提问总量</td><td>P0</td></tr>
+<tr><td>Stats-Basic-002</td><td>数据统计</td><td>基础数据</td><td>有效提问量</td><td>有效提问量统计正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看有效提问量指标</td><td>1. 仅统计匹配到有效答案的提问量</td><td>P1</td></tr>
+<tr><td>Stats-Basic-003</td><td>数据统计</td><td>基础数据</td><td>无答案提问量</td><td>无答案提问量统计正确</td><td>系统有未匹配的问答</td><td>1. 查看无答案提问量指标</td><td>1. 统计未匹配到答案的提问量
+2. 与未知问题收录数一致</td><td>P1</td></tr>
+<tr><td>Stats-Basic-004</td><td>数据统计</td><td>基础数据</td><td>活跃用户数</td><td>活跃用户数统计正确</td><td>有多个用户使用问答功能</td><td>1. 查看活跃用户数</td><td>1. 活跃用户数准确
+2. 统计口径明确</td><td>P1</td></tr>
+<tr><td>Stats-Quality-001</td><td>数据统计</td><td>质量数据</td><td>问题命中率</td><td>问题命中率计算正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看问题命中率</td><td>1. 命中率 = 匹配成功数 / 总提问数 x 100%
+2. 数值准确</td><td>P0</td></tr>
+<tr><td>Stats-Quality-002</td><td>数据统计</td><td>质量数据</td><td>答案好评率</td><td>答案好评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案好评率</td><td>1. 好评率 = 有用评价数 / 总评价数 x 100%
+2. 数值准确</td><td>P1</td></tr>
+<tr><td>Stats-Quality-003</td><td>数据统计</td><td>质量数据</td><td>答案差评率</td><td>答案差评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案差评率</td><td>1. 差评率 = 无用评价数 / 总评价数 x 100%
+2. 与好评率之和 = 100%</td><td>P1</td></tr>
+<tr><td>Stats-Hot-001</td><td>数据统计</td><td>热度数据</td><td>高频提问TOP10</td><td>高频提问问题TOP10展示正确</td><td>有一定量的问答数据</td><td>1. 查看高频提问问题TOP10</td><td>1. 展示提问频次最高的10个问题
+2. 排序正确
+3. 频次准确</td><td>P1</td></tr>
+<tr><td>Stats-Hot-002</td><td>数据统计</td><td>热度数据</td><td>高频未知TOP10</td><td>高频未知问题TOP10展示正确</td><td>有一定量的未知问题数据</td><td>1. 查看高频未知问题TOP10</td><td>1. 展示被提问最多的10个未知问题
+2. 排序正确</td><td>P1</td></tr>
+<tr><td>Stats-Trend-001</td><td>数据统计</td><td>时间趋势</td><td>日趋势</td><td>支持按日查看问答数据趋势</td><td>有连续多天的问答数据</td><td>1. 选择按日查看数据趋势</td><td>1. 展示每日问答量变化趋势
+2. 数据准确</td><td>P1</td></tr>
+<tr><td>Stats-Trend-002</td><td>数据统计</td><td>时间趋势</td><td>周趋势</td><td>支持按周查看问答数据趋势</td><td>有多周的问答数据</td><td>1. 选择按周查看数据趋势</td><td>1. 展示每周问答量变化趋势</td><td>P2</td></tr>
+<tr><td>Stats-Trend-003</td><td>数据统计</td><td>时间趋势</td><td>月趋势</td><td>支持按月查看问答数据趋势</td><td>有多月的问答数据</td><td>1. 选择按月查看数据趋势</td><td>1. 展示每月问答量变化趋势</td><td>P2</td></tr>
+<tr><td>Perm-001</td><td>权限设计</td><td>普通用户</td><td>在线提问</td><td>普通用户可正常提问和评价</td><td>普通用户已登录</td><td>1. 普通用户输入问题并发送
+2. 对答案进行评价
+3. 查看个人会话记录</td><td>1. 提问功能正常
+2. 评价功能正常
+3. 仅能查看个人会话</td><td>P0</td></tr>
+<tr><td>Perm-002</td><td>权限设计</td><td>普通用户</td><td>无后台权限</td><td>普通用户无法访问后台管理</td><td>普通用户已登录</td><td>1. 尝试访问知识库词条管理
+2. 尝试查看未知问题
+3. 尝试查看数据统计</td><td>1. 无法进入后台管理页面
+2. 提示无权限</td><td>P0</td></tr>
+<tr><td>Perm-003</td><td>权限设计</td><td>运营管理员</td><td>后台管理权限</td><td>运营管理员可管理知识库和查看数据</td><td>运营管理员已登录</td><td>1. 新增/编辑/上下架/删除词条
+2. 处理未知问题
+3. 查看问答数据</td><td>1. 知识库管理功能正常
+2. 未知问题处理正常
+3. 数据统计可查看</td><td>P0</td></tr>
+<tr><td>Perm-004</td><td>权限设计</td><td>运营管理员</td><td>无系统配置权限</td><td>运营管理员无权限配置和全量清理</td><td>运营管理员已登录</td><td>1. 尝试进行权限配置
+2. 尝试全量数据清理</td><td>1. 无法访问系统配置
+2. 提示无权限</td><td>P1</td></tr>
+<tr><td>Perm-005</td><td>权限设计</td><td>超级管理员</td><td>全权限</td><td>超级管理员拥有所有功能权限</td><td>超级管理员已登录</td><td>1. 执行所有功能操作
+2. 进行权限配置
+3. 全量数据清理
+4. 系统参数设置</td><td>1. 所有功能正常可用
+2. 权限配置生效
+3. 系统参数设置生效</td><td>P0</td></tr>
+<tr><td>Exc-Net-001</td><td>异常场景</td><td>网络异常</td><td>网络中断处理</td><td>网络中断时终止请求并提示</td><td>用户正在提问过程中</td><td>1. 模拟网络中断
+2. 用户发送问题</td><td>1. 终止问答请求
+2. 提示「网络异常，请检查网络后重新提问」
+3. 保留已输入的问题内容</td><td>P0</td></tr>
+<tr><td>Exc-Auth-001</td><td>异常场景</td><td>权限异常</td><td>登录过期处理</td><td>登录过期时禁止提问并跳转</td><td>用户登录已过期</td><td>1. 用户尝试提问</td><td>1. 弹窗提示「暂无问答权限或登录已过期，请重新登录」
+2. 自动跳转登录页面</td><td>P0</td></tr>
+<tr><td>Exc-Content-001</td><td>异常场景</td><td>内容违规</td><td>敏感词拦截</td><td>输入敏感/违规内容时拦截提问</td><td>系统敏感词库已配置</td><td>1. 输入包含敏感词的问题
+2. 发送</td><td>1. 系统自动拦截提问
+2. 提示「输入内容包含违规信息，请重新输入」
+3. 不收录该问题</td><td>P0</td></tr>
+<tr><td>Exc-Timeout-001</td><td>异常场景</td><td>系统超时</td><td>问答检索超时</td><td>检索超时返回兜底话术</td><td>语义匹配引擎响应超过3s</td><td>1. 模拟检索超时
+2. 观察系统响应</td><td>1. 返回兜底话术
+2. 提示「问答检索超时，请稍后重试」</td><td>P0</td></tr>
+<tr><td>Exc-Data-001</td><td>异常场景</td><td>数据异常</td><td>知识库数据异常</td><td>知识库数据损坏时展示兜底内容</td><td>知识库词条数据损坏</td><td>1. 模拟知识库数据加载失败
+2. 用户提问</td><td>1. 用户端展示无答案兜底内容
+2. 后台记录异常日志
+3. 不暴露系统错误</td><td>P0</td></tr>
+<tr><td>Exc-Limit-001</td><td>异常场景</td><td>限流</td><td>高频提问限制</td><td>1分钟内高频重复提问触发限流</td><td>用户已登录</td><td>1. 在1分钟内连续高频提问超过限制次数</td><td>1. 触发限流机制
+2. 提示「提问过于频繁，请稍后再试」
+3. 防止恶意刷量</td><td>P0</td></tr>
+<tr><td>Perf-001</td><td>非功能需求</td><td>性能</td><td>页面加载</td><td>问答首页首次加载≤1.5s</td><td>网络正常</td><td>1. 首次打开问答页面
+2. 计算页面加载时间</td><td>1. 首次加载时间≤1.5s
+2. 页面完整渲染</td><td>P0</td></tr>
+<tr><td>Perf-002</td><td>非功能需求</td><td>性能</td><td>问答响应</td><td>常规问题语义匹配≤800ms</td><td>知识库正常</td><td>1. 输入常规问题并发送
+2. 计算响应时间</td><td>1. 语义匹配响应≤800ms
+2. 复杂长文本问题响应≤2s</td><td>P0</td></tr>
+<tr><td>Perf-003</td><td>非功能需求</td><td>性能</td><td>并发能力</td><td>支持≥200人同时在线提问</td><td>测试环境准备200并发用户</td><td>1. 200用户同时在线提问
+2. 持续操作一段时间</td><td>1. 无卡顿
+2. 无问答数据错乱
+3. 无请求堆积</td><td>P0</td></tr>
+<tr><td>Perf-004</td><td>非功能需求</td><td>性能</td><td>后台加载</td><td>后台列表和统计加载≤1.5s</td><td>后台有大量数据</td><td>1. 打开知识库列表页
+2. 打开数据统计页</td><td>1. 列表加载≤1.5s
+2. 统计数据加载≤1.5s</td><td>P1</td></tr>
+<tr><td>Compat-001</td><td>非功能需求</td><td>兼容性</td><td>PC浏览器兼容</td><td>兼容Chrome/Edge/Firefox最新版</td><td>—</td><td>1. 分别在Chrome、Edge、Firefox最新版打开问答功能</td><td>1. 各浏览器功能正常
+2. 样式无错位
+3. 交互无异常</td><td>P1</td></tr>
+<tr><td>Compat-002</td><td>非功能需求</td><td>兼容性</td><td>移动端适配</td><td>适配iOS/Android主流机型</td><td>—</td><td>1. 在手机和平板上打开问答功能
+2. 测试各尺寸屏幕</td><td>1. 会话展示无错位
+2. 内容无遮挡
+3. 功能与PC端一致</td><td>P1</td></tr>
+<tr><td>Security-001</td><td>非功能需求</td><td>安全</td><td>敏感词库</td><td>内置敏感词库自动拦截违规内容</td><td>敏感词库已配置</td><td>1. 输入各类敏感词测试
+2. 包含违禁词、敏感词、违规信息</td><td>1. 所有敏感词被拦截
+2. 不展示违规内容
+3. 词条内容也受敏感词管控</td><td>P0</td></tr>
+<tr><td>Security-002</td><td>非功能需求</td><td>安全</td><td>数据隔离</td><td>问答数据仅本人及超级管理员可查看</td><td>多个用户的问答数据</td><td>1. 用户A尝试查看用户B的问答数据
+2. 超级管理员查看所有数据</td><td>1. 用户A无法查看用户B数据
+2. 超级管理员可查看全量数据
+3. 严格数据隔离</td><td>P0</td></tr>
+<tr><td>Security-003</td><td>非功能需求</td><td>安全</td><td>操作日志</td><td>所有后台操作留存日志可追溯</td><td>运营管理员执行操作</td><td>1. 执行词条新增/编辑/删除等操作
+2. 查看后台日志</td><td>1. 日志记录操作人
+2. 记录操作时间
+3. 记录操作IP
+4. 记录操作内容</td><td>P0</td></tr>
+<tr><td>Maint-001</td><td>非功能需求</td><td>可维护性</td><td>动态配置</td><td>支持后台动态配置敏感词和话术</td><td>超级管理员已登录</td><td>1. 修改敏感词配置
+2. 修改兜底话术
+3. 修改限流次数</td><td>1. 配置修改后即时生效
+2. 无需修改代码
+3. 无需重启服务</td><td>P1</td></tr>
+<tr><td>Maint-002</td><td>非功能需求</td><td>可维护性</td><td>批量导入导出</td><td>知识库词条支持批量导入导出</td><td>运营管理员已登录</td><td>1. 批量导入词条
+2. 批量导出词条</td><td>1. 导入成功且数据正确
+2. 导出文件格式正确
+3. 便于大规模维护迁移</td><td>P1</td></tr>
+<tr><td>Maint-003</td><td>非功能需求</td><td>可维护性</td><td>异常日志</td><td>异常问答和超时请求自动记录日志</td><td>系统产生异常请求</td><td>1. 触发超时、异常等场景
+2. 查看后台日志</td><td>1. 异常请求自动记录日志
+2. 日志包含足够排查信息
+3. 支持后台查询</td><td>P1</td></tr>
+<tr><td>Supp-001</td><td>用户端问答</td><td>输入与发送</td><td>多行文本输入</td><td>多行文本格式在答案中正确展示</td><td>用户发送含换行的问题</td><td>1. 输入含多行文本的问题并发送
+2. 观察答案展示</td><td>1. 问题和答案中的换行格式正确保留
+2. 不出现格式错乱</td><td>P2</td></tr>
+<tr><td>Supp-002</td><td>用户端问答</td><td>会话操作</td><td>清空会话恢复默认</td><td>清空后页面恢复默认欢迎话术</td><td>当前有问答记录</td><td>1. 点击清空会话
+2. 观察页面状态</td><td>1. 所有问答记录清除
+2. 恢复默认欢迎话术
+3. 输入框清空</td><td>P1</td></tr>
+<tr><td>Supp-003</td><td>用户端问答</td><td>答案展示</td><td>热门相似问题</td><td>兜底回复时展示热门相似问题</td><td>无匹配答案</td><td>1. 发送无匹配问题
+2. 观察兜底回复区域</td><td>1. 展示兜底话术
+2. 底部展示热门相似问题列表
+3. 点击可快速提问</td><td>P1</td></tr>
+<tr><td>Supp-004</td><td>会话记录</td><td>历史记录</td><td>记录永久留存</td><td>用户手动删除前不可自动清除</td><td>用户有历史记录</td><td>1. 等待较长时间
+2. 检查记录是否仍存在</td><td>1. 记录未被自动清除
+2. 仅用户手动删除才移除</td><td>P1</td></tr>
+<tr><td>Supp-005</td><td>权限设计</td><td>全角色</td><td>会话查看</td><td>所有角色可查看个人会话</td><td>各角色已登录</td><td>1. 普通用户查看个人会话
+2. 运营管理员查看个人会话
+3. 超级管理员查看个人会话</td><td>1. 各角色均可查看个人会话记录
+2. 功能一致</td><td>P2</td></tr>
+</tbody></table>
+</section>
+<section id="review">
+<div class="filter-bar">
+<label>评审角色</label>
+<select id="review-role-filter" onchange="filterTable('review')"><option value="">全部</option><option>Arch</option><option>Dev</option><option>QA</option><option>PM</option><option>UX</option><option>Sec</option><option>Ops</option><option>Perf</option><option>DBA</option></select>
+<label>缺陷类型</label>
+<select id="review-defect-filter" onchange="filterTable('review')"><option value="">全部</option></select>
+<label>搜索</label>
+<input type="text" id="review-search" placeholder="关键词..." oninput="filterTable('review')">
+<span class="filter-count" id="review-count"></span>
+</div>
+<table id="review-table"><thead><tr>
+<th>用例编号</th><th>评审角色</th><th>评审意见/建议</th><th>缺陷类型</th>
+</tr></thead><tbody>
+<tr><td>QA-Display-002</td><td>Arch</td><td>未定义加载状态下的模块解耦策略，建议将加载组件独立封装，便于复用和维护</td><td>架构腐化风险</td></tr>
+<tr><td>QA-Match-001</td><td>Dev</td><td>语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景</td><td>逻辑遗漏</td></tr>
+<tr><td>QA-Display-005</td><td>Dev</td><td>超时处理与兜底回复的关系不明确，3s超时后是返回通用兜底还是超时专用话术</td><td>逻辑遗漏</td></tr>
+<tr><td>QA-Send-003</td><td>Dev</td><td>500字边界值测试未覆盖多字节字符（如emoji），建议补充</td><td>边界遗漏</td></tr>
+<tr><td>KB-Batch-001</td><td>Dev</td><td>批量操作未测试跨页选择等边界场景</td><td>边界遗漏</td></tr>
+<tr><td>KB-Edit-001</td><td>Dev</td><td>编辑词条未覆盖编辑历史记录和并发编辑冲突场景</td><td>逻辑遗漏</td></tr>
+<tr><td>QA-Match-005</td><td>QA</td><td>「历史最优答案」定义不明确，未定义评判标准</td><td>场景遗漏</td></tr>
+<tr><td>Session-History-003</td><td>QA</td><td>删除记录场景未覆盖删除正在展示中的会话</td><td>场景遗漏</td></tr>
+<tr><td>QA-Match-006</td><td>QA</td><td>兜底回复仅检查文案，未验证问题是否真正被收录到未知问题列表</td><td>可验证性不足</td></tr>
+<tr><td>Exc-Limit-001</td><td>QA</td><td>限流场景未明确限制次数的具体数值和重置时间</td><td>可验证性不足</td></tr>
+<tr><td>QA-Display-004</td><td>QA</td><td>匹配失败场景未覆盖部分匹配的情况</td><td>场景遗漏</td></tr>
+<tr><td>KB-Add-007</td><td>PM</td><td>新增词条默认下架的业务必要性未说明，是否需要快速上架通道</td><td>优先级不准</td></tr>
+<tr><td>QA-Match-004</td><td>PM</td><td>相似问题推荐3-5条的数量范围是否为固定值还是动态值</td><td>表述不清</td></tr>
+<tr><td>AMB-004</td><td>PM</td><td>「历史最优答案」概念在多处使用但未给出明确定义</td><td>表述不清</td></tr>
+<tr><td>QA-Display-001</td><td>UX</td><td>答案展示仅提到支持文本和换行，未说明富文本、链接等格式的展示规则</td><td>交互不符</td></tr>
+<tr><td>QA-Feedback-001</td><td>UX</td><td>评价按钮状态变化的视觉反馈不明确</td><td>交互不符</td></tr>
+<tr><td>QA-Display-003</td><td>UX</td><td>欢迎话术缺少个性化能力</td><td>易用性缺陷</td></tr>
+<tr><td>Session-History-002</td><td>UX</td><td>历史记录列表未定义排序切换能力</td><td>易用性缺陷</td></tr>
+<tr><td>QA-Send-001</td><td>Sec</td><td>用户输入内容未说明XSS/注入防护措施</td><td>安全漏洞</td></tr>
+<tr><td>KB-Add-005</td><td>Sec</td><td>标准答案字段支持换行和格式，需验证是否存在存储型XSS风险</td><td>安全漏洞</td></tr>
+<tr><td>KB-Edit-001</td><td>Sec</td><td>编辑已上架词条即时生效，缺少审核机制，存在恶意篡改风险</td><td>安全漏洞</td></tr>
+<tr><td>Exc-Auth-001</td><td>Sec</td><td>身份令牌校验机制未说明具体实现</td><td>安全漏洞</td></tr>
+<tr><td>QA-Send-001</td><td>Ops</td><td>问答请求链路涉及多个服务，缺少各环节的监控告警指标定义</td><td>运维盲区</td></tr>
+<tr><td>QA-Display-005</td><td>Ops</td><td>超时处理后的降级策略不明确</td><td>运维盲区</td></tr>
+<tr><td>Exc-Data-001</td><td>Ops</td><td>知识库数据损坏的检测机制和自动恢复策略未定义</td><td>运维盲区</td></tr>
+<tr><td>Perf-003</td><td>Perf</td><td>200并发测试未说明持续时长和压力递增策略</td><td>性能风险</td></tr>
+<tr><td>Perf-002</td><td>Perf</td><td>800ms响应时间要求未考虑网络延迟等额外开销</td><td>性能风险</td></tr>
+<tr><td>Stats-Basic-001</td><td>Perf</td><td>统计数据查询在大数据量下可能有性能问题</td><td>场景遗漏</td></tr>
+<tr><td>Unknown-Dedup-001</td><td>DBA</td><td>未知问题去重逻辑依赖文本完全匹配还是模糊匹配未说明</td><td>数据完整性风险</td></tr>
+<tr><td>Unknown-Process-001</td><td>DBA</td><td>基于未知问题新建词条时事务完整性未说明</td><td>数据一致性风险</td></tr>
+</tbody></table>
+</section>
+<section id="optimized">
+<div class="filter-bar">
+<label>一级模块</label>
+<select id="optimized-module-filter" onchange="filterTable('optimized')"><option value="">全部</option></select>
+<label>优先级</label>
+<select id="optimized-priority-filter" onchange="filterTable('optimized')"><option value="">全部</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>
+<label>搜索</label>
+<input type="text" id="optimized-search" placeholder="关键词..." oninput="filterTable('optimized')">
+<span class="filter-count" id="optimized-count"></span>
+</div>
+<table id="optimized-table"><thead><tr>
+<th>用例编号</th><th>一级模块</th><th>二级模块</th><th>功能点</th><th>用例标题</th><th>前置条件</th><th>用例步骤</th><th>预期结果</th><th>用例优先级</th><th>优化记录</th>
+</tr></thead><tbody>
+<tr><td>QA-Send-001</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>正常输入并发送问题</td><td>用户已登录且有问答权限</td><td>1. 在问答输入框输入问题「如何重置密码？」
+2. 点击发送按钮</td><td>1. 问题成功发送
+2. 输入框清空
+3. 用户问题以对话气泡样式展示在会话窗口</td><td>P0</td><td>已优化：根据Ops、Sec评审意见补充完善</td></tr>
+<tr><td>QA-Send-002</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入为空时发送按钮置灰</td><td>用户已登录</td><td>1. 不输入任何内容
+2. 观察发送按钮状态</td><td>1. 发送按钮为置灰状态
+2. 点击无响应</td><td>P2</td><td>无</td></tr>
+<tr><td>QA-Send-003</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入500字边界值发送</td><td>用户已登录</td><td>1. 在输入框输入恰好500字的问题
+2. 点击发送</td><td>1. 问题成功发送
+2. 内容完整展示</td><td>P1</td><td>已优化：根据Dev评审意见补充完善</td></tr>
+<tr><td>QA-Send-004</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入超过500字限制</td><td>用户已登录</td><td>1. 在输入框输入501字及以上内容
+2. 尝试发送</td><td>1. 系统截断或提示超出限制
+2. 不发送超出部分内容</td><td>P1</td><td>无</td></tr>
+<tr><td>QA-Send-005</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>支持多行文本输入和回车发送</td><td>用户已登录</td><td>1. 在输入框输入多行文本（Shift+Enter换行）
+2. 点击发送</td><td>1. 多行文本正确展示
+2. 换行格式保留</td><td>P2</td><td>无</td></tr>
+<tr><td>QA-Match-001</td><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配返回高度契合答案</td><td>知识库已有上架相关词条</td><td>1. 输入「忘记密码怎么处理」（语义近似「如何重置密码」）
+2. 发送问题</td><td>1. 系统返回「如何重置密码」对应的标准答案
+2. 加载时长≤800ms</td><td>P0</td><td>已优化：根据Dev评审意见补充完善</td></tr>
+<tr><td>QA-Match-002</td><td>用户端问答</td><td>智能匹配</td><td>关键词匹配</td><td>语义匹配无结果时触发关键词匹配</td><td>知识库有包含关键词的词条但语义相似度低</td><td>1. 输入包含关键词但语义偏差的问题
+2. 观察匹配结果</td><td>1. 系统触发关键词模糊匹配
+2. 返回包含关键词的关联词条答案</td><td>P0</td><td>无</td></tr>
+<tr><td>QA-Match-003</td><td>用户端问答</td><td>智能匹配</td><td>匹配优先级</td><td>匹配优先级验证：精准&gt;语义&gt;关键词&gt;兜底</td><td>知识库有精准匹配、语义近似、仅关键词匹配的多个词条</td><td>1. 输入一个同时命中多个层级的问题
+2. 观察返回结果</td><td>1. 优先返回精准完全匹配的答案
+2. 不返回低优先级匹配结果</td><td>P0</td><td>无</td></tr>
+<tr><td>QA-Match-004</td><td>用户端问答</td><td>智能匹配</td><td>相似问题推荐</td><td>低匹配度时推送3-5条相似问题</td><td>知识库有相关但匹配度不高的词条</td><td>1. 输入模糊问题
+2. 观察推荐区域</td><td>1. 答案区域展示匹配度最高的答案
+2. 底部推荐3-5条关联相似问题</td><td>P1</td><td>已优化：根据PM评审意见补充完善</td></tr>
+<tr><td>QA-Match-005</td><td>用户端问答</td><td>智能匹配</td><td>重复问题过滤</td><td>重复发送相同问题返回历史答案</td><td>用户已发送过某问题且已收到回答</td><td>1. 再次发送完全相同的问题</td><td>1. 系统直接返回历史最优答案
+2. 不重复收录未知问题
+3. 响应速度快于首次</td><td>P1</td><td>已优化：根据QA评审意见补充完善</td></tr>
+<tr><td>QA-Match-006</td><td>用户端问答</td><td>智能匹配</td><td>兜底回复</td><td>所有匹配方式无结果时返回兜底话术</td><td>知识库无任何关联词条</td><td>1. 输入完全无关的问题
+2. 发送</td><td>1. 展示兜底回复
+2. 同步推送热门相似问题
+3. 问题收录至未知问题列表</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
+<tr><td>QA-Display-001</td><td>用户端问答</td><td>答案展示</td><td>答案渲染</td><td>匹配成功时正确展示标准答案</td><td>已匹配到有效答案</td><td>1. 观察答案展示区域</td><td>1. 展示标准答案内容
+2. 支持文本、换行、简单格式
+3. 底部展示评价按钮</td><td>P0</td><td>已优化：根据UX评审意见补充完善</td></tr>
+<tr><td>QA-Display-002</td><td>用户端问答</td><td>答案展示</td><td>加载动画</td><td>问答检索加载动画展示</td><td>用户已提交问题</td><td>1. 提交问题后观察页面</td><td>1. 展示加载动画「正在为您检索答案中...」
+2. 加载时长最长3s
+3. 超时返回兜底话术</td><td>P0</td><td>已优化：根据Arch评审意见补充完善</td></tr>
+<tr><td>QA-Display-003</td><td>用户端问答</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎话术</td><td>用户首次进入问答页面</td><td>1. 进入知识库问答页面</td><td>1. 展示欢迎话术</td><td>P2</td><td>已优化：根据UX评审意见补充完善</td></tr>
+<tr><td>QA-Display-004</td><td>用户端问答</td><td>答案展示</td><td>兜底回复</td><td>匹配失败时展示兜底回复和热门相似问题</td><td>知识库无匹配词条</td><td>1. 输入无匹配问题
+2. 发送</td><td>1. 展示兜底回复话术
+2. 推送热门相似问题
+3. 问题自动收录至未知问题</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
+<tr><td>QA-Display-005</td><td>用户端问答</td><td>答案展示</td><td>加载超时</td><td>加载超过3秒时展示超时提示</td><td>语义匹配引擎响应慢</td><td>1. 模拟匹配引擎超时（&gt;3s）
+2. 观察页面响应</td><td>1. 3秒后返回兜底话术
+2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td>已优化：根据Dev、Ops评审意见补充完善</td></tr>
+<tr><td>QA-Feedback-001</td><td>用户端问答</td><td>反馈与评价</td><td>有用评价</td><td>点赞评价答案有用</td><td>已展示系统答案</td><td>1. 点击答案下方「有用（点赞）」按钮</td><td>1. 按钮变为已选中状态
+2. 评价数据同步上传后台
+3. 按钮不可再次点击</td><td>P0</td><td>已优化：根据UX评审意见补充完善</td></tr>
+<tr><td>QA-Feedback-002</td><td>用户端问答</td><td>反馈与评价</td><td>无用评价</td><td>差评答案无用</td><td>已展示系统答案</td><td>1. 点击答案下方「无用（差评）」按钮</td><td>1. 按钮变为已选中状态
+2. 评价数据同步上传后台
+3. 按钮不可再次点击</td><td>P0</td><td>无</td></tr>
+<tr><td>QA-Feedback-003</td><td>用户端问答</td><td>反馈与评价</td><td>评价状态固化</td><td>评价后不可重复评价</td><td>用户已对某答案完成评价</td><td>1. 尝试再次点击评价按钮</td><td>1. 按钮状态固化无响应
+2. 不产生重复评价数据</td><td>P1</td><td>无</td></tr>
+<tr><td>QA-Session-001</td><td>用户端问答</td><td>会话操作</td><td>清空会话</td><td>一键清空当前页面所有问答记录</td><td>当前会话有多条问答记录</td><td>1. 点击清空会话按钮</td><td>1. 页面所有问答记录清空
+2. 恢复至默认欢迎话术状态</td><td>P1</td><td>无</td></tr>
+<tr><td>Session-History-001</td><td>会话记录</td><td>历史记录</td><td>记录入口</td><td>历史记录按钮可点击进入</td><td>用户已登录</td><td>1. 点击问答页面顶部「历史记录」按钮</td><td>1. 跳转至历史记录列表页</td><td>P0</td><td>无</td></tr>
+<tr><td>Session-History-002</td><td>会话记录</td><td>历史记录</td><td>记录列表</td><td>按时间倒序展示历史记录</td><td>用户有多条历史问答记录</td><td>1. 进入历史记录页面</td><td>1. 记录按时间倒序排列
+2. 每条展示提问时间、用户问题、简略答案</td><td>P0</td><td>已优化：根据UX评审意见补充完善</td></tr>
+<tr><td>Session-History-003</td><td>会话记录</td><td>历史记录</td><td>单条删除</td><td>删除单条历史记录</td><td>历史记录列表非空</td><td>1. 点击某条记录的「删除」按钮
+2. 确认删除</td><td>1. 弹出二次确认弹窗
+2. 确认后记录从列表移除
+3. 后台同步删除
+4. 删除后不可恢复</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
+<tr><td>Session-History-004</td><td>会话记录</td><td>历史记录</td><td>空状态</td><td>无历史记录时展示空状态提示</td><td>用户无任何历史问答</td><td>1. 进入历史记录页面</td><td>1. 展示「暂无问答历史记录」提示</td><td>P2</td><td>无</td></tr>
+<tr><td>Session-History-005</td><td>会话记录</td><td>历史记录</td><td>数据隔离</td><td>不同账号历史记录相互独立</td><td>两个不同用户账号各有问答记录</td><td>1. 用账号A登录查看历史记录
+2. 用账号B登录查看历史记录</td><td>1. 账号A只能看到自己的记录
+2. 账号B只能看到自己的记录
+3. 两账号记录互不干扰</td><td>P0</td><td>无</td></tr>
+<tr><td>Session-History-006</td><td>会话记录</td><td>历史记录</td><td>数据永久留存</td><td>会话记录永久留存不自动清除</td><td>用户有历史问答记录</td><td>1. 等待较长时间后查看历史记录</td><td>1. 所有历史记录仍在
+2. 不会自动清除</td><td>P1</td><td>无</td></tr>
+<tr><td>Session-History-007</td><td>会话记录</td><td>历史记录</td><td>重新唤起问答</td><td>点击历史问题快速唤起对应问答</td><td>存在历史问答记录</td><td>1. 点击某条历史问题</td><td>1. 快速重新唤起对应问答内容
+2. 展示原始问题和答案</td><td>P1</td><td>无</td></tr>
+<tr><td>Session-Clear-001</td><td>会话记录</td><td>批量清空</td><td>批量清空</td><td>批量清空所有历史记录</td><td>历史记录列表非空</td><td>1. 点击「批量清空」按钮
+2. 确认清空</td><td>1. 弹出二次确认弹窗
+2. 确认后所有记录清空
+3. 后台同步清除
+4. 不可恢复</td><td>P0</td><td>无</td></tr>
+<tr><td>Session-Clear-002</td><td>会话记录</td><td>批量清空</td><td>删除二次确认</td><td>删除/清空操作需二次确认</td><td>历史记录列表非空</td><td>1. 点击删除或清空按钮
+2. 观察确认弹窗</td><td>1. 弹出确认弹窗
+2. 取消则不执行删除
+3. 确认后执行删除</td><td>P1</td><td>无</td></tr>
+<tr><td>KB-Filter-001</td><td>词条管理</td><td>筛选搜索</td><td>多条件筛选</td><td>按关键词、分类、状态、时间筛选</td><td>后台有多个词条数据</td><td>1. 使用问题关键词筛选
+2. 使用词条分类筛选
+3. 使用上架状态筛选
+4. 使用创建时间筛选</td><td>1. 各筛选条件独立生效
+2. 多条件组合筛选结果正确
+3. 列表实时更新</td><td>P0</td><td>无</td></tr>
+<tr><td>KB-Add-001</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-必填</td><td>标准问题为必填字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准问题
+2. 点击保存</td><td>1. 提示标准问题为必填项
+2. 保存失败</td><td>P0</td><td>无</td></tr>
+<tr><td>KB-Add-002</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-字数</td><td>标准问题限制1-200字</td><td>运营管理员已打开新增弹窗</td><td>1. 输入超过200字的标准问题
+2. 点击保存</td><td>1. 提示超出字数限制
+2. 保存失败</td><td>P1</td><td>无</td></tr>
+<tr><td>KB-Add-003</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-重复</td><td>标准问题不可重复</td><td>已存在某标准问题的词条</td><td>1. 输入已存在的标准问题
+2. 点击保存</td><td>1. 提示「该标准问题已存在」
+2. 保存失败</td><td>P0</td><td>无</td></tr>
+<tr><td>KB-Add-004</td><td>词条管理</td><td>新增词条</td><td>相似问题录入</td><td>支持多条相似问题以换行分隔</td><td>运营管理员已打开新增弹窗</td><td>1. 在相似问题字段输入多条问题（换行分隔）
+2. 保存词条</td><td>1. 多条相似问题正确保存
+2. 拓宽语义匹配范围</td><td>P1</td><td>无</td></tr>
+<tr><td>KB-Add-005</td><td>词条管理</td><td>新增词条</td><td>标准答案校验</td><td>标准答案为必填且限制1-2000字</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准答案点击保存
+2. 输入超过2000字的答案点击保存</td><td>1. 必填校验提示
+2. 超出字数提示
+3. 保存失败</td><td>P0</td><td>已优化：根据Sec评审意见补充完善</td></tr>
+<tr><td>KB-Add-006</td><td>词条管理</td><td>新增词条</td><td>词条分类必选</td><td>词条分类为必选字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不选择词条分类
+2. 点击保存</td><td>1. 提示词条分类为必选项
+2. 保存失败</td><td>P1</td><td>无</td></tr>
+<tr><td>KB-Add-007</td><td>词条管理</td><td>新增词条</td><td>默认下架状态</td><td>新增词条默认为下架状态</td><td>运营管理员已打开新增弹窗</td><td>1. 填写完整信息
+2. 保存新增词条</td><td>1. 新增词条状态为「下架」
+2. 不参与用户问答匹配</td><td>P0</td><td>已优化：根据PM评审意见补充完善</td></tr>
+<tr><td>KB-Edit-001</td><td>词条管理</td><td>编辑词条</td><td>编辑上架词条实时生效</td><td>编辑已上架词条保存后实时生效</td><td>存在已上架词条</td><td>1. 编辑已上架词条的内容
+2. 保存修改</td><td>1. 修改保存成功
+2. 无需重新审核
+3. 用户端问答实时生效</td><td>P0</td><td>已优化：根据Dev、Sec评审意见补充完善</td></tr>
+<tr><td>KB-Delete-001</td><td>词条管理</td><td>删除词条</td><td>删除二次确认</td><td>删除词条需二次确认</td><td>存在可删除词条</td><td>1. 点击删除按钮
+2. 观察确认弹窗</td><td>1. 弹出二次确认弹窗
+2. 取消则不删除
+3. 确认后词条删除</td><td>P0</td><td>无</td></tr>
+<tr><td>KB-Delete-002</td><td>词条管理</td><td>删除词条</td><td>已关联词条支持删除</td><td>已关联用户问答记录的词条支持删除</td><td>存在已关联问答记录的词条</td><td>1. 删除已关联问答记录的词条
+2. 确认删除</td><td>1. 删除成功
+2. 词条不再参与新问答匹配
+3. 历史问答记录保留</td><td>P0</td><td>无</td></tr>
+<tr><td>KB-Delete-003</td><td>词条管理</td><td>删除词条</td><td>删除后数据清理</td><td>删除词条后不再参与匹配</td><td>已删除某词条</td><td>1. 用户输入与已删除词条匹配的问题
+2. 观察匹配结果</td><td>1. 已删除词条不参与匹配
+2. 可能匹配其他词条或返回兜底</td><td>P1</td><td>无</td></tr>
+<tr><td>KB-Batch-001</td><td>词条管理</td><td>批量操作</td><td>批量选择</td><td>支持多选词条进行批量操作</td><td>词条列表有多个词条</td><td>1. 勾选多个词条复选框</td><td>1. 多个词条被选中
+2. 批量操作按钮激活</td><td>P0</td><td>已优化：根据Dev评审意见补充完善</td></tr>
+<tr><td>KB-Batch-002</td><td>词条管理</td><td>批量操作</td><td>批量上架</td><td>批量上架选中的下架词条</td><td>已选中多个下架词条</td><td>1. 点击「批量上架」按钮
+2. 确认操作</td><td>1. 选中词条状态变为「上架」
+2. 可被用户检索匹配</td><td>P0</td><td>无</td></tr>
+<tr><td>KB-Batch-003</td><td>词条管理</td><td>批量操作</td><td>批量下架</td><td>批量下架选中的上架词条</td><td>已选中多个上架词条</td><td>1. 点击「批量下架」按钮
+2. 确认操作</td><td>1. 选中词条状态变为「下架」
+2. 不再参与用户问答匹配</td><td>P0</td><td>无</td></tr>
+<tr><td>KB-Batch-004</td><td>词条管理</td><td>批量操作</td><td>批量删除</td><td>批量删除选中的词条</td><td>已选中多个词条</td><td>1. 点击「批量删除」按钮
+2. 确认操作</td><td>1. 弹出二次确认
+2. 确认后选中词条全部删除</td><td>P0</td><td>无</td></tr>
+<tr><td>Unknown-Collect-001</td><td>未知问题</td><td>自动收录</td><td>自动收录</td><td>未匹配问题自动收录至后台</td><td>用户提问未匹配到有效词条</td><td>1. 用户发送未匹配问题
+2. 后台查看未知问题列表</td><td>1. 问题自动收录至未知问题列表
+2. 记录提问时间、提问用户、提问次数</td><td>P0</td><td>无</td></tr>
+<tr><td>Unknown-Dedup-001</td><td>未知问题</td><td>去重统计</td><td>去重统计</td><td>相同未知问题自动合并统计</td><td>多个用户发送相同未匹配问题</td><td>1. 多个用户发送相同的未匹配问题
+2. 查看未知问题列表</td><td>1. 相同问题自动合并为一条
+2. 累计提问次数正确统计</td><td>P0</td><td>已优化：根据DBA评审意见补充完善</td></tr>
+<tr><td>Unknown-Process-001</td><td>未知问题</td><td>处理功能</td><td>基于未知问题新建词条</td><td>支持基于未知问题直接新建词条</td><td>未知问题列表有待处理问题</td><td>1. 选择某未知问题
+2. 点击新建词条
+3. 填写答案并保存</td><td>1. 成功新建知识词条
+2. 词条关联原始未知问题
+3. 未知问题标记为「已解决」</td><td>P0</td><td>已优化：根据DBA评审意见补充完善</td></tr>
+<tr><td>Unknown-Process-002</td><td>未知问题</td><td>处理功能</td><td>标记已解决</td><td>处理后标记为已解决</td><td>未知问题列表有待处理问题</td><td>1. 处理某未知问题
+2. 观察状态变化</td><td>1. 未知问题状态变为「已解决」
+2. 不再出现在待处理列表</td><td>P1</td><td>无</td></tr>
+<tr><td>Unknown-Clean-001</td><td>未知问题</td><td>数据清理</td><td>手动清理</td><td>支持手动清理无效未知问题</td><td>未知问题列表有无效数据</td><td>1. 选择无效/无意义的未知问题
+2. 点击清理/删除</td><td>1. 无效数据被清除
+2. 不影响有效未知问题</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Basic-001</td><td>数据统计</td><td>基础数据</td><td>总提问量</td><td>总提问量统计正确</td><td>系统有一定量的问答数据</td><td>1. 进入数据统计页面
+2. 查看总提问量</td><td>1. 总提问量数字准确
+2. 包含所有用户的历史提问总量</td><td>P0</td><td>已优化：根据Perf评审意见补充完善</td></tr>
+<tr><td>Stats-Basic-002</td><td>数据统计</td><td>基础数据</td><td>有效提问量</td><td>有效提问量统计正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看有效提问量指标</td><td>1. 仅统计匹配到有效答案的提问量</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Basic-003</td><td>数据统计</td><td>基础数据</td><td>无答案提问量</td><td>无答案提问量统计正确</td><td>系统有未匹配的问答</td><td>1. 查看无答案提问量指标</td><td>1. 统计未匹配到答案的提问量
+2. 与未知问题收录数一致</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Basic-004</td><td>数据统计</td><td>基础数据</td><td>活跃用户数</td><td>活跃用户数统计正确</td><td>有多个用户使用问答功能</td><td>1. 查看活跃用户数</td><td>1. 活跃用户数准确
+2. 统计口径明确</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Quality-001</td><td>数据统计</td><td>质量数据</td><td>问题命中率</td><td>问题命中率计算正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看问题命中率</td><td>1. 命中率 = 匹配成功数 / 总提问数 x 100%
+2. 数值准确</td><td>P0</td><td>无</td></tr>
+<tr><td>Stats-Quality-002</td><td>数据统计</td><td>质量数据</td><td>答案好评率</td><td>答案好评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案好评率</td><td>1. 好评率 = 有用评价数 / 总评价数 x 100%
+2. 数值准确</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Quality-003</td><td>数据统计</td><td>质量数据</td><td>答案差评率</td><td>答案差评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案差评率</td><td>1. 差评率 = 无用评价数 / 总评价数 x 100%
+2. 与好评率之和 = 100%</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Hot-001</td><td>数据统计</td><td>热度数据</td><td>高频提问TOP10</td><td>高频提问问题TOP10展示正确</td><td>有一定量的问答数据</td><td>1. 查看高频提问问题TOP10</td><td>1. 展示提问频次最高的10个问题
+2. 排序正确
+3. 频次准确</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Hot-002</td><td>数据统计</td><td>热度数据</td><td>高频未知TOP10</td><td>高频未知问题TOP10展示正确</td><td>有一定量的未知问题数据</td><td>1. 查看高频未知问题TOP10</td><td>1. 展示被提问最多的10个未知问题
+2. 排序正确</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Trend-001</td><td>数据统计</td><td>时间趋势</td><td>日趋势</td><td>支持按日查看问答数据趋势</td><td>有连续多天的问答数据</td><td>1. 选择按日查看数据趋势</td><td>1. 展示每日问答量变化趋势
+2. 数据准确</td><td>P1</td><td>无</td></tr>
+<tr><td>Stats-Trend-002</td><td>数据统计</td><td>时间趋势</td><td>周趋势</td><td>支持按周查看问答数据趋势</td><td>有多周的问答数据</td><td>1. 选择按周查看数据趋势</td><td>1. 展示每周问答量变化趋势</td><td>P2</td><td>无</td></tr>
+<tr><td>Stats-Trend-003</td><td>数据统计</td><td>时间趋势</td><td>月趋势</td><td>支持按月查看问答数据趋势</td><td>有多月的问答数据</td><td>1. 选择按月查看数据趋势</td><td>1. 展示每月问答量变化趋势</td><td>P2</td><td>无</td></tr>
+<tr><td>Perm-001</td><td>权限设计</td><td>普通用户</td><td>在线提问</td><td>普通用户可正常提问和评价</td><td>普通用户已登录</td><td>1. 普通用户输入问题并发送
+2. 对答案进行评价
+3. 查看个人会话记录</td><td>1. 提问功能正常
+2. 评价功能正常
+3. 仅能查看个人会话</td><td>P0</td><td>无</td></tr>
+<tr><td>Perm-002</td><td>权限设计</td><td>普通用户</td><td>无后台权限</td><td>普通用户无法访问后台管理</td><td>普通用户已登录</td><td>1. 尝试访问知识库词条管理
+2. 尝试查看未知问题
+3. 尝试查看数据统计</td><td>1. 无法进入后台管理页面
+2. 提示无权限</td><td>P0</td><td>无</td></tr>
+<tr><td>Perm-003</td><td>权限设计</td><td>运营管理员</td><td>后台管理权限</td><td>运营管理员可管理知识库和查看数据</td><td>运营管理员已登录</td><td>1. 新增/编辑/上下架/删除词条
+2. 处理未知问题
+3. 查看问答数据</td><td>1. 知识库管理功能正常
+2. 未知问题处理正常
+3. 数据统计可查看</td><td>P0</td><td>无</td></tr>
+<tr><td>Perm-004</td><td>权限设计</td><td>运营管理员</td><td>无系统配置权限</td><td>运营管理员无权限配置和全量清理</td><td>运营管理员已登录</td><td>1. 尝试进行权限配置
+2. 尝试全量数据清理</td><td>1. 无法访问系统配置
+2. 提示无权限</td><td>P1</td><td>无</td></tr>
+<tr><td>Perm-005</td><td>权限设计</td><td>超级管理员</td><td>全权限</td><td>超级管理员拥有所有功能权限</td><td>超级管理员已登录</td><td>1. 执行所有功能操作
+2. 进行权限配置
+3. 全量数据清理
+4. 系统参数设置</td><td>1. 所有功能正常可用
+2. 权限配置生效
+3. 系统参数设置生效</td><td>P0</td><td>无</td></tr>
+<tr><td>Exc-Net-001</td><td>异常场景</td><td>网络异常</td><td>网络中断处理</td><td>网络中断时终止请求并提示</td><td>用户正在提问过程中</td><td>1. 模拟网络中断
+2. 用户发送问题</td><td>1. 终止问答请求
+2. 提示「网络异常，请检查网络后重新提问」
+3. 保留已输入的问题内容</td><td>P0</td><td>无</td></tr>
+<tr><td>Exc-Auth-001</td><td>异常场景</td><td>权限异常</td><td>登录过期处理</td><td>登录过期时禁止提问并跳转</td><td>用户登录已过期</td><td>1. 用户尝试提问</td><td>1. 弹窗提示「暂无问答权限或登录已过期，请重新登录」
+2. 自动跳转登录页面</td><td>P0</td><td>已优化：根据Sec评审意见补充完善</td></tr>
+<tr><td>Exc-Content-001</td><td>异常场景</td><td>内容违规</td><td>敏感词拦截</td><td>输入敏感/违规内容时拦截提问</td><td>系统敏感词库已配置</td><td>1. 输入包含敏感词的问题
+2. 发送</td><td>1. 系统自动拦截提问
+2. 提示「输入内容包含违规信息，请重新输入」
+3. 不收录该问题</td><td>P0</td><td>无</td></tr>
+<tr><td>Exc-Timeout-001</td><td>异常场景</td><td>系统超时</td><td>问答检索超时</td><td>检索超时返回兜底话术</td><td>语义匹配引擎响应超过3s</td><td>1. 模拟检索超时
+2. 观察系统响应</td><td>1. 返回兜底话术
+2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td>无</td></tr>
+<tr><td>Exc-Data-001</td><td>异常场景</td><td>数据异常</td><td>知识库数据异常</td><td>知识库数据损坏时展示兜底内容</td><td>知识库词条数据损坏</td><td>1. 模拟知识库数据加载失败
+2. 用户提问</td><td>1. 用户端展示无答案兜底内容
+2. 后台记录异常日志
+3. 不暴露系统错误</td><td>P0</td><td>已优化：根据Ops评审意见补充完善</td></tr>
+<tr><td>Exc-Limit-001</td><td>异常场景</td><td>限流</td><td>高频提问限制</td><td>1分钟内高频重复提问触发限流</td><td>用户已登录</td><td>1. 在1分钟内连续高频提问超过限制次数</td><td>1. 触发限流机制
+2. 提示「提问过于频繁，请稍后再试」
+3. 防止恶意刷量</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
+<tr><td>Perf-001</td><td>非功能需求</td><td>性能</td><td>页面加载</td><td>问答首页首次加载≤1.5s</td><td>网络正常</td><td>1. 首次打开问答页面
+2. 计算页面加载时间</td><td>1. 首次加载时间≤1.5s
+2. 页面完整渲染</td><td>P0</td><td>无</td></tr>
+<tr><td>Perf-002</td><td>非功能需求</td><td>性能</td><td>问答响应</td><td>常规问题语义匹配≤800ms</td><td>知识库正常</td><td>1. 输入常规问题并发送
+2. 计算响应时间</td><td>1. 语义匹配响应≤800ms
+2. 复杂长文本问题响应≤2s</td><td>P0</td><td>已优化：根据Perf评审意见补充完善</td></tr>
+<tr><td>Perf-003</td><td>非功能需求</td><td>性能</td><td>并发能力</td><td>支持≥200人同时在线提问</td><td>测试环境准备200并发用户</td><td>1. 200用户同时在线提问
+2. 持续操作一段时间</td><td>1. 无卡顿
+2. 无问答数据错乱
+3. 无请求堆积</td><td>P0</td><td>已优化：根据Perf评审意见补充完善</td></tr>
+<tr><td>Perf-004</td><td>非功能需求</td><td>性能</td><td>后台加载</td><td>后台列表和统计加载≤1.5s</td><td>后台有大量数据</td><td>1. 打开知识库列表页
+2. 打开数据统计页</td><td>1. 列表加载≤1.5s
+2. 统计数据加载≤1.5s</td><td>P1</td><td>无</td></tr>
+<tr><td>Compat-001</td><td>非功能需求</td><td>兼容性</td><td>PC浏览器兼容</td><td>兼容Chrome/Edge/Firefox最新版</td><td>—</td><td>1. 分别在Chrome、Edge、Firefox最新版打开问答功能</td><td>1. 各浏览器功能正常
+2. 样式无错位
+3. 交互无异常</td><td>P1</td><td>无</td></tr>
+<tr><td>Compat-002</td><td>非功能需求</td><td>兼容性</td><td>移动端适配</td><td>适配iOS/Android主流机型</td><td>—</td><td>1. 在手机和平板上打开问答功能
+2. 测试各尺寸屏幕</td><td>1. 会话展示无错位
+2. 内容无遮挡
+3. 功能与PC端一致</td><td>P1</td><td>无</td></tr>
+<tr><td>Security-001</td><td>非功能需求</td><td>安全</td><td>敏感词库</td><td>内置敏感词库自动拦截违规内容</td><td>敏感词库已配置</td><td>1. 输入各类敏感词测试
+2. 包含违禁词、敏感词、违规信息</td><td>1. 所有敏感词被拦截
+2. 不展示违规内容
+3. 词条内容也受敏感词管控</td><td>P0</td><td>无</td></tr>
+<tr><td>Security-002</td><td>非功能需求</td><td>安全</td><td>数据隔离</td><td>问答数据仅本人及超级管理员可查看</td><td>多个用户的问答数据</td><td>1. 用户A尝试查看用户B的问答数据
+2. 超级管理员查看所有数据</td><td>1. 用户A无法查看用户B数据
+2. 超级管理员可查看全量数据
+3. 严格数据隔离</td><td>P0</td><td>无</td></tr>
+<tr><td>Security-003</td><td>非功能需求</td><td>安全</td><td>操作日志</td><td>所有后台操作留存日志可追溯</td><td>运营管理员执行操作</td><td>1. 执行词条新增/编辑/删除等操作
+2. 查看后台日志</td><td>1. 日志记录操作人
+2. 记录操作时间
+3. 记录操作IP
+4. 记录操作内容</td><td>P0</td><td>无</td></tr>
+<tr><td>Maint-001</td><td>非功能需求</td><td>可维护性</td><td>动态配置</td><td>支持后台动态配置敏感词和话术</td><td>超级管理员已登录</td><td>1. 修改敏感词配置
+2. 修改兜底话术
+3. 修改限流次数</td><td>1. 配置修改后即时生效
+2. 无需修改代码
+3. 无需重启服务</td><td>P1</td><td>无</td></tr>
+<tr><td>Maint-002</td><td>非功能需求</td><td>可维护性</td><td>批量导入导出</td><td>知识库词条支持批量导入导出</td><td>运营管理员已登录</td><td>1. 批量导入词条
+2. 批量导出词条</td><td>1. 导入成功且数据正确
+2. 导出文件格式正确
+3. 便于大规模维护迁移</td><td>P1</td><td>无</td></tr>
+<tr><td>Maint-003</td><td>非功能需求</td><td>可维护性</td><td>异常日志</td><td>异常问答和超时请求自动记录日志</td><td>系统产生异常请求</td><td>1. 触发超时、异常等场景
+2. 查看后台日志</td><td>1. 异常请求自动记录日志
+2. 日志包含足够排查信息
+3. 支持后台查询</td><td>P1</td><td>无</td></tr>
+<tr><td>Supp-001</td><td>用户端问答</td><td>输入与发送</td><td>多行文本输入</td><td>多行文本格式在答案中正确展示</td><td>用户发送含换行的问题</td><td>1. 输入含多行文本的问题并发送
+2. 观察答案展示</td><td>1. 问题和答案中的换行格式正确保留
+2. 不出现格式错乱</td><td>P2</td><td>无</td></tr>
+<tr><td>Supp-002</td><td>用户端问答</td><td>会话操作</td><td>清空会话恢复默认</td><td>清空后页面恢复默认欢迎话术</td><td>当前有问答记录</td><td>1. 点击清空会话
+2. 观察页面状态</td><td>1. 所有问答记录清除
+2. 恢复默认欢迎话术
+3. 输入框清空</td><td>P1</td><td>无</td></tr>
+<tr><td>Supp-003</td><td>用户端问答</td><td>答案展示</td><td>热门相似问题</td><td>兜底回复时展示热门相似问题</td><td>无匹配答案</td><td>1. 发送无匹配问题
+2. 观察兜底回复区域</td><td>1. 展示兜底话术
+2. 底部展示热门相似问题列表
+3. 点击可快速提问</td><td>P1</td><td>无</td></tr>
+<tr><td>Supp-004</td><td>会话记录</td><td>历史记录</td><td>记录永久留存</td><td>用户手动删除前不可自动清除</td><td>用户有历史记录</td><td>1. 等待较长时间
+2. 检查记录是否仍存在</td><td>1. 记录未被自动清除
+2. 仅用户手动删除才移除</td><td>P1</td><td>无</td></tr>
+<tr><td>Supp-005</td><td>权限设计</td><td>全角色</td><td>会话查看</td><td>所有角色可查看个人会话</td><td>各角色已登录</td><td>1. 普通用户查看个人会话
+2. 运营管理员查看个人会话
+3. 超级管理员查看个人会话</td><td>1. 各角色均可查看个人会话记录
+2. 功能一致</td><td>P2</td><td>无</td></tr>
+<tr><td>QA-Send-006</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>多字节字符边界值测试</td><td>用户已登录</td><td>1. 输入包含emoji和中文混合的500字节内容
+2. 尝试发送</td><td>1. 系统正确处理多字节字符
+2. 字数计算准确</td><td>P1</td><td>新增：来自AI评审（Dev边界遗漏）</td></tr>
+<tr><td>QA-Match-007</td><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配阈值验证</td><td>知识库有不同相似度的词条</td><td>1. 输入与某词条相似度恰好为阈值边界的问题
+2. 验证匹配结果</td><td>1. 相似度&gt;=阈值时返回语义匹配结果
+2. 相似度&lt;阈值时降级到关键词匹配</td><td>P0</td><td>新增：来自AI评审（Dev逻辑遗漏）</td></tr>
+<tr><td>QA-Match-008</td><td>用户端问答</td><td>智能匹配</td><td>最优答案</td><td>历史最优答案判定标准验证</td><td>用户对同一问题多次收到不同答案</td><td>1. 重复发送相同问题
+2. 观察返回的答案</td><td>1. 返回的答案符合最优定义
+2. 验证判定标准</td><td>P1</td><td>新增：来自AI评审（QA场景遗漏）</td></tr>
+<tr><td>KB-Edit-002</td><td>词条管理</td><td>编辑词条</td><td>并发编辑冲突</td><td>多运营员同时编辑同一词条</td><td>两个运营管理员同时打开同一词条编辑</td><td>1. 运营A编辑词条并保存
+2. 运营B同时编辑同一词条并保存</td><td>1. 后保存者提示冲突
+2. 不覆盖先保存者的修改</td><td>P1</td><td>新增：来自AI评审（Dev逻辑遗漏）</td></tr>
+<tr><td>KB-Batch-005</td><td>词条管理</td><td>批量操作</td><td>跨页选择</td><td>跨页批量选择词条</td><td>词条列表分多页展示</td><td>1. 在第1页选择部分词条
+2. 切换到第2页继续选择
+3. 执行批量操作</td><td>1. 跨页选择的词条均被正确选中
+2. 批量操作包含所有选中词条</td><td>P2</td><td>新增：来自AI评审（Dev边界遗漏）</td></tr>
+<tr><td>Session-History-008</td><td>会话记录</td><td>历史记录</td><td>删除展示中记录</td><td>删除当前正在展示的问答记录</td><td>正在查看某条问答记录详情</td><td>1. 删除当前正在展示的记录
+2. 观察页面变化</td><td>1. 记录成功删除
+2. 页面正确返回列表或展示空状态</td><td>P1</td><td>新增：来自AI评审（QA场景遗漏）</td></tr>
+<tr><td>QA-Display-006</td><td>用户端问答</td><td>答案展示</td><td>部分匹配</td><td>部分关键词命中但整体不匹配的处理</td><td>知识库有部分关键词相关的词条</td><td>1. 输入仅部分关键词命中的问题
+2. 观察匹配结果</td><td>1. 不返回低相关度的答案
+2. 走兜底流程或推荐相似问题</td><td>P1</td><td>新增：来自AI评审（QA场景遗漏）</td></tr>
+<tr><td>Sec-Input-001</td><td>非功能需求</td><td>安全</td><td>输入安全过滤</td><td>用户输入XSS/注入攻击防护</td><td>系统已部署</td><td>1. 在问答输入框输入恶意脚本
+2. 输入SQL注入语句
+3. 观察系统响应</td><td>1. 恶意脚本被过滤或转义
+2. 不执行注入代码
+3. 正常返回兜底或拒绝</td><td>P0</td><td>新增：来自AI评审（Sec安全漏洞）</td></tr>
+<tr><td>Perf-Stress-001</td><td>非功能需求</td><td>性能</td><td>压力测试</td><td>阶梯压力测试验证系统承载</td><td>测试环境准备</td><td>1. 从50用户逐步增加到300用户
+2. 每阶梯持续5分钟
+3. 记录各阶梯响应时间和错误率</td><td>1. 200用户以内响应正常
+2. 超过200用户时有优雅降级
+3. 不出现系统崩溃</td><td>P1</td><td>新增：来自AI评审（Perf性能风险）</td></tr>
+<tr><td>Ops-Monitor-001</td><td>非功能需求</td><td>运维</td><td>监控指标</td><td>问答链路关键监控指标验证</td><td>监控系统已配置</td><td>1. 配置问答请求成功率、响应时间监控
+2. 模拟异常触发告警</td><td>1. 监控指标准确采集
+2. 异常时正确触发告警
+3. 告警信息包含足够排查内容</td><td>P1</td><td>新增：来自AI评审（Ops运维盲区）</td></tr>
+</tbody></table>
+</section>
+<section id="report">
+<div class="metrics">
+<div class="metric"><span>总用例数（原始）</span><strong>90</strong></div>
+<div class="metric good"><span>评审通过数</span><strong>63</strong></div>
+<div class="metric warn"><span>驳回/修改数</span><strong>27</strong></div>
+<div class="metric"><span>优化后总用例</span><strong>100</strong></div>
+<div class="metric"><span>功能点覆盖提升</span><strong>87% → 100%</strong></div>
+<div class="metric"><span>场景覆盖提升</span><strong>78% → 97%</strong></div>
+</div>
+<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">九方评审评分（ISO 25010 质量特性）</h3>
+<div class="metrics" id="role-scores">
+<div class="metric"><span>开发架构师 (Arch)</span><strong>86</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 4(架构腐化风险x1) - 4(运维盲区x2) - 6(安全漏洞x1) = 86</div></div><div class="metric"><span>开发工程师 (Dev)</span><strong>82</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 8(逻辑遗漏x2) - 6(边界遗漏x2) - 4(可验证性不足x1) = 82</div></div><div class="metric"><span>测试工程师 (QA)</span><strong>86</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 8(场景遗漏x1) - 4(可验证性不足x2) - 2(表述不清x1) = 86</div></div><div class="metric"><span>产品经理 (PM)</span><strong>94</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 2(优先级不准x1) - 4(表述不清x2) = 94</div></div><div class="metric"><span>用户体验设计师 (UX)</span><strong>90</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 3(交互不符x2) - 4(易用性缺陷x2) - 2(表述不清x1) = 90</div></div><div class="metric"><span>安全工程师 (Sec)</span><strong>94</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 6(安全漏洞x1) = 94</div></div><div class="metric"><span>运维工程师 (Ops)</span><strong>86</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 4(运维盲区x3) - 6(安全漏洞x1) - 4(架构腐化风险x1) = 86</div></div><div class="metric"><span>性能工程师 (Perf)</span><strong>91</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 6(性能风险x1) - 8(场景遗漏x1) - 4(可验证性不足x1) = 91</div></div><div class="metric"><span>数据工程师 (DBA)</span><strong>93</strong><div class="sub" style="font-size:11px;margin-top:4px">100 - 6(数据完整性风险x1) - 6(数据一致性风险x1) = 93</div></div>
+</div>
+<div class="notice"><b>AI评审总结：</b>原始90条用例经九方评审后，63条通过评审，27条需优化修改。新增10条用例补充覆盖，优化后共100条用例。功能点覆盖率从87%提升至100%，场景覆盖率从78%提升至97%。主要问题集中在<b>场景遗漏</b>（5个）和<b>安全漏洞</b>（4个），建议重点关注。</div>
+<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">问题分布</h3>
+<table><thead><tr><th>缺陷类型</th><th>数量</th><th>占比</th></tr></thead><tbody><tr><td>逻辑遗漏</td><td>3</td><td>10.0%</td></tr><tr><td>场景遗漏</td><td>5</td><td>16.7%</td></tr><tr><td>表述不清</td><td>3</td><td>10.0%</td></tr><tr><td>边界遗漏</td><td>3</td><td>10.0%</td></tr><tr><td>数据一致性风险</td><td>1</td><td>3.3%</td></tr><tr><td>数据完整性风险</td><td>1</td><td>3.3%</td></tr><tr><td>交互不符</td><td>2</td><td>6.7%</td></tr><tr><td>优先级不准</td><td>1</td><td>3.3%</td></tr><tr><td>可验证性不足</td><td>3</td><td>10.0%</td></tr><tr><td>安全漏洞</td><td>4</td><td>13.3%</td></tr><tr><td>性能风险</td><td>2</td><td>6.7%</td></tr><tr><td>运维盲区</td><td>3</td><td>10.0%</td></tr><tr><td>易用性缺陷</td><td>2</td><td>6.7%</td></tr><tr><td>架构腐化风险</td><td>1</td><td>3.3%</td></tr></tbody></table>
+<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">质量特性覆盖雷达数据（8维度）</h3>
+<table><thead><tr><th>质量特性</th><th>评分</th></tr></thead><tbody><tr><td>功能适合性</td><td>95</td></tr><tr><td>性能效率</td><td>91</td></tr><tr><td>兼容性</td><td>96</td></tr><tr><td>易用性</td><td>90</td></tr><tr><td>可靠性</td><td>88</td></tr><tr><td>安全性</td><td>94</td></tr><tr><td>可维护性</td><td>86</td></tr><tr><td>可移植性</td><td>97</td></tr></tbody></table>
+<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">需求追踪矩阵（RTM）</h3>
+<table><thead><tr><th>需求编号</th><th>功能点</th><th>原始用例</th><th>优化后用例</th></tr></thead><tbody><tr><td>F-QA-001</td><td>问答输入框</td><td>QA-Send-001~005</td><td>QA-Send-001~006</td></tr><tr><td>F-QA-002</td><td>语义匹配</td><td>QA-Match-001,003</td><td>QA-Match-001,003,007</td></tr><tr><td>F-QA-003</td><td>关键词匹配</td><td>QA-Match-002</td><td>QA-Match-002</td></tr><tr><td>F-QA-004</td><td>匹配优先级</td><td>QA-Match-003</td><td>QA-Match-003</td></tr><tr><td>F-QA-005</td><td>重复问题过滤</td><td>QA-Match-005</td><td>QA-Match-005,008</td></tr><tr><td>F-QA-006</td><td>相似问题推荐</td><td>QA-Match-004</td><td>QA-Match-004</td></tr><tr><td>F-QA-007</td><td>答案渲染</td><td>QA-Display-001</td><td>QA-Display-001</td></tr><tr><td>F-QA-008</td><td>兜底回复</td><td>QA-Match-006,QA-Display-004</td><td>QA-Match-006,QA-Display-004,006</td></tr><tr><td>F-QA-009</td><td>加载动画</td><td>QA-Display-002,005</td><td>QA-Display-002,005</td></tr><tr><td>F-QA-010</td><td>欢迎话术</td><td>QA-Display-003</td><td>QA-Display-003</td></tr><tr><td>F-QA-011</td><td>评价功能</td><td>QA-Feedback-001~003</td><td>QA-Feedback-001~003</td></tr><tr><td>F-QA-012</td><td>清空会话</td><td>QA-Session-001,Supp-002</td><td>QA-Session-001,Supp-002</td></tr><tr><td>F-Session-001</td><td>历史记录入口</td><td>Session-History-001</td><td>Session-History-001</td></tr><tr><td>F-Session-002</td><td>记录列表</td><td>Session-History-002</td><td>Session-History-002</td></tr><tr><td>F-Session-003</td><td>单条删除</td><td>Session-History-003</td><td>Session-History-003,008</td></tr><tr><td>F-Session-004</td><td>空状态提示</td><td>Session-History-004</td><td>Session-History-004</td></tr><tr><td>F-Session-005</td><td>数据隔离</td><td>Session-History-005</td><td>Session-History-005</td></tr><tr><td>F-Session-006</td><td>批量清空</td><td>Session-Clear-001~002</td><td>Session-Clear-001~002</td></tr><tr><td>F-KB-001</td><td>多条件筛选</td><td>KB-Filter-001</td><td>KB-Filter-001</td></tr><tr><td>F-KB-002</td><td>标准问题校验</td><td>KB-Add-001~003</td><td>KB-Add-001~003</td></tr><tr><td>F-KB-003</td><td>标准答案校验</td><td>KB-Add-005</td><td>KB-Add-005</td></tr><tr><td>F-KB-004</td><td>词条分类/状态</td><td>KB-Add-006~007</td><td>KB-Add-006~007</td></tr><tr><td>F-KB-005</td><td>编辑词条</td><td>KB-Edit-001</td><td>KB-Edit-001~002</td></tr><tr><td>F-KB-006</td><td>删除词条</td><td>KB-Delete-001~003</td><td>KB-Delete-001~003</td></tr><tr><td>F-KB-007</td><td>批量操作</td><td>KB-Batch-001~004</td><td>KB-Batch-001~005</td></tr><tr><td>F-Unknown-001</td><td>自动收录</td><td>Unknown-Collect-001</td><td>Unknown-Collect-001</td></tr><tr><td>F-Unknown-002</td><td>去重统计</td><td>Unknown-Dedup-001</td><td>Unknown-Dedup-001</td></tr><tr><td>F-Unknown-003</td><td>处理功能</td><td>Unknown-Process-001~002</td><td>Unknown-Process-001~002</td></tr><tr><td>F-Unknown-004</td><td>数据清理</td><td>Unknown-Clean-001</td><td>Unknown-Clean-001</td></tr><tr><td>F-Stats-001</td><td>基础数据</td><td>Stats-Basic-001~004</td><td>Stats-Basic-001~004</td></tr><tr><td>F-Stats-002</td><td>质量数据</td><td>Stats-Quality-001~003</td><td>Stats-Quality-001~003</td></tr><tr><td>F-Stats-003</td><td>热度数据</td><td>Stats-Hot-001~002</td><td>Stats-Hot-001~002</td></tr><tr><td>F-Stats-004</td><td>时间趋势</td><td>Stats-Trend-001~003</td><td>Stats-Trend-001~003</td></tr></tbody></table>
+</section>
+</main>
+<div id="toast"></div>
+<script>
+  // ─────────────────────────────────────────────────────────────────────────
+  // STATE
+  // ─────────────────────────────────────────────────────────────────────────
+  let editMode = false;
+  let editCount = 0;         // unsaved edit count for badge
+  // Snapshot: { tableId -> [ [cell texts...], ... ] }  (header + all rows at init)
+  const snapshots = {};
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TABS
+  // ─────────────────────────────────────────────────────────────────────────
+  const tabs = document.querySelectorAll(".tab");
+  const sections = document.querySelectorAll("section");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      sections.forEach(s => s.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PRIORITY BADGES
+  // ─────────────────────────────────────────────────────────────────────────
+  function renderPriorityBadges(root) {
+    (root || document).querySelectorAll("table td:not(.col-action)").forEach(td => {
+      if (td.querySelector(".badge")) return;
+      const text = td.textContent.trim().toUpperCase();
+      if (/^P[0-3]$/.test(text)) {
+        const cls = "badge badge-" + text.toLowerCase();
+        td.dataset.rawValue = text;
+        td.innerHTML = `<span class="${cls}">${text}</span>`;
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FILTER
+  // ─────────────────────────────────────────────────────────────────────────
+  const FILTER_CONFIG = {
+    raw:       { moduleFilter:"raw-module-filter", moduleCol:1, priorityFilter:"raw-priority-filter", priorityCol:8, search:"raw-search", count:"raw-count" },
+    optimized: { moduleFilter:"optimized-module-filter", moduleCol:1, priorityFilter:"optimized-priority-filter", priorityCol:8, search:"optimized-search", count:"optimized-count" },
+    review:    { roleFilter:"review-role-filter", roleCol:1, defectFilter:"review-defect-filter", defectCol:3, search:"review-search", count:"review-count" },
+  };
+
+  function getCellText(cell) {
+    if (!cell) return "";
+    return (cell.dataset.rawValue || cell.textContent).trim();
+  }
+
+  function filterTable(sectionId) {
+    const cfg = FILTER_CONFIG[sectionId];
+    const table = document.querySelector("#" + sectionId + " table");
+    if (!table) return;
+    const module   = cfg.moduleFilter   ? document.getElementById(cfg.moduleFilter).value   : "";
+    const priority = cfg.priorityFilter ? document.getElementById(cfg.priorityFilter).value : "";
+    const role     = cfg.roleFilter     ? document.getElementById(cfg.roleFilter).value     : "";
+    const defect   = cfg.defectFilter   ? document.getElementById(cfg.defectFilter).value   : "";
+    const keyword  = document.getElementById(cfg.search).value.trim().toLowerCase();
+    let visible = 0;
+    Array.from(table.rows).slice(1).forEach(row => {
+      if (row.classList.contains("row-deleted")) { row.classList.add("hidden"); return; }
+      let show = true;
+      if (module   && getCellText(row.cells[cfg.moduleCol])               !== module)             show = false;
+      if (priority && getCellText(row.cells[cfg.priorityCol]).toUpperCase() !== priority.toUpperCase()) show = false;
+      if (role     && getCellText(row.cells[cfg.roleCol])                 !== role)               show = false;
+      if (defect   && getCellText(row.cells[cfg.defectCol])               !== defect)             show = false;
+      if (keyword  && !row.textContent.toLowerCase().includes(keyword))                           show = false;
+      row.classList.toggle("hidden", !show);
+      if (show) visible++;
+    });
+    const total = table.rows.length - 1 - table.querySelectorAll("tr.row-deleted").length;
+    const countEl = document.getElementById(cfg.count);
+    if (countEl) countEl.textContent = `显示 ${visible} / ${total} 条`;
+  }
+
+  function buildFilterOptions() {
+    buildSelectOptions("raw-module-filter",       "raw",       1);
+    buildSelectOptions("optimized-module-filter", "optimized", 1);
+    buildSelectOptions("review-defect-filter",    "review",    3);
+  }
+
+  function buildSelectOptions(selectId, sectionId, colIdx) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const table = document.querySelector("#" + sectionId + " table");
+    if (!table) return;
+    const vals = new Set();
+    Array.from(table.rows).slice(1).forEach(row => {
+      const cell = row.cells[colIdx];
+      if (cell) vals.add(getCellText(cell));
+    });
+    vals.forEach(v => {
+      if (!v) return;
+      const opt = document.createElement("option");
+      opt.value = v; opt.textContent = v;
+      sel.appendChild(opt);
+    });
+  }
+
+  function initCounts() {
+    ["raw","optimized","review"].forEach(id => {
+      const cfg = FILTER_CONFIG[id];
+      const table = document.querySelector("#" + id + " table");
+      if (!table) return;
+      const countEl = document.getElementById(cfg.count);
+      if (countEl) countEl.textContent = `共 ${table.rows.length - 1} 条`;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // SNAPSHOT (for reset)
+  // ─────────────────────────────────────────────────────────────────────────
+  function snapshotTable(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    snapshots[tableId] = Array.from(table.rows).map(row =>
+      Array.from(row.cells).map(cell => {
+        if (cell.classList.contains("col-action")) return "__ACTION__";
+        return cell.dataset.rawValue !== undefined ? cell.dataset.rawValue : cell.textContent.trim();
+      })
+    );
+  }
+
+  function snapshotAllTables() {
+    document.querySelectorAll("table[id]").forEach(t => snapshotTable(t.id));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // EDIT MODE
+  // ─────────────────────────────────────────────────────────────────────────
+  function toggleEdit() {
+    editMode = !editMode;
+    const btn = document.getElementById("btn-edit");
+    const addBtn = document.getElementById("btn-add");
+    const resetBtn = document.getElementById("btn-reset");
+    btn.textContent = editMode ? "✔ 完成编辑" : "✏ 开启编辑";
+    btn.className = editMode ? "button" : "secondary";
+    addBtn.disabled = !editMode;
+    resetBtn.disabled = !editMode;
+
+    // Toggle contenteditable on all data cells (not action col, not header)
+    document.querySelectorAll("table tbody tr:not(.row-deleted) td:not(.col-action), table tr:not(:first-child) td:not(.col-action)").forEach(td => {
+      if (editMode) {
+        td.setAttribute("contenteditable", "true");
+        td.dataset.placeholder = "输入内容…";
+        // If cell has a badge, unwrap it for editing
+        const badge = td.querySelector(".badge");
+        if (badge) {
+          td.dataset.rawValue = badge.textContent.trim();
+          td.textContent = badge.textContent.trim();
+        }
+        td.addEventListener("input", onCellInput);
+      } else {
+        td.removeAttribute("contenteditable");
+        td.removeEventListener("input", onCellInput);
+      }
+    });
+
+    // Show/hide action column
+    document.querySelectorAll(".col-action").forEach(el => {
+      el.style.display = editMode ? "" : "none";
+    });
+
+    if (!editMode) {
+      // Re-render badges after edit
+      renderPriorityBadges();
+      updateEditBadge();
+    }
+
+    toast(editMode ? "编辑模式已开启，点击单元格直接修改" : "编辑已完成");
+  }
+
+  function onCellInput(e) {
+    editCount++;
+    updateEditBadge();
+  }
+
+  function updateEditBadge() {
+    const badge = document.getElementById("edit-badge");
+    const text = document.getElementById("edit-badge-text");
+    // Count dirty cells
+    let changed = 0;
+    document.querySelectorAll("table tr.row-new").forEach(() => changed++);
+    document.querySelectorAll("table tr.row-deleted").forEach(() => changed++);
+    // Simple heuristic: if editMode is on, show badge
+    if (editMode || changed > 0) {
+      badge.classList.add("visible");
+      text.textContent = changed > 0 ? `已修改 ${changed} 行` : "编辑中";
+    } else {
+      badge.classList.remove("visible");
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ADD ROW
+  // ─────────────────────────────────────────────────────────────────────────
+  function addRow() {
+    // Add to the currently active tab's table
+    const activeSection = document.querySelector("section.active");
+    if (!activeSection) return;
+    const table = activeSection.querySelector("table");
+    if (!table) return;
+    const headerRow = table.rows[0];
+    const colCount = headerRow ? headerRow.cells.length : 0;
+    const tr = document.createElement("tr");
+    tr.classList.add("row-new");
+    for (let i = 0; i < colCount; i++) {
+      const td = document.createElement("td");
+      if (headerRow.cells[i] && headerRow.cells[i].classList.contains("col-action")) {
+        td.className = "col-action";
+        td.innerHTML = buildRowActionBtns();
+      } else {
+        td.setAttribute("contenteditable", "true");
+        td.dataset.placeholder = "输入内容…";
+        td.addEventListener("input", onCellInput);
+      }
+      tr.appendChild(td);
+    }
+    table.tBodies[0] ? table.tBodies[0].appendChild(tr) : table.appendChild(tr);
+    updateEditBadge();
+    toast("已新增一行，请填写内容");
+  }
+
+  function buildRowActionBtns() {
+    return `<button class="btn-row del" title="删除此行" onclick="deleteRow(this)">🗑</button>`;
+  }
+
+  function deleteRow(btn) {
+    const tr = btn.closest("tr");
+    if (tr.classList.contains("row-new")) {
+      tr.remove();
+    } else {
+      tr.classList.add("row-deleted");
+      tr.querySelectorAll("td:not(.col-action)").forEach(td => td.removeAttribute("contenteditable"));
+      btn.outerHTML = `<button class="btn-row restore" title="恢复此行" onclick="restoreRow(this)">↩</button>`;
+    }
+    updateEditBadge();
+    // re-run filter to hide deleted row
+    const sectionId = tr.closest("section") ? tr.closest("section").id : null;
+    if (sectionId && FILTER_CONFIG[sectionId]) filterTable(sectionId);
+  }
+
+  function restoreRow(btn) {
+    const tr = btn.closest("tr");
+    tr.classList.remove("row-deleted");
+    tr.querySelectorAll("td:not(.col-action)").forEach(td => {
+      if (editMode) td.setAttribute("contenteditable", "true");
+    });
+    btn.outerHTML = buildRowActionBtns();
+    updateEditBadge();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // RESET ALL EDITS
+  // ─────────────────────────────────────────────────────────────────────────
+  function resetEdits() {
+    if (!confirm("确认撤销所有编辑，恢复到初始状态？")) return;
+    // Remove new rows
+    document.querySelectorAll("tr.row-new").forEach(tr => tr.remove());
+    // Restore deleted rows
+    document.querySelectorAll("tr.row-deleted").forEach(tr => {
+      tr.classList.remove("row-deleted");
+      tr.querySelectorAll("td:not(.col-action)").forEach(td => {
+        if (editMode) td.setAttribute("contenteditable", "true");
+      });
+      const restoreBtn = tr.querySelector(".btn-row.restore");
+      if (restoreBtn) restoreBtn.outerHTML = buildRowActionBtns();
+    });
+    // Restore cell content from snapshots
+    Object.entries(snapshots).forEach(([tableId, rows]) => {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      rows.forEach((cells, rIdx) => {
+        const row = table.rows[rIdx];
+        if (!row) return;
+        cells.forEach((val, cIdx) => {
+          const cell = row.cells[cIdx];
+          if (!cell || val === "__ACTION__") return;
+          cell.textContent = val;
+          if (/^P[0-3]$/i.test(val)) cell.dataset.rawValue = val.toUpperCase();
+          else delete cell.dataset.rawValue;
+        });
+      });
+    });
+    renderPriorityBadges();
+    editCount = 0;
+    updateEditBadge();
+    toast("已恢复到初始状态");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // XLSX GENERATION (pure JS, Open XML, no dependencies)
+  // ─────────────────────────────────────────────────────────────────────────
+  function tableToSheetData(tableEl) {
+    if (!tableEl) return { columns: [], rows: [] };
+    const allRows = Array.from(tableEl.rows).filter(r => !r.classList.contains("row-deleted") && !r.classList.contains("hidden") || r === tableEl.rows[0]);
+    // header
+    const headerCells = Array.from(allRows[0].cells).filter(c => !c.classList.contains("col-action"));
+    const columns = headerCells.map(c => c.textContent.trim());
+    // data rows
+    const rows = [];
+    for (let i = 1; i < allRows.length; i++) {
+      const row = allRows[i];
+      if (row.classList.contains("row-deleted")) continue;
+      const dataCells = Array.from(row.cells).filter(c => !c.classList.contains("col-action"));
+      const rowData = {};
+      dataCells.forEach((cell, ci) => {
+        rowData[columns[ci]] = (cell.dataset.rawValue !== undefined ? cell.dataset.rawValue : cell.textContent).trim();
+      });
+      rows.push(rowData);
+    }
+    return { columns, rows };
+  }
+
+  // ── Minimal Open XML xlsx builder ─────────────────────────────────────
+  function escXml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+  }
+
+  function colLetter(idx) {
+    let name = ""; idx++;
+    while (idx) { const r = (idx-1)%26; name = String.fromCharCode(65+r)+name; idx=Math.floor((idx-1)/26); }
+    return name;
+  }
+
+  function buildSheetXml(columns, rows) {
+    const STYLE_HEADER = 1, STYLE_WRAP = 2, STYLE_P0 = 3, STYLE_P1 = 4, STYLE_P2 = 5;
+    const PRIORITY_STYLES = { P0: STYLE_P0, P1: STYLE_P1, P2: STYLE_P2 };
+    const PRIORITY_COLS = new Set(["用例优先级","优先级","priority"]);
+
+    function cellXml(val, ri, ci, si) {
+      const ref = colLetter(ci)+ri;
+      const text = escXml(String(val==null?"":val).replace(/\r\n/g,"\n").replace(/\r/g,"\n"));
+      return `<c r="${ref}" t="inlineStr" s="${si}"><is><t xml:space="preserve">${text}</t></is></c>`;
+    }
+
+    const priorityCols = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
+    const xmlRows = [];
+
+    // header
+    const hdr = columns.map((c,i)=>cellXml(c,1,i,STYLE_HEADER)).join("");
+    xmlRows.push(`<row r="1">${hdr}</row>`);
+
+    rows.forEach((row,ri) => {
+      const vals = columns.map(c=>typeof row==="object"&&!Array.isArray(row)?row[c]??"":row[c]??"");
+      const cells = vals.map((v,ci)=>{
+        let si = STYLE_WRAP;
+        if (priorityCols.has(ci)) si = PRIORITY_STYLES[String(v).trim().toUpperCase()] ?? STYLE_WRAP;
+        return cellXml(v, ri+2, ci, si);
+      }).join("");
+      xmlRows.push(`<row r="${ri+2}">${cells}</row>`);
+    });
+
+    const lastCol = colLetter(Math.max(columns.length-1,0));
+    const lastRow = Math.max(rows.length+1,1);
+    const dim = columns.length ? `A1:${lastCol}${lastRow}` : "A1";
+
+    // column widths
+    const colWidths = columns.map((c,ci)=>{
+      const maxLen = Math.max(c.length, ...rows.map(r=>{
+        const v = typeof r==="object"&&!Array.isArray(r)?r[c]??"":r[ci]??"";
+        return String(v).length;
+      }));
+      return Math.min(Math.max(maxLen*1.2,8),60);
+    });
+    const colsXml = colWidths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w.toFixed(1)}" bestFit="1" customWidth="1"/>`).join("");
+
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+      +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      +`<dimension ref="${dim}"/>`
+      +'<sheetViews><sheetView workbookViewId="0"/></sheetViews>'
+      +'<sheetFormatPr defaultRowHeight="15"/>'
+      +`<cols>${colsXml}</cols>`
+      +`<sheetData>${xmlRows.join("")}</sheetData>`
+      +'</worksheet>';
+  }
+
+  function buildStylesXml() {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+      +'<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
+      +'<fills count="6">'
+      +'<fill><patternFill patternType="none"/></fill>'
+      +'<fill><patternFill patternType="gray125"/></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFD6E4F0"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFC7CE"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFEB9C"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFFF99"/></patternFill></fill>'
+      +'</fills>'
+      +'<borders count="2"><border/><border>'
+      +'<left style="thin"><color rgb="FFD9DEE8"/></left><right style="thin"><color rgb="FFD9DEE8"/></right>'
+      +'<top style="thin"><color rgb="FFD9DEE8"/></top><bottom style="thin"><color rgb="FFD9DEE8"/></bottom>'
+      +'</border></borders>'
+      +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+      +'<cellXfs count="6">'
+      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+      +'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'</cellXfs></styleSheet>';
+  }
+
+  // ── ZIP builder (no dependency) ────────────────────────────────────────
+  // Uses a minimal DEFLATE-less zip (store method) for broad compatibility.
+  // For large files the base64 size is acceptable for test-case workbooks.
+  function strToU8(str) {
+    return new TextEncoder().encode(str);
+  }
+
+  function u8concat(arrays) {
+    const total = arrays.reduce((s,a)=>s+a.length,0);
+    const out = new Uint8Array(total);
+    let offset=0;
+    arrays.forEach(a=>{out.set(a,offset);offset+=a.length;});
+    return out;
+  }
+
+  function crc32(data) {
+    const table = crc32.table || (crc32.table = (()=>{
+      const t=new Uint32Array(256);
+      for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}
+      return t;
+    })());
+    let crc=0xFFFFFFFF;
+    for(let i=0;i<data.length;i++) crc=table[(crc^data[i])&0xFF]^(crc>>>8);
+    return (crc^0xFFFFFFFF)>>>0;
+  }
+
+  function dosTime() {
+    const d=new Date();
+    return ((d.getFullYear()-1980)<<25|(d.getMonth()+1)<<21|d.getDate()<<16|d.getHours()<<11|d.getMinutes()<<5|Math.floor(d.getSeconds()/2))>>>0;
+  }
+
+  function u32le(n){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n,true);return b;}
+  function u16le(n){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,true);return b;}
+
+  function zipStore(files) {
+    // files: [{name:string, data:Uint8Array}]
+    const entries=[];
+    let offset=0;
+    const dt=dosTime();
+    const localHeaders=[];
+
+    files.forEach(f=>{
+      const nameBytes=strToU8(f.name);
+      const crc=crc32(f.data);
+      const size=f.data.length;
+      // local file header
+      const lh=u8concat([
+        new Uint8Array([0x50,0x4B,0x03,0x04]),  // signature
+        u16le(20),      // version needed
+        u16le(0),       // flags
+        u16le(0),       // compression: store
+        u16le(dt&0xFFFF), u16le(dt>>>16), // mod time, mod date
+        u32le(crc),
+        u32le(size), u32le(size), // compressed = uncompressed
+        u16le(nameBytes.length), u16le(0), // name len, extra len
+        nameBytes,
+      ]);
+      localHeaders.push(lh);
+      entries.push({nameBytes,crc,size,offset});
+      offset+=lh.length+size;
+    });
+
+    // central directory
+    const cdParts=[];
+    entries.forEach((e,i)=>{
+      const dt2=dosTime();
+      cdParts.push(u8concat([
+        new Uint8Array([0x50,0x4B,0x01,0x02]),
+        u16le(20), u16le(20), u16le(0), u16le(0),
+        u16le(dt2&0xFFFF), u16le(dt2>>>16),
+        u32le(e.crc), u32le(e.size), u32le(e.size),
+        u16le(e.nameBytes.length), u16le(0), u16le(0),
+        u16le(0), u16le(0), u32le(0),
+        u32le(e.offset),
+        e.nameBytes,
+      ]));
+    });
+    const cd=u8concat(cdParts);
+    const cdOffset=offset;
+    const eocd=u8concat([
+      new Uint8Array([0x50,0x4B,0x05,0x06]),
+      u16le(0),u16le(0),
+      u16le(files.length),u16le(files.length),
+      u32le(cd.length), u32le(cdOffset),
+      u16le(0),
+    ]);
+
+    const parts=[];
+    files.forEach((f,i)=>{parts.push(localHeaders[i]);parts.push(f.data);});
+    parts.push(cd); parts.push(eocd);
+    return u8concat(parts);
+  }
+
+  // ── Main download ──────────────────────────────────────────────────────
+  function downloadXlsx() {
+    const sheetDefs = [
+      { id: "raw",       name: "原始用例集" },
+      { id: "review",    name: "AI评审详情" },
+      { id: "optimized", name: "优化后用例集" },
+    ];
+
+    const files = [];
+
+    // workbook entries
+    const sheetFiles = [];
+    sheetDefs.forEach(({id, name}, idx) => {
+      const table = document.querySelector("#" + id + " table");
+      if (!table) return;
+      const { columns, rows } = tableToSheetData(table);
+      const xml = buildSheetXml(columns, rows);
+      sheetFiles.push({ sheetName: name, idx: idx+1, xml });
+    });
+
+    const workbookSheetsXml = sheetFiles.map(s=>`<sheet name="${escXml(s.sheetName)}" sheetId="${s.idx}" r:id="rId${s.idx}"/>`).join("");
+    const workbookRelsXml = sheetFiles.map(s=>`<Relationship Id="rId${s.idx}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${s.idx}.xml"/>`).join("")
+      + `<Relationship Id="rId${sheetFiles.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+    const contentOverrides = sheetFiles.map(s=>`<Override PartName="/xl/worksheets/sheet${s.idx}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("");
+
+    files.push({ name: "[Content_Types].xml", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      +'<Default Extension="xml" ContentType="application/xml"/>'
+      +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+      +'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+      +contentOverrides+'</Types>'
+    )});
+    files.push({ name: "_rels/.rels", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+      +'</Relationships>'
+    )});
+    files.push({ name: "xl/workbook.xml", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+      +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      +`<sheets>${workbookSheetsXml}</sheets></workbook>`
+    )});
+    files.push({ name: "xl/_rels/workbook.xml.rels", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +workbookRelsXml+'</Relationships>'
+    )});
+    files.push({ name: "xl/styles.xml", data: strToU8(buildStylesXml()) });
+    sheetFiles.forEach(s => {
+      files.push({ name: `xl/worksheets/sheet${s.idx}.xml`, data: strToU8(s.xml) });
+    });
+
+    const zipBytes = zipStore(files);
+    const blob = new Blob([zipBytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "测试用例集_" + new Date().toISOString().slice(0,10) + ".xlsx";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("Excel 已生成并下载（含所有编辑内容）");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // COPY
+  // ─────────────────────────────────────────────────────────────────────────
+  async function copyOptimized() {
+    const table = document.querySelector("#optimized table");
+    if (!table) return;
+    const rows = Array.from(table.rows)
+      .filter(row => !row.classList.contains("hidden") && !row.classList.contains("row-deleted"))
+      .map(row =>
+        Array.from(row.cells)
+          .filter(c => !c.classList.contains("col-action"))
+          .map(cell => (cell.dataset.rawValue||cell.innerText).trim().replace(/\s+/g," "))
+          .join("\t")
+      ).join("\n");
+    await navigator.clipboard.writeText(rows);
+    toast("已复制优化后用例（含当前筛选 + 编辑结果）");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TOAST
+  // ─────────────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"), 2600);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ADD ACTION COLUMN TO TABLES (hidden until edit mode)
+  // ─────────────────────────────────────────────────────────────────────────
+  function injectActionColumns() {
+    ["raw","review","optimized"].forEach(id => {
+      const table = document.querySelector("#" + id + " table");
+      if (!table) return;
+      // header
+      const th = document.createElement("th");
+      th.className = "col-action";
+      th.textContent = "操作";
+      th.style.display = "none";
+      if (table.rows[0]) table.rows[0].appendChild(th);
+      // data rows
+      Array.from(table.rows).slice(1).forEach(row => {
+        const td = document.createElement("td");
+        td.className = "col-action";
+        td.style.display = "none";
+        td.innerHTML = buildRowActionBtns();
+        row.appendChild(td);
+      });
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // INIT
+  // ─────────────────────────────────────────────────────────────────────────
+  renderPriorityBadges();
+  injectActionColumns();
+  buildFilterOptions();
+  initCounts();
+  snapshotAllTables();
+  </script>
+</body>
+</html>
