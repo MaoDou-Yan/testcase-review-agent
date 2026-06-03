@@ -548,7 +548,10 @@ h.append('</html>')
 
 output = "\n".join(h)
 
-with open("report.html", "w", encoding="utf-8") as f:
+import os
+os.makedirs("output", exist_ok=True)
+
+with open("output/report.html", "w", encoding="utf-8") as f:
     f.write(output)
 
 print("Report generated successfully!")
@@ -556,4 +559,4 @@ print(f"  Original cases: {total}")
 print(f"  Optimized cases: {opt_total}")
 print(f"  Review findings: {len(review_findings)}")
 print(f"  New cases added: {opt_total - total}")
-print(f"  Output: report.html")
+print(f"  Output: output/report.html")

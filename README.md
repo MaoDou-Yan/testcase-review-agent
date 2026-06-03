@@ -56,9 +56,9 @@ input/
 根据 input 中的prd，来执行这个agent
 ```
 
-4. Agent 将自动完成五阶段流水线，生成 `report.html` 报告文件。
+4. Agent 将自动完成五阶段流水线，生成 `output/report.html` 报告文件。
 
-5. 在浏览器中打开 `report.html`，可查看完整报告并导出 Excel。
+5. 在浏览器中打开 `output/report.html`，可查看完整报告并导出 Excel。
 
 ### 支持的输入格式
 
@@ -70,10 +70,12 @@ input/
 
 ### 输出物
 
+所有输出文件统一存放在 `output/` 目录：
+
 | 文件 | 说明 |
 |------|------|
-| `report.html` | 完整交互式 HTML 报告（含 5 个 Tab） |
-| Excel (.xlsx) | 通过报告内「下载Excel」按钮生成，含 3 个 Sheet |
+| `output/report.html` | 完整交互式 HTML 报告（含 5 个 Tab） |
+| `output/*.xlsx` | 通过报告内「下载Excel」按钮生成，含 3 个 Sheet |
 
 ## 报告功能
 
@@ -103,10 +105,10 @@ testcase-review-agent/
 │   └── report-template.html    # HTML 报告模板（样式 + 交互逻辑）
 ├── scripts/
 │   └── write_xlsx.py           # 服务端 Excel 生成脚本
-├── input/                      # PRD 输入目录
-├── output/                     # 输出目录
-├── generate_report.py          # 报告生成脚本（示例）
-└── report.html                 # 生成的示例报告
+├── input/                      # PRD 输入目录（放入需求文档）
+├── output/                     # 输出目录（报告和 Excel 统一存放此处）
+│   └── report.html             # 示例输出报告
+└── generate_report.py          # 报告生成脚本（示例）
 ```
 
 ## 用例编号规范

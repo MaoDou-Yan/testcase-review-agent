@@ -18,6 +18,15 @@ Produce a complete, reviewable, and directly executable test case deliverable fr
 
 The final deliverable should include an HTML report and a real `.xlsx` workbook unless the user explicitly requests another format.
 
+## Output Location
+
+All generated deliverables must be saved to the `output/` directory:
+
+- `output/report.html` — the complete interactive HTML report
+- `output/*.xlsx` — exported Excel workbook (generated via the in-page download button or `scripts/write_xlsx.py`)
+
+The `output/` directory is pre-created in the repository. Always write outputs there, never to the project root.
+
 ## Input Handling
 
 When the user provides prototype files, screenshots, PRDs, Markdown, Word/PDF documents, tables, or pasted requirements:
