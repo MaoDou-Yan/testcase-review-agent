@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>测试用例评审报告</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --line: #d9dee8;
+      --accent: #1769aa;
+      --accent-soft: #e8f2fb;
+      --warn: #b45309;
+      --good: #047857;
+      --p0: #ffc7ce;
+      --p1: #ffeb9c;
+      --p2: #ffffcc;
+      --edit-bg: #fffde7;
+      --edit-border: #f59e0b;
+      --new-row: #e8f5e9;
+      --del-row: #fdecea;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 24px 32px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; }
+    .sub { color: var(--muted); font-size: 13px; }
+    .edit-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: var(--edit-bg);
+      border: 1px solid var(--edit-border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: #92400e;
+      font-weight: 600;
+    }
+    .edit-badge.visible { display: flex; }
+    .edit-dot {
+      width: 8px; height: 8px;
+      background: var(--edit-border);
+      border-radius: 50%;
+      animation: blink 1.2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    main { padding: 20px 32px 36px; }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .toolbar-sep { width: 1px; height: 28px; background: var(--line); margin: 0 4px; }
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    button.secondary { background: #fff; color: var(--accent); }
+    button.danger { background: #fff; color: #b91c1c; border-color: #fca5a5; }
+    button.success { background: #fff; color: var(--good); border-color: #6ee7b7; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .tab {
+      background: #fff;
+      color: var(--text);
+      border-color: var(--line);
+    }
+    .tab.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+    section {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+    }
+    section.active { display: block; }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    .filter-bar label { font-size: 13px; color: var(--muted); }
+    .filter-bar select, .filter-bar input[type="text"] {
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 0 10px;
+      font-size: 13px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent); }
+    .filter-count { font-size: 12px; color: var(--muted); }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+      line-height: 1.45;
+    }
+    th {
+      background: #d6e4f0;
+      font-weight: 700;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      user-select: none;
+    }
+    /* action column header */
+    th.col-action { width: 64px; text-align: center; }
+    td.col-action { text-align: center; vertical-align: middle; padding: 4px; white-space: nowrap; }
+
+    tr:hover td:not(.col-action) { background: #f0f6fb; }
+    tr.row-new td { background: var(--new-row) !important; }
+    tr.row-deleted td { background: var(--del-row) !important; opacity: .6; text-decoration: line-through; }
+    tr.hidden { display: none; }
+
+    /* Editable cell */
+    td[contenteditable="true"] {
+      outline: none;
+      min-width: 60px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    td[contenteditable="true"]:focus {
+      background: var(--edit-bg) !important;
+      box-shadow: inset 0 0 0 2px var(--edit-border);
+      border-radius: 2px;
+    }
+    td[contenteditable="true"]:empty::before {
+      content: attr(data-placeholder);
+      color: #ccc;
+      font-style: italic;
+    }
+
+    /* Priority badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-p0 { background: var(--p0); color: #9b1c1c; }
+    .badge-p1 { background: var(--p1); color: #7c4a00; }
+    .badge-p2 { background: var(--p2); color: #6b5900; }
+    .badge-p3 { background: #e5e7eb; color: #374151; }
+
+    /* Row action buttons */
+    .btn-row {
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 3px 5px;
+      border-radius: 4px;
+      font-size: 15px;
+      height: auto;
+      line-height: 1;
+    }
+    .btn-row:hover { background: #f3f4f6; }
+    .btn-row.del { color: #ef4444; }
+    .btn-row.restore { color: var(--good); }
+
+    /* Metrics */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+    .metric strong { display: block; font-size: 26px; margin-top: 6px; color: var(--accent); }
+    .metric.good strong { color: var(--good); }
+    .metric.warn strong { color: var(--warn); }
+    .notice {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      color: #123;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #1f2937;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>测试用例评审报告</h1>
+      <div class="sub">包含原始用例、AI三方评审、优化后用例、评审与覆盖度分析。点击单元格可直接编辑。</div>
+    </div>
+    <div class="edit-badge" id="edit-badge">
+      <span class="edit-dot"></span>
+      <span id="edit-badge-text">编辑中</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <!-- 下载 -->
+      <button type="button" onclick="downloadXlsx()" id="btn-download">⬇ 下载Excel（含编辑）</button>
+      <button type="button" class="secondary" onclick="copyOptimized()">复制数据</button>
+      <span class="toolbar-sep"></span>
+      <!-- 编辑控制 -->
+      <button type="button" class="secondary" onclick="toggleEdit()" id="btn-edit">✏ 开启编辑</button>
+      <button type="button" class="success" onclick="addRow()" id="btn-add" disabled>＋ 新增行</button>
+      <button type="button" class="danger" onclick="resetEdits()" id="btn-reset" disabled>↩ 撤销全部</button>
+    </div>
+
+    <nav class="tabs" aria-label="报告标签页">
+      <button class="tab active" type="button" data-tab="raw">原始用例集</button>
+      <button class="tab" type="button" data-tab="review">AI评审详情</button>
+      <button class="tab" type="button" data-tab="optimized">优化后用例集</button>
+      <button class="tab" type="button" data-tab="report">评审与覆盖度报告</button>
+    </nav>
+
+    <!-- 原始用例集 -->
+    <section id="raw" class="active">
+      <div class="filter-bar">
+        <label>一级模块</label>
+        <select id="raw-module-filter" onchange="filterTable('raw')"><option value="">全部</option></select>
+        <label>优先级</label>
+        <select id="raw-priority-filter" onchange="filterTable('raw')">
+          <option value="">全部</option>
+          <option>P0</option><option>P1</option><option>P2</option><option>P3</option>
+        </select>
+        <label>搜索</label>
+        <input type="text" id="raw-search" placeholder="关键词..." oninput="filterTable('raw')">
+        <span class="filter-count" id="raw-count"></span>
+      </div>
+      <!-- INSERT_RAW_CASE_TABLE -->
+    </section>
+
+    <!-- AI评审详情 -->
+    <section id="review">
+      <div class="filter-bar">
+        <label>评审角色</label>
+        <select id="review-role-filter" onchange="filterTable('review')">
+          <option value="">全部</option>
+          <option>Arch</option><option>Dev</option><option>QA</option>
+          <option>PM</option><option>UX</option><option>Sec</option>
+          <option>Ops</option><option>Perf</option><option>DBA</option>
+        </select>
+        <label>缺陷类型</label>
+        <select id="review-defect-filter" onchange="filterTable('review')"><option value="">全部</option></select>
+        <label>搜索</label>
+        <input type="text" id="review-search" placeholder="关键词..." oninput="filterTable('review')">
+        <span class="filter-count" id="review-count"></span>
+      </div>
+      <!-- INSERT_REVIEW_TABLE -->
+    </section>
+
+    <!-- 优化后用例集 -->
+    <section id="optimized">
+      <div class="filter-bar">
+        <label>一级模块</label>
+        <select id="optimized-module-filter" onchange="filterTable('optimized')"><option value="">全部</option></select>
+        <label>优先级</label>
+        <select id="optimized-priority-filter" onchange="filterTable('optimized')">
+          <option value="">全部</option>
+          <option>P0</option><option>P1</option><option>P2</option><option>P3</option>
+        </select>
+        <label>搜索</label>
+        <input type="text" id="optimized-search" placeholder="关键词..." oninput="filterTable('optimized')">
+        <span class="filter-count" id="optimized-count"></span>
+      </div>
+      <!-- INSERT_OPTIMIZED_CASE_TABLE -->
+    </section>
+
+    <!-- 评审与覆盖度报告 -->
+    <section id="report">
+      <div class="metrics">
+        <div class="metric"><span>总用例数</span><strong><!-- TOTAL_CASES --></strong></div>
+        <div class="metric good"><span>评审通过数</span><strong><!-- PASSED_CASES --></strong></div>
+        <div class="metric warn"><span>驳回/修改数</span><strong><!-- MODIFIED_CASES --></strong></div>
+        <div class="metric"><span>功能覆盖提升</span><strong><!-- FUNCTION_LIFT --></strong></div>
+        <div class="metric"><span>场景覆盖提升</span><strong><!-- SCENARIO_LIFT --></strong></div>
+      </div>
+
+      <h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">九方评审评分（ISO 25010 质量特性）</h3>
+      <div class="metrics" id="role-scores">
+        <div class="metric"><span>开发架构师 (Arch)</span><strong><!-- ARCH_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- ARCH_DETAIL --></div></div>
+        <div class="metric"><span>开发工程师 (Dev)</span><strong><!-- DEV_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- DEV_DETAIL --></div></div>
+        <div class="metric"><span>测试工程师 (QA)</span><strong><!-- QA_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- QA_DETAIL --></div></div>
+        <div class="metric"><span>产品经理 (PM)</span><strong><!-- PM_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- PM_DETAIL --></div></div>
+        <div class="metric"><span>用户体验设计师 (UX)</span><strong><!-- UX_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- UX_DETAIL --></div></div>
+        <div class="metric"><span>安全工程师 (Sec)</span><strong><!-- SEC_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- SEC_DETAIL --></div></div>
+        <div class="metric"><span>运维工程师 (Ops)</span><strong><!-- OPS_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- OPS_DETAIL --></div></div>
+        <div class="metric"><span>性能工程师 (Perf)</span><strong><!-- PERF_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- PERF_DETAIL --></div></div>
+        <div class="metric"><span>数据工程师 (DBA)</span><strong><!-- DBA_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- DBA_DETAIL --></div></div>
+      </div>
+
+      <div class="notice"><!-- REPORT_SUMMARY --></div>
+      <!-- INSERT_REPORT_TABLES -->
+    </section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+  // ─────────────────────────────────────────────────────────────────────────
+  // STATE
+  // ─────────────────────────────────────────────────────────────────────────
+  let editMode = false;
+  let editCount = 0;         // unsaved edit count for badge
+  // Snapshot: { tableId -> [ [cell texts...], ... ] }  (header + all rows at init)
+  const snapshots = {};
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TABS
+  // ─────────────────────────────────────────────────────────────────────────
+  const tabs = document.querySelectorAll(".tab");
+  const sections = document.querySelectorAll("section");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      sections.forEach(s => s.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.tab).classList.add("active");
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PRIORITY BADGES
+  // ─────────────────────────────────────────────────────────────────────────
+  function renderPriorityBadges(root) {
+    (root || document).querySelectorAll("table td:not(.col-action)").forEach(td => {
+      if (td.querySelector(".badge")) return;
+      const text = td.textContent.trim().toUpperCase();
+      if (/^P[0-3]$/.test(text)) {
+        const cls = "badge badge-" + text.toLowerCase();
+        td.dataset.rawValue = text;
+        td.innerHTML = `<span class="${cls}">${text}</span>`;
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FILTER
+  // ─────────────────────────────────────────────────────────────────────────
+  const FILTER_CONFIG = {
+    raw:       { moduleFilter:"raw-module-filter", moduleCol:1, priorityFilter:"raw-priority-filter", priorityCol:8, search:"raw-search", count:"raw-count" },
+    optimized: { moduleFilter:"optimized-module-filter", moduleCol:1, priorityFilter:"optimized-priority-filter", priorityCol:8, search:"optimized-search", count:"optimized-count" },
+    review:    { roleFilter:"review-role-filter", roleCol:1, defectFilter:"review-defect-filter", defectCol:3, search:"review-search", count:"review-count" },
+  };
+
+  function getCellText(cell) {
+    if (!cell) return "";
+    return (cell.dataset.rawValue || cell.textContent).trim();
+  }
+
+  function filterTable(sectionId) {
+    const cfg = FILTER_CONFIG[sectionId];
+    const table = document.querySelector("#" + sectionId + " table");
+    if (!table) return;
+    const module   = cfg.moduleFilter   ? document.getElementById(cfg.moduleFilter).value   : "";
+    const priority = cfg.priorityFilter ? document.getElementById(cfg.priorityFilter).value : "";
+    const role     = cfg.roleFilter     ? document.getElementById(cfg.roleFilter).value     : "";
+    const defect   = cfg.defectFilter   ? document.getElementById(cfg.defectFilter).value   : "";
+    const keyword  = document.getElementById(cfg.search).value.trim().toLowerCase();
+    let visible = 0;
+    Array.from(table.rows).slice(1).forEach(row => {
+      if (row.classList.contains("row-deleted")) { row.classList.add("hidden"); return; }
+      let show = true;
+      if (module   && getCellText(row.cells[cfg.moduleCol])               !== module)             show = false;
+      if (priority && getCellText(row.cells[cfg.priorityCol]).toUpperCase() !== priority.toUpperCase()) show = false;
+      if (role     && getCellText(row.cells[cfg.roleCol])                 !== role)               show = false;
+      if (defect   && getCellText(row.cells[cfg.defectCol])               !== defect)             show = false;
+      if (keyword  && !row.textContent.toLowerCase().includes(keyword))                           show = false;
+      row.classList.toggle("hidden", !show);
+      if (show) visible++;
+    });
+    const total = table.rows.length - 1 - table.querySelectorAll("tr.row-deleted").length;
+    const countEl = document.getElementById(cfg.count);
+    if (countEl) countEl.textContent = `显示 ${visible} / ${total} 条`;
+  }
+
+  function buildFilterOptions() {
+    buildSelectOptions("raw-module-filter",       "raw",       1);
+    buildSelectOptions("optimized-module-filter", "optimized", 1);
+    buildSelectOptions("review-defect-filter",    "review",    3);
+  }
+
+  function buildSelectOptions(selectId, sectionId, colIdx) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const table = document.querySelector("#" + sectionId + " table");
+    if (!table) return;
+    const vals = new Set();
+    Array.from(table.rows).slice(1).forEach(row => {
+      const cell = row.cells[colIdx];
+      if (cell) vals.add(getCellText(cell));
+    });
+    vals.forEach(v => {
+      if (!v) return;
+      const opt = document.createElement("option");
+      opt.value = v; opt.textContent = v;
+      sel.appendChild(opt);
+    });
+  }
+
+  function initCounts() {
+    ["raw","optimized","review"].forEach(id => {
+      const cfg = FILTER_CONFIG[id];
+      const table = document.querySelector("#" + id + " table");
+      if (!table) return;
+      const countEl = document.getElementById(cfg.count);
+      if (countEl) countEl.textContent = `共 ${table.rows.length - 1} 条`;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // SNAPSHOT (for reset)
+  // ─────────────────────────────────────────────────────────────────────────
+  function snapshotTable(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    snapshots[tableId] = Array.from(table.rows).map(row =>
+      Array.from(row.cells).map(cell => {
+        if (cell.classList.contains("col-action")) return "__ACTION__";
+        return cell.dataset.rawValue !== undefined ? cell.dataset.rawValue : cell.textContent.trim();
+      })
+    );
+  }
+
+  function snapshotAllTables() {
+    document.querySelectorAll("table[id]").forEach(t => snapshotTable(t.id));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // EDIT MODE
+  // ─────────────────────────────────────────────────────────────────────────
+  function toggleEdit() {
+    editMode = !editMode;
+    const btn = document.getElementById("btn-edit");
+    const addBtn = document.getElementById("btn-add");
+    const resetBtn = document.getElementById("btn-reset");
+    btn.textContent = editMode ? "✔ 完成编辑" : "✏ 开启编辑";
+    btn.className = editMode ? "button" : "secondary";
+    addBtn.disabled = !editMode;
+    resetBtn.disabled = !editMode;
+
+    // Toggle contenteditable on all data cells (not action col, not header)
+    document.querySelectorAll("table tbody tr:not(.row-deleted) td:not(.col-action), table tr:not(:first-child) td:not(.col-action)").forEach(td => {
+      if (editMode) {
+        td.setAttribute("contenteditable", "true");
+        td.dataset.placeholder = "输入内容…";
+        // If cell has a badge, unwrap it for editing
+        const badge = td.querySelector(".badge");
+        if (badge) {
+          td.dataset.rawValue = badge.textContent.trim();
+          td.textContent = badge.textContent.trim();
+        }
+        td.addEventListener("input", onCellInput);
+      } else {
+        td.removeAttribute("contenteditable");
+        td.removeEventListener("input", onCellInput);
+      }
+    });
+
+    // Show/hide action column
+    document.querySelectorAll(".col-action").forEach(el => {
+      el.style.display = editMode ? "" : "none";
+    });
+
+    if (!editMode) {
+      // Re-render badges after edit
+      renderPriorityBadges();
+      updateEditBadge();
+    }
+
+    toast(editMode ? "编辑模式已开启，点击单元格直接修改" : "编辑已完成");
+  }
+
+  function onCellInput(e) {
+    editCount++;
+    updateEditBadge();
+  }
+
+  function updateEditBadge() {
+    const badge = document.getElementById("edit-badge");
+    const text = document.getElementById("edit-badge-text");
+    // Count dirty cells
+    let changed = 0;
+    document.querySelectorAll("table tr.row-new").forEach(() => changed++);
+    document.querySelectorAll("table tr.row-deleted").forEach(() => changed++);
+    // Simple heuristic: if editMode is on, show badge
+    if (editMode || changed > 0) {
+      badge.classList.add("visible");
+      text.textContent = changed > 0 ? `已修改 ${changed} 行` : "编辑中";
+    } else {
+      badge.classList.remove("visible");
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ADD ROW
+  // ─────────────────────────────────────────────────────────────────────────
+  function addRow() {
+    // Add to the currently active tab's table
+    const activeSection = document.querySelector("section.active");
+    if (!activeSection) return;
+    const table = activeSection.querySelector("table");
+    if (!table) return;
+    const headerRow = table.rows[0];
+    const colCount = headerRow ? headerRow.cells.length : 0;
+    const tr = document.createElement("tr");
+    tr.classList.add("row-new");
+    for (let i = 0; i < colCount; i++) {
+      const td = document.createElement("td");
+      if (headerRow.cells[i] && headerRow.cells[i].classList.contains("col-action")) {
+        td.className = "col-action";
+        td.innerHTML = buildRowActionBtns();
+      } else {
+        td.setAttribute("contenteditable", "true");
+        td.dataset.placeholder = "输入内容…";
+        td.addEventListener("input", onCellInput);
+      }
+      tr.appendChild(td);
+    }
+    table.tBodies[0] ? table.tBodies[0].appendChild(tr) : table.appendChild(tr);
+    updateEditBadge();
+    toast("已新增一行，请填写内容");
+  }
+
+  function buildRowActionBtns() {
+    return `<button class="btn-row del" title="删除此行" onclick="deleteRow(this)">🗑</button>`;
+  }
+
+  function deleteRow(btn) {
+    const tr = btn.closest("tr");
+    if (tr.classList.contains("row-new")) {
+      tr.remove();
+    } else {
+      tr.classList.add("row-deleted");
+      tr.querySelectorAll("td:not(.col-action)").forEach(td => td.removeAttribute("contenteditable"));
+      btn.outerHTML = `<button class="btn-row restore" title="恢复此行" onclick="restoreRow(this)">↩</button>`;
+    }
+    updateEditBadge();
+    // re-run filter to hide deleted row
+    const sectionId = tr.closest("section") ? tr.closest("section").id : null;
+    if (sectionId && FILTER_CONFIG[sectionId]) filterTable(sectionId);
+  }
+
+  function restoreRow(btn) {
+    const tr = btn.closest("tr");
+    tr.classList.remove("row-deleted");
+    tr.querySelectorAll("td:not(.col-action)").forEach(td => {
+      if (editMode) td.setAttribute("contenteditable", "true");
+    });
+    btn.outerHTML = buildRowActionBtns();
+    updateEditBadge();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // RESET ALL EDITS
+  // ─────────────────────────────────────────────────────────────────────────
+  function resetEdits() {
+    if (!confirm("确认撤销所有编辑，恢复到初始状态？")) return;
+    // Remove new rows
+    document.querySelectorAll("tr.row-new").forEach(tr => tr.remove());
+    // Restore deleted rows
+    document.querySelectorAll("tr.row-deleted").forEach(tr => {
+      tr.classList.remove("row-deleted");
+      tr.querySelectorAll("td:not(.col-action)").forEach(td => {
+        if (editMode) td.setAttribute("contenteditable", "true");
+      });
+      const restoreBtn = tr.querySelector(".btn-row.restore");
+      if (restoreBtn) restoreBtn.outerHTML = buildRowActionBtns();
+    });
+    // Restore cell content from snapshots
+    Object.entries(snapshots).forEach(([tableId, rows]) => {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      rows.forEach((cells, rIdx) => {
+        const row = table.rows[rIdx];
+        if (!row) return;
+        cells.forEach((val, cIdx) => {
+          const cell = row.cells[cIdx];
+          if (!cell || val === "__ACTION__") return;
+          cell.textContent = val;
+          if (/^P[0-3]$/i.test(val)) cell.dataset.rawValue = val.toUpperCase();
+          else delete cell.dataset.rawValue;
+        });
+      });
+    });
+    renderPriorityBadges();
+    editCount = 0;
+    updateEditBadge();
+    toast("已恢复到初始状态");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // XLSX GENERATION (pure JS, Open XML, no dependencies)
+  // ─────────────────────────────────────────────────────────────────────────
+  function tableToSheetData(tableEl) {
+    if (!tableEl) return { columns: [], rows: [] };
+    const allRows = Array.from(tableEl.rows).filter(r => !r.classList.contains("row-deleted") && !r.classList.contains("hidden") || r === tableEl.rows[0]);
+    // header
+    const headerCells = Array.from(allRows[0].cells).filter(c => !c.classList.contains("col-action"));
+    const columns = headerCells.map(c => c.textContent.trim());
+    // data rows
+    const rows = [];
+    for (let i = 1; i < allRows.length; i++) {
+      const row = allRows[i];
+      if (row.classList.contains("row-deleted")) continue;
+      const dataCells = Array.from(row.cells).filter(c => !c.classList.contains("col-action"));
+      const rowData = {};
+      dataCells.forEach((cell, ci) => {
+        rowData[columns[ci]] = (cell.dataset.rawValue !== undefined ? cell.dataset.rawValue : cell.textContent).trim();
+      });
+      rows.push(rowData);
+    }
+    return { columns, rows };
+  }
+
+  // ── Minimal Open XML xlsx builder ─────────────────────────────────────
+  function escXml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+  }
+
+  function colLetter(idx) {
+    let name = ""; idx++;
+    while (idx) { const r = (idx-1)%26; name = String.fromCharCode(65+r)+name; idx=Math.floor((idx-1)/26); }
+    return name;
+  }
+
+  function buildSheetXml(columns, rows) {
+    const STYLE_HEADER = 1, STYLE_WRAP = 2, STYLE_P0 = 3, STYLE_P1 = 4, STYLE_P2 = 5;
+    const PRIORITY_STYLES = { P0: STYLE_P0, P1: STYLE_P1, P2: STYLE_P2 };
+    const PRIORITY_COLS = new Set(["用例优先级","优先级","priority"]);
+
+    function cellXml(val, ri, ci, si) {
+      const ref = colLetter(ci)+ri;
+      const text = escXml(String(val==null?"":val).replace(/\r\n/g,"\n").replace(/\r/g,"\n"));
+      return `<c r="${ref}" t="inlineStr" s="${si}"><is><t xml:space="preserve">${text}</t></is></c>`;
+    }
+
+    const priorityCols = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
+    const xmlRows = [];
+
+    // header
+    const hdr = columns.map((c,i)=>cellXml(c,1,i,STYLE_HEADER)).join("");
+    xmlRows.push(`<row r="1">${hdr}</row>`);
+
+    rows.forEach((row,ri) => {
+      const vals = columns.map(c=>typeof row==="object"&&!Array.isArray(row)?row[c]??"":row[c]??"");
+      const cells = vals.map((v,ci)=>{
+        let si = STYLE_WRAP;
+        if (priorityCols.has(ci)) si = PRIORITY_STYLES[String(v).trim().toUpperCase()] ?? STYLE_WRAP;
+        return cellXml(v, ri+2, ci, si);
+      }).join("");
+      xmlRows.push(`<row r="${ri+2}">${cells}</row>`);
+    });
+
+    const lastCol = colLetter(Math.max(columns.length-1,0));
+    const lastRow = Math.max(rows.length+1,1);
+    const dim = columns.length ? `A1:${lastCol}${lastRow}` : "A1";
+
+    // column widths
+    const colWidths = columns.map((c,ci)=>{
+      const maxLen = Math.max(c.length, ...rows.map(r=>{
+        const v = typeof r==="object"&&!Array.isArray(r)?r[c]??"":r[ci]??"";
+        return String(v).length;
+      }));
+      return Math.min(Math.max(maxLen*1.2,8),60);
+    });
+    const colsXml = colWidths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w.toFixed(1)}" bestFit="1" customWidth="1"/>`).join("");
+
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+      +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      +`<dimension ref="${dim}"/>`
+      +'<sheetViews><sheetView workbookViewId="0"/></sheetViews>'
+      +'<sheetFormatPr defaultRowHeight="15"/>'
+      +`<cols>${colsXml}</cols>`
+      +`<sheetData>${xmlRows.join("")}</sheetData>`
+      +'</worksheet>';
+  }
+
+  function buildStylesXml() {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+      +'<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
+      +'<fills count="6">'
+      +'<fill><patternFill patternType="none"/></fill>'
+      +'<fill><patternFill patternType="gray125"/></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFD6E4F0"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFC7CE"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFEB9C"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFFF99"/></patternFill></fill>'
+      +'</fills>'
+      +'<borders count="2"><border/><border>'
+      +'<left style="thin"><color rgb="FFD9DEE8"/></left><right style="thin"><color rgb="FFD9DEE8"/></right>'
+      +'<top style="thin"><color rgb="FFD9DEE8"/></top><bottom style="thin"><color rgb="FFD9DEE8"/></bottom>'
+      +'</border></borders>'
+      +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+      +'<cellXfs count="6">'
+      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+      +'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'<xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+      +'</cellXfs></styleSheet>';
+  }
+
+  // ── ZIP builder (no dependency) ────────────────────────────────────────
+  // Uses a minimal DEFLATE-less zip (store method) for broad compatibility.
+  // For large files the base64 size is acceptable for test-case workbooks.
+  function strToU8(str) {
+    return new TextEncoder().encode(str);
+  }
+
+  function u8concat(arrays) {
+    const total = arrays.reduce((s,a)=>s+a.length,0);
+    const out = new Uint8Array(total);
+    let offset=0;
+    arrays.forEach(a=>{out.set(a,offset);offset+=a.length;});
+    return out;
+  }
+
+  function crc32(data) {
+    const table = crc32.table || (crc32.table = (()=>{
+      const t=new Uint32Array(256);
+      for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}
+      return t;
+    })());
+    let crc=0xFFFFFFFF;
+    for(let i=0;i<data.length;i++) crc=table[(crc^data[i])&0xFF]^(crc>>>8);
+    return (crc^0xFFFFFFFF)>>>0;
+  }
+
+  function dosTime() {
+    const d=new Date();
+    return ((d.getFullYear()-1980)<<25|(d.getMonth()+1)<<21|d.getDate()<<16|d.getHours()<<11|d.getMinutes()<<5|Math.floor(d.getSeconds()/2))>>>0;
+  }
+
+  function u32le(n){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n,true);return b;}
+  function u16le(n){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,true);return b;}
+
+  function zipStore(files) {
+    // files: [{name:string, data:Uint8Array}]
+    const entries=[];
+    let offset=0;
+    const dt=dosTime();
+    const localHeaders=[];
+
+    files.forEach(f=>{
+      const nameBytes=strToU8(f.name);
+      const crc=crc32(f.data);
+      const size=f.data.length;
+      // local file header
+      const lh=u8concat([
+        new Uint8Array([0x50,0x4B,0x03,0x04]),  // signature
+        u16le(20),      // version needed
+        u16le(0),       // flags
+        u16le(0),       // compression: store
+        u16le(dt&0xFFFF), u16le(dt>>>16), // mod time, mod date
+        u32le(crc),
+        u32le(size), u32le(size), // compressed = uncompressed
+        u16le(nameBytes.length), u16le(0), // name len, extra len
+        nameBytes,
+      ]);
+      localHeaders.push(lh);
+      entries.push({nameBytes,crc,size,offset});
+      offset+=lh.length+size;
+    });
+
+    // central directory
+    const cdParts=[];
+    entries.forEach((e,i)=>{
+      const dt2=dosTime();
+      cdParts.push(u8concat([
+        new Uint8Array([0x50,0x4B,0x01,0x02]),
+        u16le(20), u16le(20), u16le(0), u16le(0),
+        u16le(dt2&0xFFFF), u16le(dt2>>>16),
+        u32le(e.crc), u32le(e.size), u32le(e.size),
+        u16le(e.nameBytes.length), u16le(0), u16le(0),
+        u16le(0), u16le(0), u32le(0),
+        u32le(e.offset),
+        e.nameBytes,
+      ]));
+    });
+    const cd=u8concat(cdParts);
+    const cdOffset=offset;
+    const eocd=u8concat([
+      new Uint8Array([0x50,0x4B,0x05,0x06]),
+      u16le(0),u16le(0),
+      u16le(files.length),u16le(files.length),
+      u32le(cd.length), u32le(cdOffset),
+      u16le(0),
+    ]);
+
+    const parts=[];
+    files.forEach((f,i)=>{parts.push(localHeaders[i]);parts.push(f.data);});
+    parts.push(cd); parts.push(eocd);
+    return u8concat(parts);
+  }
+
+  // ── Main download ──────────────────────────────────────────────────────
+  function downloadXlsx() {
+    const sheetDefs = [
+      { id: "raw",       name: "原始用例集" },
+      { id: "review",    name: "AI评审详情" },
+      { id: "optimized", name: "优化后用例集" },
+    ];
+
+    const files = [];
+
+    // workbook entries
+    const sheetFiles = [];
+    sheetDefs.forEach(({id, name}, idx) => {
+      const table = document.querySelector("#" + id + " table");
+      if (!table) return;
+      const { columns, rows } = tableToSheetData(table);
+      const xml = buildSheetXml(columns, rows);
+      sheetFiles.push({ sheetName: name, idx: idx+1, xml });
+    });
+
+    const workbookSheetsXml = sheetFiles.map(s=>`<sheet name="${escXml(s.sheetName)}" sheetId="${s.idx}" r:id="rId${s.idx}"/>`).join("");
+    const workbookRelsXml = sheetFiles.map(s=>`<Relationship Id="rId${s.idx}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${s.idx}.xml"/>`).join("")
+      + `<Relationship Id="rId${sheetFiles.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+    const contentOverrides = sheetFiles.map(s=>`<Override PartName="/xl/worksheets/sheet${s.idx}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("");
+
+    files.push({ name: "[Content_Types].xml", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      +'<Default Extension="xml" ContentType="application/xml"/>'
+      +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+      +'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+      +contentOverrides+'</Types>'
+    )});
+    files.push({ name: "_rels/.rels", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+      +'</Relationships>'
+    )});
+    files.push({ name: "xl/workbook.xml", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+      +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      +`<sheets>${workbookSheetsXml}</sheets></workbook>`
+    )});
+    files.push({ name: "xl/_rels/workbook.xml.rels", data: strToU8(
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      +workbookRelsXml+'</Relationships>'
+    )});
+    files.push({ name: "xl/styles.xml", data: strToU8(buildStylesXml()) });
+    sheetFiles.forEach(s => {
+      files.push({ name: `xl/worksheets/sheet${s.idx}.xml`, data: strToU8(s.xml) });
+    });
+
+    const zipBytes = zipStore(files);
+    const blob = new Blob([zipBytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "测试用例集_" + new Date().toISOString().slice(0,10) + ".xlsx";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("Excel 已生成并下载（含所有编辑内容）");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // COPY
+  // ─────────────────────────────────────────────────────────────────────────
+  async function copyOptimized() {
+    const table = document.querySelector("#optimized table");
+    if (!table) return;
+    const rows = Array.from(table.rows)
+      .filter(row => !row.classList.contains("hidden") && !row.classList.contains("row-deleted"))
+      .map(row =>
+        Array.from(row.cells)
+          .filter(c => !c.classList.contains("col-action"))
+          .map(cell => (cell.dataset.rawValue||cell.innerText).trim().replace(/\s+/g," "))
+          .join("\t")
+      ).join("\n");
+    await navigator.clipboard.writeText(rows);
+    toast("已复制优化后用例（含当前筛选 + 编辑结果）");
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TOAST
+  // ─────────────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"), 2600);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ADD ACTION COLUMN TO TABLES (hidden until edit mode)
+  // ─────────────────────────────────────────────────────────────────────────
+  function injectActionColumns() {
+    ["raw","review","optimized"].forEach(id => {
+      const table = document.querySelector("#" + id + " table");
+      if (!table) return;
+      // header
+      const th = document.createElement("th");
+      th.className = "col-action";
+      th.textContent = "操作";
+      th.style.display = "none";
+      if (table.rows[0]) table.rows[0].appendChild(th);
+      // data rows
+      Array.from(table.rows).slice(1).forEach(row => {
+        const td = document.createElement("td");
+        td.className = "col-action";
+        td.style.display = "none";
+        td.innerHTML = buildRowActionBtns();
+        row.appendChild(td);
+      });
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // INIT
+  // ─────────────────────────────────────────────────────────────────────────
+  renderPriorityBadges();
+  injectActionColumns();
+  buildFilterOptions();
+  initCounts();
+  snapshotAllTables();
+  </script>
+</body>
+</html>
