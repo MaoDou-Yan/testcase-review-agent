@@ -646,325 +646,325 @@
 <tr><td>QA-Send-001</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>正常输入并发送问题</td><td>用户已登录且有问答权限</td><td>1. 在问答输入框输入问题「如何重置密码？」
 2. 点击发送按钮</td><td>1. 问题成功发送
 2. 输入框清空
-3. 用户问题以对话气泡样式展示在会话窗口</td><td>P0</td><td>已优化：根据Ops、Sec评审意见补充完善</td></tr>
+3. 用户问题以对话气泡样式展示在会话窗口</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Sec] 用户输入内容未说明XSS/注入防护措施（安全漏洞）→ 已采纳优化<br>[Ops] 问答请求链路涉及多个服务，缺少各环节的监控告警指标定义（运维盲区）→ 已采纳优化</td></tr>
 <tr><td>QA-Send-002</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入为空时发送按钮置灰</td><td>用户已登录</td><td>1. 不输入任何内容
 2. 观察发送按钮状态</td><td>1. 发送按钮为置灰状态
-2. 点击无响应</td><td>P2</td><td>无</td></tr>
+2. 点击无响应</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Send-003</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入500字边界值发送</td><td>用户已登录</td><td>1. 在输入框输入恰好500字的问题
 2. 点击发送</td><td>1. 问题成功发送
-2. 内容完整展示</td><td>P1</td><td>已优化：根据Dev评审意见补充完善</td></tr>
+2. 内容完整展示</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 500字边界值测试未覆盖多字节字符（如emoji），建议补充（边界遗漏）→ 已采纳优化</td></tr>
 <tr><td>QA-Send-004</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入超过500字限制</td><td>用户已登录</td><td>1. 在输入框输入501字及以上内容
 2. 尝试发送</td><td>1. 系统截断或提示超出限制
-2. 不发送超出部分内容</td><td>P1</td><td>无</td></tr>
+2. 不发送超出部分内容</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Send-005</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>支持多行文本输入和回车发送</td><td>用户已登录</td><td>1. 在输入框输入多行文本（Shift+Enter换行）
 2. 点击发送</td><td>1. 多行文本正确展示
-2. 换行格式保留</td><td>P2</td><td>无</td></tr>
+2. 换行格式保留</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Match-001</td><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配返回高度契合答案</td><td>知识库已有上架相关词条</td><td>1. 输入「忘记密码怎么处理」（语义近似「如何重置密码」）
 2. 发送问题</td><td>1. 系统返回「如何重置密码」对应的标准答案
-2. 加载时长≤800ms</td><td>P0</td><td>已优化：根据Dev评审意见补充完善</td></tr>
+2. 加载时长≤800ms</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景（逻辑遗漏）→ 已采纳优化</td></tr>
 <tr><td>QA-Match-002</td><td>用户端问答</td><td>智能匹配</td><td>关键词匹配</td><td>语义匹配无结果时触发关键词匹配</td><td>知识库有包含关键词的词条但语义相似度低</td><td>1. 输入包含关键词但语义偏差的问题
 2. 观察匹配结果</td><td>1. 系统触发关键词模糊匹配
-2. 返回包含关键词的关联词条答案</td><td>P0</td><td>无</td></tr>
+2. 返回包含关键词的关联词条答案</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Match-003</td><td>用户端问答</td><td>智能匹配</td><td>匹配优先级</td><td>匹配优先级验证：精准&gt;语义&gt;关键词&gt;兜底</td><td>知识库有精准匹配、语义近似、仅关键词匹配的多个词条</td><td>1. 输入一个同时命中多个层级的问题
 2. 观察返回结果</td><td>1. 优先返回精准完全匹配的答案
-2. 不返回低优先级匹配结果</td><td>P0</td><td>无</td></tr>
+2. 不返回低优先级匹配结果</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Match-004</td><td>用户端问答</td><td>智能匹配</td><td>相似问题推荐</td><td>低匹配度时推送3-5条相似问题</td><td>知识库有相关但匹配度不高的词条</td><td>1. 输入模糊问题
 2. 观察推荐区域</td><td>1. 答案区域展示匹配度最高的答案
-2. 底部推荐3-5条关联相似问题</td><td>P1</td><td>已优化：根据PM评审意见补充完善</td></tr>
+2. 底部推荐3-5条关联相似问题</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[PM] 相似问题推荐3-5条的数量范围是否为固定值还是动态值（表述不清）→ 已采纳优化</td></tr>
 <tr><td>QA-Match-005</td><td>用户端问答</td><td>智能匹配</td><td>重复问题过滤</td><td>重复发送相同问题返回历史答案</td><td>用户已发送过某问题且已收到回答</td><td>1. 再次发送完全相同的问题</td><td>1. 系统直接返回历史最优答案
 2. 不重复收录未知问题
-3. 响应速度快于首次</td><td>P1</td><td>已优化：根据QA评审意见补充完善</td></tr>
+3. 响应速度快于首次</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 「历史最优答案」定义不明确，未定义评判标准（场景遗漏）→ 已采纳优化</td></tr>
 <tr><td>QA-Match-006</td><td>用户端问答</td><td>智能匹配</td><td>兜底回复</td><td>所有匹配方式无结果时返回兜底话术</td><td>知识库无任何关联词条</td><td>1. 输入完全无关的问题
 2. 发送</td><td>1. 展示兜底回复
 2. 同步推送热门相似问题
-3. 问题收录至未知问题列表</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
+3. 问题收录至未知问题列表</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 兜底回复仅检查文案，未验证问题是否真正被收录到未知问题列表（可验证性不足）→ 已采纳优化</td></tr>
 <tr><td>QA-Display-001</td><td>用户端问答</td><td>答案展示</td><td>答案渲染</td><td>匹配成功时正确展示标准答案</td><td>已匹配到有效答案</td><td>1. 观察答案展示区域</td><td>1. 展示标准答案内容
 2. 支持文本、换行、简单格式
-3. 底部展示评价按钮</td><td>P0</td><td>已优化：根据UX评审意见补充完善</td></tr>
+3. 底部展示评价按钮</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 答案展示仅提到支持文本和换行，未说明富文本、链接等格式的展示规则（交互不符）→ 已采纳优化</td></tr>
 <tr><td>QA-Display-002</td><td>用户端问答</td><td>答案展示</td><td>加载动画</td><td>问答检索加载动画展示</td><td>用户已提交问题</td><td>1. 提交问题后观察页面</td><td>1. 展示加载动画「正在为您检索答案中...」
 2. 加载时长最长3s
-3. 超时返回兜底话术</td><td>P0</td><td>已优化：根据Arch评审意见补充完善</td></tr>
-<tr><td>QA-Display-003</td><td>用户端问答</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎话术</td><td>用户首次进入问答页面</td><td>1. 进入知识库问答页面</td><td>1. 展示欢迎话术</td><td>P2</td><td>已优化：根据UX评审意见补充完善</td></tr>
+3. 超时返回兜底话术</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Arch] 未定义加载状态下的模块解耦策略，建议将加载组件独立封装，便于复用和维护（架构腐化风险）→ 已采纳优化</td></tr>
+<tr><td>QA-Display-003</td><td>用户端问答</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎话术</td><td>用户首次进入问答页面</td><td>1. 进入知识库问答页面</td><td>1. 展示欢迎话术</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 欢迎话术缺少个性化能力（易用性缺陷）→ 已采纳优化</td></tr>
 <tr><td>QA-Display-004</td><td>用户端问答</td><td>答案展示</td><td>兜底回复</td><td>匹配失败时展示兜底回复和热门相似问题</td><td>知识库无匹配词条</td><td>1. 输入无匹配问题
 2. 发送</td><td>1. 展示兜底回复话术
 2. 推送热门相似问题
-3. 问题自动收录至未知问题</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
+3. 问题自动收录至未知问题</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 匹配失败场景未覆盖部分匹配的情况（场景遗漏）→ 已采纳优化</td></tr>
 <tr><td>QA-Display-005</td><td>用户端问答</td><td>答案展示</td><td>加载超时</td><td>加载超过3秒时展示超时提示</td><td>语义匹配引擎响应慢</td><td>1. 模拟匹配引擎超时（&gt;3s）
 2. 观察页面响应</td><td>1. 3秒后返回兜底话术
-2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td>已优化：根据Dev、Ops评审意见补充完善</td></tr>
+2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 超时处理与兜底回复的关系不明确，3s超时后是返回通用兜底还是超时专用话术（逻辑遗漏）→ 已采纳优化<br>[Ops] 超时处理后的降级策略不明确（运维盲区）→ 已采纳优化</td></tr>
 <tr><td>QA-Feedback-001</td><td>用户端问答</td><td>反馈与评价</td><td>有用评价</td><td>点赞评价答案有用</td><td>已展示系统答案</td><td>1. 点击答案下方「有用（点赞）」按钮</td><td>1. 按钮变为已选中状态
 2. 评价数据同步上传后台
-3. 按钮不可再次点击</td><td>P0</td><td>已优化：根据UX评审意见补充完善</td></tr>
+3. 按钮不可再次点击</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 评价按钮状态变化的视觉反馈不明确（交互不符）→ 已采纳优化</td></tr>
 <tr><td>QA-Feedback-002</td><td>用户端问答</td><td>反馈与评价</td><td>无用评价</td><td>差评答案无用</td><td>已展示系统答案</td><td>1. 点击答案下方「无用（差评）」按钮</td><td>1. 按钮变为已选中状态
 2. 评价数据同步上传后台
-3. 按钮不可再次点击</td><td>P0</td><td>无</td></tr>
+3. 按钮不可再次点击</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Feedback-003</td><td>用户端问答</td><td>反馈与评价</td><td>评价状态固化</td><td>评价后不可重复评价</td><td>用户已对某答案完成评价</td><td>1. 尝试再次点击评价按钮</td><td>1. 按钮状态固化无响应
-2. 不产生重复评价数据</td><td>P1</td><td>无</td></tr>
+2. 不产生重复评价数据</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Session-001</td><td>用户端问答</td><td>会话操作</td><td>清空会话</td><td>一键清空当前页面所有问答记录</td><td>当前会话有多条问答记录</td><td>1. 点击清空会话按钮</td><td>1. 页面所有问答记录清空
-2. 恢复至默认欢迎话术状态</td><td>P1</td><td>无</td></tr>
-<tr><td>Session-History-001</td><td>会话记录</td><td>历史记录</td><td>记录入口</td><td>历史记录按钮可点击进入</td><td>用户已登录</td><td>1. 点击问答页面顶部「历史记录」按钮</td><td>1. 跳转至历史记录列表页</td><td>P0</td><td>无</td></tr>
+2. 恢复至默认欢迎话术状态</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
+<tr><td>Session-History-001</td><td>会话记录</td><td>历史记录</td><td>记录入口</td><td>历史记录按钮可点击进入</td><td>用户已登录</td><td>1. 点击问答页面顶部「历史记录」按钮</td><td>1. 跳转至历史记录列表页</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Session-History-002</td><td>会话记录</td><td>历史记录</td><td>记录列表</td><td>按时间倒序展示历史记录</td><td>用户有多条历史问答记录</td><td>1. 进入历史记录页面</td><td>1. 记录按时间倒序排列
-2. 每条展示提问时间、用户问题、简略答案</td><td>P0</td><td>已优化：根据UX评审意见补充完善</td></tr>
+2. 每条展示提问时间、用户问题、简略答案</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 历史记录列表未定义排序切换能力（易用性缺陷）→ 已采纳优化</td></tr>
 <tr><td>Session-History-003</td><td>会话记录</td><td>历史记录</td><td>单条删除</td><td>删除单条历史记录</td><td>历史记录列表非空</td><td>1. 点击某条记录的「删除」按钮
 2. 确认删除</td><td>1. 弹出二次确认弹窗
 2. 确认后记录从列表移除
 3. 后台同步删除
-4. 删除后不可恢复</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
-<tr><td>Session-History-004</td><td>会话记录</td><td>历史记录</td><td>空状态</td><td>无历史记录时展示空状态提示</td><td>用户无任何历史问答</td><td>1. 进入历史记录页面</td><td>1. 展示「暂无问答历史记录」提示</td><td>P2</td><td>无</td></tr>
+4. 删除后不可恢复</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 删除记录场景未覆盖删除正在展示中的会话（场景遗漏）→ 已采纳优化</td></tr>
+<tr><td>Session-History-004</td><td>会话记录</td><td>历史记录</td><td>空状态</td><td>无历史记录时展示空状态提示</td><td>用户无任何历史问答</td><td>1. 进入历史记录页面</td><td>1. 展示「暂无问答历史记录」提示</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Session-History-005</td><td>会话记录</td><td>历史记录</td><td>数据隔离</td><td>不同账号历史记录相互独立</td><td>两个不同用户账号各有问答记录</td><td>1. 用账号A登录查看历史记录
 2. 用账号B登录查看历史记录</td><td>1. 账号A只能看到自己的记录
 2. 账号B只能看到自己的记录
-3. 两账号记录互不干扰</td><td>P0</td><td>无</td></tr>
+3. 两账号记录互不干扰</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Session-History-006</td><td>会话记录</td><td>历史记录</td><td>数据永久留存</td><td>会话记录永久留存不自动清除</td><td>用户有历史问答记录</td><td>1. 等待较长时间后查看历史记录</td><td>1. 所有历史记录仍在
-2. 不会自动清除</td><td>P1</td><td>无</td></tr>
+2. 不会自动清除</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Session-History-007</td><td>会话记录</td><td>历史记录</td><td>重新唤起问答</td><td>点击历史问题快速唤起对应问答</td><td>存在历史问答记录</td><td>1. 点击某条历史问题</td><td>1. 快速重新唤起对应问答内容
-2. 展示原始问题和答案</td><td>P1</td><td>无</td></tr>
+2. 展示原始问题和答案</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Session-Clear-001</td><td>会话记录</td><td>批量清空</td><td>批量清空</td><td>批量清空所有历史记录</td><td>历史记录列表非空</td><td>1. 点击「批量清空」按钮
 2. 确认清空</td><td>1. 弹出二次确认弹窗
 2. 确认后所有记录清空
 3. 后台同步清除
-4. 不可恢复</td><td>P0</td><td>无</td></tr>
+4. 不可恢复</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Session-Clear-002</td><td>会话记录</td><td>批量清空</td><td>删除二次确认</td><td>删除/清空操作需二次确认</td><td>历史记录列表非空</td><td>1. 点击删除或清空按钮
 2. 观察确认弹窗</td><td>1. 弹出确认弹窗
 2. 取消则不执行删除
-3. 确认后执行删除</td><td>P1</td><td>无</td></tr>
+3. 确认后执行删除</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Filter-001</td><td>词条管理</td><td>筛选搜索</td><td>多条件筛选</td><td>按关键词、分类、状态、时间筛选</td><td>后台有多个词条数据</td><td>1. 使用问题关键词筛选
 2. 使用词条分类筛选
 3. 使用上架状态筛选
 4. 使用创建时间筛选</td><td>1. 各筛选条件独立生效
 2. 多条件组合筛选结果正确
-3. 列表实时更新</td><td>P0</td><td>无</td></tr>
+3. 列表实时更新</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Add-001</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-必填</td><td>标准问题为必填字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准问题
 2. 点击保存</td><td>1. 提示标准问题为必填项
-2. 保存失败</td><td>P0</td><td>无</td></tr>
+2. 保存失败</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Add-002</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-字数</td><td>标准问题限制1-200字</td><td>运营管理员已打开新增弹窗</td><td>1. 输入超过200字的标准问题
 2. 点击保存</td><td>1. 提示超出字数限制
-2. 保存失败</td><td>P1</td><td>无</td></tr>
+2. 保存失败</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Add-003</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-重复</td><td>标准问题不可重复</td><td>已存在某标准问题的词条</td><td>1. 输入已存在的标准问题
 2. 点击保存</td><td>1. 提示「该标准问题已存在」
-2. 保存失败</td><td>P0</td><td>无</td></tr>
+2. 保存失败</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Add-004</td><td>词条管理</td><td>新增词条</td><td>相似问题录入</td><td>支持多条相似问题以换行分隔</td><td>运营管理员已打开新增弹窗</td><td>1. 在相似问题字段输入多条问题（换行分隔）
 2. 保存词条</td><td>1. 多条相似问题正确保存
-2. 拓宽语义匹配范围</td><td>P1</td><td>无</td></tr>
+2. 拓宽语义匹配范围</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Add-005</td><td>词条管理</td><td>新增词条</td><td>标准答案校验</td><td>标准答案为必填且限制1-2000字</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准答案点击保存
 2. 输入超过2000字的答案点击保存</td><td>1. 必填校验提示
 2. 超出字数提示
-3. 保存失败</td><td>P0</td><td>已优化：根据Sec评审意见补充完善</td></tr>
+3. 保存失败</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Sec] 标准答案字段支持换行和格式，需验证是否存在存储型XSS风险（安全漏洞）→ 已采纳优化</td></tr>
 <tr><td>KB-Add-006</td><td>词条管理</td><td>新增词条</td><td>词条分类必选</td><td>词条分类为必选字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不选择词条分类
 2. 点击保存</td><td>1. 提示词条分类为必选项
-2. 保存失败</td><td>P1</td><td>无</td></tr>
+2. 保存失败</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Add-007</td><td>词条管理</td><td>新增词条</td><td>默认下架状态</td><td>新增词条默认为下架状态</td><td>运营管理员已打开新增弹窗</td><td>1. 填写完整信息
 2. 保存新增词条</td><td>1. 新增词条状态为「下架」
-2. 不参与用户问答匹配</td><td>P0</td><td>已优化：根据PM评审意见补充完善</td></tr>
+2. 不参与用户问答匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[PM] 新增词条默认下架的业务必要性未说明，是否需要快速上架通道（优先级不准）→ 已采纳优化</td></tr>
 <tr><td>KB-Edit-001</td><td>词条管理</td><td>编辑词条</td><td>编辑上架词条实时生效</td><td>编辑已上架词条保存后实时生效</td><td>存在已上架词条</td><td>1. 编辑已上架词条的内容
 2. 保存修改</td><td>1. 修改保存成功
 2. 无需重新审核
-3. 用户端问答实时生效</td><td>P0</td><td>已优化：根据Dev、Sec评审意见补充完善</td></tr>
+3. 用户端问答实时生效</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 编辑词条未覆盖编辑历史记录和并发编辑冲突场景（逻辑遗漏）→ 已采纳优化<br>[Sec] 编辑已上架词条即时生效，缺少审核机制，存在恶意篡改风险（安全漏洞）→ 已采纳优化</td></tr>
 <tr><td>KB-Delete-001</td><td>词条管理</td><td>删除词条</td><td>删除二次确认</td><td>删除词条需二次确认</td><td>存在可删除词条</td><td>1. 点击删除按钮
 2. 观察确认弹窗</td><td>1. 弹出二次确认弹窗
 2. 取消则不删除
-3. 确认后词条删除</td><td>P0</td><td>无</td></tr>
+3. 确认后词条删除</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Delete-002</td><td>词条管理</td><td>删除词条</td><td>已关联词条支持删除</td><td>已关联用户问答记录的词条支持删除</td><td>存在已关联问答记录的词条</td><td>1. 删除已关联问答记录的词条
 2. 确认删除</td><td>1. 删除成功
 2. 词条不再参与新问答匹配
-3. 历史问答记录保留</td><td>P0</td><td>无</td></tr>
+3. 历史问答记录保留</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Delete-003</td><td>词条管理</td><td>删除词条</td><td>删除后数据清理</td><td>删除词条后不再参与匹配</td><td>已删除某词条</td><td>1. 用户输入与已删除词条匹配的问题
 2. 观察匹配结果</td><td>1. 已删除词条不参与匹配
-2. 可能匹配其他词条或返回兜底</td><td>P1</td><td>无</td></tr>
+2. 可能匹配其他词条或返回兜底</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Batch-001</td><td>词条管理</td><td>批量操作</td><td>批量选择</td><td>支持多选词条进行批量操作</td><td>词条列表有多个词条</td><td>1. 勾选多个词条复选框</td><td>1. 多个词条被选中
-2. 批量操作按钮激活</td><td>P0</td><td>已优化：根据Dev评审意见补充完善</td></tr>
+2. 批量操作按钮激活</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 批量操作未测试跨页选择等边界场景（边界遗漏）→ 已采纳优化</td></tr>
 <tr><td>KB-Batch-002</td><td>词条管理</td><td>批量操作</td><td>批量上架</td><td>批量上架选中的下架词条</td><td>已选中多个下架词条</td><td>1. 点击「批量上架」按钮
 2. 确认操作</td><td>1. 选中词条状态变为「上架」
-2. 可被用户检索匹配</td><td>P0</td><td>无</td></tr>
+2. 可被用户检索匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Batch-003</td><td>词条管理</td><td>批量操作</td><td>批量下架</td><td>批量下架选中的上架词条</td><td>已选中多个上架词条</td><td>1. 点击「批量下架」按钮
 2. 确认操作</td><td>1. 选中词条状态变为「下架」
-2. 不再参与用户问答匹配</td><td>P0</td><td>无</td></tr>
+2. 不再参与用户问答匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>KB-Batch-004</td><td>词条管理</td><td>批量操作</td><td>批量删除</td><td>批量删除选中的词条</td><td>已选中多个词条</td><td>1. 点击「批量删除」按钮
 2. 确认操作</td><td>1. 弹出二次确认
-2. 确认后选中词条全部删除</td><td>P0</td><td>无</td></tr>
+2. 确认后选中词条全部删除</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Unknown-Collect-001</td><td>未知问题</td><td>自动收录</td><td>自动收录</td><td>未匹配问题自动收录至后台</td><td>用户提问未匹配到有效词条</td><td>1. 用户发送未匹配问题
 2. 后台查看未知问题列表</td><td>1. 问题自动收录至未知问题列表
-2. 记录提问时间、提问用户、提问次数</td><td>P0</td><td>无</td></tr>
+2. 记录提问时间、提问用户、提问次数</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Unknown-Dedup-001</td><td>未知问题</td><td>去重统计</td><td>去重统计</td><td>相同未知问题自动合并统计</td><td>多个用户发送相同未匹配问题</td><td>1. 多个用户发送相同的未匹配问题
 2. 查看未知问题列表</td><td>1. 相同问题自动合并为一条
-2. 累计提问次数正确统计</td><td>P0</td><td>已优化：根据DBA评审意见补充完善</td></tr>
+2. 累计提问次数正确统计</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[DBA] 未知问题去重逻辑依赖文本完全匹配还是模糊匹配未说明（数据完整性风险）→ 已采纳优化</td></tr>
 <tr><td>Unknown-Process-001</td><td>未知问题</td><td>处理功能</td><td>基于未知问题新建词条</td><td>支持基于未知问题直接新建词条</td><td>未知问题列表有待处理问题</td><td>1. 选择某未知问题
 2. 点击新建词条
 3. 填写答案并保存</td><td>1. 成功新建知识词条
 2. 词条关联原始未知问题
-3. 未知问题标记为「已解决」</td><td>P0</td><td>已优化：根据DBA评审意见补充完善</td></tr>
+3. 未知问题标记为「已解决」</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[DBA] 基于未知问题新建词条时事务完整性未说明（数据一致性风险）→ 已采纳优化</td></tr>
 <tr><td>Unknown-Process-002</td><td>未知问题</td><td>处理功能</td><td>标记已解决</td><td>处理后标记为已解决</td><td>未知问题列表有待处理问题</td><td>1. 处理某未知问题
 2. 观察状态变化</td><td>1. 未知问题状态变为「已解决」
-2. 不再出现在待处理列表</td><td>P1</td><td>无</td></tr>
+2. 不再出现在待处理列表</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Unknown-Clean-001</td><td>未知问题</td><td>数据清理</td><td>手动清理</td><td>支持手动清理无效未知问题</td><td>未知问题列表有无效数据</td><td>1. 选择无效/无意义的未知问题
 2. 点击清理/删除</td><td>1. 无效数据被清除
-2. 不影响有效未知问题</td><td>P1</td><td>无</td></tr>
+2. 不影响有效未知问题</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Basic-001</td><td>数据统计</td><td>基础数据</td><td>总提问量</td><td>总提问量统计正确</td><td>系统有一定量的问答数据</td><td>1. 进入数据统计页面
 2. 查看总提问量</td><td>1. 总提问量数字准确
-2. 包含所有用户的历史提问总量</td><td>P0</td><td>已优化：根据Perf评审意见补充完善</td></tr>
-<tr><td>Stats-Basic-002</td><td>数据统计</td><td>基础数据</td><td>有效提问量</td><td>有效提问量统计正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看有效提问量指标</td><td>1. 仅统计匹配到有效答案的提问量</td><td>P1</td><td>无</td></tr>
+2. 包含所有用户的历史提问总量</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Perf] 统计数据查询在大数据量下可能有性能问题（场景遗漏）→ 已采纳优化</td></tr>
+<tr><td>Stats-Basic-002</td><td>数据统计</td><td>基础数据</td><td>有效提问量</td><td>有效提问量统计正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看有效提问量指标</td><td>1. 仅统计匹配到有效答案的提问量</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Basic-003</td><td>数据统计</td><td>基础数据</td><td>无答案提问量</td><td>无答案提问量统计正确</td><td>系统有未匹配的问答</td><td>1. 查看无答案提问量指标</td><td>1. 统计未匹配到答案的提问量
-2. 与未知问题收录数一致</td><td>P1</td><td>无</td></tr>
+2. 与未知问题收录数一致</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Basic-004</td><td>数据统计</td><td>基础数据</td><td>活跃用户数</td><td>活跃用户数统计正确</td><td>有多个用户使用问答功能</td><td>1. 查看活跃用户数</td><td>1. 活跃用户数准确
-2. 统计口径明确</td><td>P1</td><td>无</td></tr>
+2. 统计口径明确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Quality-001</td><td>数据统计</td><td>质量数据</td><td>问题命中率</td><td>问题命中率计算正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看问题命中率</td><td>1. 命中率 = 匹配成功数 / 总提问数 x 100%
-2. 数值准确</td><td>P0</td><td>无</td></tr>
+2. 数值准确</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Quality-002</td><td>数据统计</td><td>质量数据</td><td>答案好评率</td><td>答案好评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案好评率</td><td>1. 好评率 = 有用评价数 / 总评价数 x 100%
-2. 数值准确</td><td>P1</td><td>无</td></tr>
+2. 数值准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Quality-003</td><td>数据统计</td><td>质量数据</td><td>答案差评率</td><td>答案差评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案差评率</td><td>1. 差评率 = 无用评价数 / 总评价数 x 100%
-2. 与好评率之和 = 100%</td><td>P1</td><td>无</td></tr>
+2. 与好评率之和 = 100%</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Hot-001</td><td>数据统计</td><td>热度数据</td><td>高频提问TOP10</td><td>高频提问问题TOP10展示正确</td><td>有一定量的问答数据</td><td>1. 查看高频提问问题TOP10</td><td>1. 展示提问频次最高的10个问题
 2. 排序正确
-3. 频次准确</td><td>P1</td><td>无</td></tr>
+3. 频次准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Hot-002</td><td>数据统计</td><td>热度数据</td><td>高频未知TOP10</td><td>高频未知问题TOP10展示正确</td><td>有一定量的未知问题数据</td><td>1. 查看高频未知问题TOP10</td><td>1. 展示被提问最多的10个未知问题
-2. 排序正确</td><td>P1</td><td>无</td></tr>
+2. 排序正确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Stats-Trend-001</td><td>数据统计</td><td>时间趋势</td><td>日趋势</td><td>支持按日查看问答数据趋势</td><td>有连续多天的问答数据</td><td>1. 选择按日查看数据趋势</td><td>1. 展示每日问答量变化趋势
-2. 数据准确</td><td>P1</td><td>无</td></tr>
-<tr><td>Stats-Trend-002</td><td>数据统计</td><td>时间趋势</td><td>周趋势</td><td>支持按周查看问答数据趋势</td><td>有多周的问答数据</td><td>1. 选择按周查看数据趋势</td><td>1. 展示每周问答量变化趋势</td><td>P2</td><td>无</td></tr>
-<tr><td>Stats-Trend-003</td><td>数据统计</td><td>时间趋势</td><td>月趋势</td><td>支持按月查看问答数据趋势</td><td>有多月的问答数据</td><td>1. 选择按月查看数据趋势</td><td>1. 展示每月问答量变化趋势</td><td>P2</td><td>无</td></tr>
+2. 数据准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
+<tr><td>Stats-Trend-002</td><td>数据统计</td><td>时间趋势</td><td>周趋势</td><td>支持按周查看问答数据趋势</td><td>有多周的问答数据</td><td>1. 选择按周查看数据趋势</td><td>1. 展示每周问答量变化趋势</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
+<tr><td>Stats-Trend-003</td><td>数据统计</td><td>时间趋势</td><td>月趋势</td><td>支持按月查看问答数据趋势</td><td>有多月的问答数据</td><td>1. 选择按月查看数据趋势</td><td>1. 展示每月问答量变化趋势</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Perm-001</td><td>权限设计</td><td>普通用户</td><td>在线提问</td><td>普通用户可正常提问和评价</td><td>普通用户已登录</td><td>1. 普通用户输入问题并发送
 2. 对答案进行评价
 3. 查看个人会话记录</td><td>1. 提问功能正常
 2. 评价功能正常
-3. 仅能查看个人会话</td><td>P0</td><td>无</td></tr>
+3. 仅能查看个人会话</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Perm-002</td><td>权限设计</td><td>普通用户</td><td>无后台权限</td><td>普通用户无法访问后台管理</td><td>普通用户已登录</td><td>1. 尝试访问知识库词条管理
 2. 尝试查看未知问题
 3. 尝试查看数据统计</td><td>1. 无法进入后台管理页面
-2. 提示无权限</td><td>P0</td><td>无</td></tr>
+2. 提示无权限</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Perm-003</td><td>权限设计</td><td>运营管理员</td><td>后台管理权限</td><td>运营管理员可管理知识库和查看数据</td><td>运营管理员已登录</td><td>1. 新增/编辑/上下架/删除词条
 2. 处理未知问题
 3. 查看问答数据</td><td>1. 知识库管理功能正常
 2. 未知问题处理正常
-3. 数据统计可查看</td><td>P0</td><td>无</td></tr>
+3. 数据统计可查看</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Perm-004</td><td>权限设计</td><td>运营管理员</td><td>无系统配置权限</td><td>运营管理员无权限配置和全量清理</td><td>运营管理员已登录</td><td>1. 尝试进行权限配置
 2. 尝试全量数据清理</td><td>1. 无法访问系统配置
-2. 提示无权限</td><td>P1</td><td>无</td></tr>
+2. 提示无权限</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Perm-005</td><td>权限设计</td><td>超级管理员</td><td>全权限</td><td>超级管理员拥有所有功能权限</td><td>超级管理员已登录</td><td>1. 执行所有功能操作
 2. 进行权限配置
 3. 全量数据清理
 4. 系统参数设置</td><td>1. 所有功能正常可用
 2. 权限配置生效
-3. 系统参数设置生效</td><td>P0</td><td>无</td></tr>
+3. 系统参数设置生效</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Exc-Net-001</td><td>异常场景</td><td>网络异常</td><td>网络中断处理</td><td>网络中断时终止请求并提示</td><td>用户正在提问过程中</td><td>1. 模拟网络中断
 2. 用户发送问题</td><td>1. 终止问答请求
 2. 提示「网络异常，请检查网络后重新提问」
-3. 保留已输入的问题内容</td><td>P0</td><td>无</td></tr>
+3. 保留已输入的问题内容</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Exc-Auth-001</td><td>异常场景</td><td>权限异常</td><td>登录过期处理</td><td>登录过期时禁止提问并跳转</td><td>用户登录已过期</td><td>1. 用户尝试提问</td><td>1. 弹窗提示「暂无问答权限或登录已过期，请重新登录」
-2. 自动跳转登录页面</td><td>P0</td><td>已优化：根据Sec评审意见补充完善</td></tr>
+2. 自动跳转登录页面</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Sec] 身份令牌校验机制未说明具体实现（安全漏洞）→ 已采纳优化</td></tr>
 <tr><td>Exc-Content-001</td><td>异常场景</td><td>内容违规</td><td>敏感词拦截</td><td>输入敏感/违规内容时拦截提问</td><td>系统敏感词库已配置</td><td>1. 输入包含敏感词的问题
 2. 发送</td><td>1. 系统自动拦截提问
 2. 提示「输入内容包含违规信息，请重新输入」
-3. 不收录该问题</td><td>P0</td><td>无</td></tr>
+3. 不收录该问题</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Exc-Timeout-001</td><td>异常场景</td><td>系统超时</td><td>问答检索超时</td><td>检索超时返回兜底话术</td><td>语义匹配引擎响应超过3s</td><td>1. 模拟检索超时
 2. 观察系统响应</td><td>1. 返回兜底话术
-2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td>无</td></tr>
+2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Exc-Data-001</td><td>异常场景</td><td>数据异常</td><td>知识库数据异常</td><td>知识库数据损坏时展示兜底内容</td><td>知识库词条数据损坏</td><td>1. 模拟知识库数据加载失败
 2. 用户提问</td><td>1. 用户端展示无答案兜底内容
 2. 后台记录异常日志
-3. 不暴露系统错误</td><td>P0</td><td>已优化：根据Ops评审意见补充完善</td></tr>
+3. 不暴露系统错误</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Ops] 知识库数据损坏的检测机制和自动恢复策略未定义（运维盲区）→ 已采纳优化</td></tr>
 <tr><td>Exc-Limit-001</td><td>异常场景</td><td>限流</td><td>高频提问限制</td><td>1分钟内高频重复提问触发限流</td><td>用户已登录</td><td>1. 在1分钟内连续高频提问超过限制次数</td><td>1. 触发限流机制
 2. 提示「提问过于频繁，请稍后再试」
-3. 防止恶意刷量</td><td>P0</td><td>已优化：根据QA评审意见补充完善</td></tr>
+3. 防止恶意刷量</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 限流场景未明确限制次数的具体数值和重置时间（可验证性不足）→ 已采纳优化</td></tr>
 <tr><td>Perf-001</td><td>非功能需求</td><td>性能</td><td>页面加载</td><td>问答首页首次加载≤1.5s</td><td>网络正常</td><td>1. 首次打开问答页面
 2. 计算页面加载时间</td><td>1. 首次加载时间≤1.5s
-2. 页面完整渲染</td><td>P0</td><td>无</td></tr>
+2. 页面完整渲染</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Perf-002</td><td>非功能需求</td><td>性能</td><td>问答响应</td><td>常规问题语义匹配≤800ms</td><td>知识库正常</td><td>1. 输入常规问题并发送
 2. 计算响应时间</td><td>1. 语义匹配响应≤800ms
-2. 复杂长文本问题响应≤2s</td><td>P0</td><td>已优化：根据Perf评审意见补充完善</td></tr>
+2. 复杂长文本问题响应≤2s</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Perf] 800ms响应时间要求未考虑网络延迟等额外开销（性能风险）→ 已采纳优化</td></tr>
 <tr><td>Perf-003</td><td>非功能需求</td><td>性能</td><td>并发能力</td><td>支持≥200人同时在线提问</td><td>测试环境准备200并发用户</td><td>1. 200用户同时在线提问
 2. 持续操作一段时间</td><td>1. 无卡顿
 2. 无问答数据错乱
-3. 无请求堆积</td><td>P0</td><td>已优化：根据Perf评审意见补充完善</td></tr>
+3. 无请求堆积</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Perf] 200并发测试未说明持续时长和压力递增策略（性能风险）→ 已采纳优化</td></tr>
 <tr><td>Perf-004</td><td>非功能需求</td><td>性能</td><td>后台加载</td><td>后台列表和统计加载≤1.5s</td><td>后台有大量数据</td><td>1. 打开知识库列表页
 2. 打开数据统计页</td><td>1. 列表加载≤1.5s
-2. 统计数据加载≤1.5s</td><td>P1</td><td>无</td></tr>
+2. 统计数据加载≤1.5s</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Compat-001</td><td>非功能需求</td><td>兼容性</td><td>PC浏览器兼容</td><td>兼容Chrome/Edge/Firefox最新版</td><td>—</td><td>1. 分别在Chrome、Edge、Firefox最新版打开问答功能</td><td>1. 各浏览器功能正常
 2. 样式无错位
-3. 交互无异常</td><td>P1</td><td>无</td></tr>
+3. 交互无异常</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Compat-002</td><td>非功能需求</td><td>兼容性</td><td>移动端适配</td><td>适配iOS/Android主流机型</td><td>—</td><td>1. 在手机和平板上打开问答功能
 2. 测试各尺寸屏幕</td><td>1. 会话展示无错位
 2. 内容无遮挡
-3. 功能与PC端一致</td><td>P1</td><td>无</td></tr>
+3. 功能与PC端一致</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Security-001</td><td>非功能需求</td><td>安全</td><td>敏感词库</td><td>内置敏感词库自动拦截违规内容</td><td>敏感词库已配置</td><td>1. 输入各类敏感词测试
 2. 包含违禁词、敏感词、违规信息</td><td>1. 所有敏感词被拦截
 2. 不展示违规内容
-3. 词条内容也受敏感词管控</td><td>P0</td><td>无</td></tr>
+3. 词条内容也受敏感词管控</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Security-002</td><td>非功能需求</td><td>安全</td><td>数据隔离</td><td>问答数据仅本人及超级管理员可查看</td><td>多个用户的问答数据</td><td>1. 用户A尝试查看用户B的问答数据
 2. 超级管理员查看所有数据</td><td>1. 用户A无法查看用户B数据
 2. 超级管理员可查看全量数据
-3. 严格数据隔离</td><td>P0</td><td>无</td></tr>
+3. 严格数据隔离</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Security-003</td><td>非功能需求</td><td>安全</td><td>操作日志</td><td>所有后台操作留存日志可追溯</td><td>运营管理员执行操作</td><td>1. 执行词条新增/编辑/删除等操作
 2. 查看后台日志</td><td>1. 日志记录操作人
 2. 记录操作时间
 3. 记录操作IP
-4. 记录操作内容</td><td>P0</td><td>无</td></tr>
+4. 记录操作内容</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Maint-001</td><td>非功能需求</td><td>可维护性</td><td>动态配置</td><td>支持后台动态配置敏感词和话术</td><td>超级管理员已登录</td><td>1. 修改敏感词配置
 2. 修改兜底话术
 3. 修改限流次数</td><td>1. 配置修改后即时生效
 2. 无需修改代码
-3. 无需重启服务</td><td>P1</td><td>无</td></tr>
+3. 无需重启服务</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Maint-002</td><td>非功能需求</td><td>可维护性</td><td>批量导入导出</td><td>知识库词条支持批量导入导出</td><td>运营管理员已登录</td><td>1. 批量导入词条
 2. 批量导出词条</td><td>1. 导入成功且数据正确
 2. 导出文件格式正确
-3. 便于大规模维护迁移</td><td>P1</td><td>无</td></tr>
+3. 便于大规模维护迁移</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Maint-003</td><td>非功能需求</td><td>可维护性</td><td>异常日志</td><td>异常问答和超时请求自动记录日志</td><td>系统产生异常请求</td><td>1. 触发超时、异常等场景
 2. 查看后台日志</td><td>1. 异常请求自动记录日志
 2. 日志包含足够排查信息
-3. 支持后台查询</td><td>P1</td><td>无</td></tr>
+3. 支持后台查询</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Supp-001</td><td>用户端问答</td><td>输入与发送</td><td>多行文本输入</td><td>多行文本格式在答案中正确展示</td><td>用户发送含换行的问题</td><td>1. 输入含多行文本的问题并发送
 2. 观察答案展示</td><td>1. 问题和答案中的换行格式正确保留
-2. 不出现格式错乱</td><td>P2</td><td>无</td></tr>
+2. 不出现格式错乱</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Supp-002</td><td>用户端问答</td><td>会话操作</td><td>清空会话恢复默认</td><td>清空后页面恢复默认欢迎话术</td><td>当前有问答记录</td><td>1. 点击清空会话
 2. 观察页面状态</td><td>1. 所有问答记录清除
 2. 恢复默认欢迎话术
-3. 输入框清空</td><td>P1</td><td>无</td></tr>
+3. 输入框清空</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Supp-003</td><td>用户端问答</td><td>答案展示</td><td>热门相似问题</td><td>兜底回复时展示热门相似问题</td><td>无匹配答案</td><td>1. 发送无匹配问题
 2. 观察兜底回复区域</td><td>1. 展示兜底话术
 2. 底部展示热门相似问题列表
-3. 点击可快速提问</td><td>P1</td><td>无</td></tr>
+3. 点击可快速提问</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Supp-004</td><td>会话记录</td><td>历史记录</td><td>记录永久留存</td><td>用户手动删除前不可自动清除</td><td>用户有历史记录</td><td>1. 等待较长时间
 2. 检查记录是否仍存在</td><td>1. 记录未被自动清除
-2. 仅用户手动删除才移除</td><td>P1</td><td>无</td></tr>
+2. 仅用户手动删除才移除</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>Supp-005</td><td>权限设计</td><td>全角色</td><td>会话查看</td><td>所有角色可查看个人会话</td><td>各角色已登录</td><td>1. 普通用户查看个人会话
 2. 运营管理员查看个人会话
 3. 超级管理员查看个人会话</td><td>1. 各角色均可查看个人会话记录
-2. 功能一致</td><td>P2</td><td>无</td></tr>
+2. 功能一致</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
 <tr><td>QA-Send-006</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>多字节字符边界值测试</td><td>用户已登录</td><td>1. 输入包含emoji和中文混合的500字节内容
 2. 尝试发送</td><td>1. 系统正确处理多字节字符
-2. 字数计算准确</td><td>P1</td><td>新增：来自AI评审（Dev边界遗漏）</td></tr>
+2. 字数计算准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 500字边界值测试未覆盖多字节字符（如emoji），建议补充（边界遗漏）→ 已采纳新增</td></tr>
 <tr><td>QA-Match-007</td><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配阈值验证</td><td>知识库有不同相似度的词条</td><td>1. 输入与某词条相似度恰好为阈值边界的问题
 2. 验证匹配结果</td><td>1. 相似度&gt;=阈值时返回语义匹配结果
-2. 相似度&lt;阈值时降级到关键词匹配</td><td>P0</td><td>新增：来自AI评审（Dev逻辑遗漏）</td></tr>
+2. 相似度&lt;阈值时降级到关键词匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景（逻辑遗漏）→ 已采纳新增</td></tr>
 <tr><td>QA-Match-008</td><td>用户端问答</td><td>智能匹配</td><td>最优答案</td><td>历史最优答案判定标准验证</td><td>用户对同一问题多次收到不同答案</td><td>1. 重复发送相同问题
 2. 观察返回的答案</td><td>1. 返回的答案符合最优定义
-2. 验证判定标准</td><td>P1</td><td>新增：来自AI评审（QA场景遗漏）</td></tr>
+2. 验证判定标准</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[QA]「历史最优答案」定义不明确，未定义评判标准（场景遗漏）→ 已采纳新增</td></tr>
 <tr><td>KB-Edit-002</td><td>词条管理</td><td>编辑词条</td><td>并发编辑冲突</td><td>多运营员同时编辑同一词条</td><td>两个运营管理员同时打开同一词条编辑</td><td>1. 运营A编辑词条并保存
 2. 运营B同时编辑同一词条并保存</td><td>1. 后保存者提示冲突
-2. 不覆盖先保存者的修改</td><td>P1</td><td>新增：来自AI评审（Dev逻辑遗漏）</td></tr>
+2. 不覆盖先保存者的修改</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 编辑词条未覆盖编辑历史记录和并发编辑冲突场景（逻辑遗漏）→ 已采纳新增</td></tr>
 <tr><td>KB-Batch-005</td><td>词条管理</td><td>批量操作</td><td>跨页选择</td><td>跨页批量选择词条</td><td>词条列表分多页展示</td><td>1. 在第1页选择部分词条
 2. 切换到第2页继续选择
 3. 执行批量操作</td><td>1. 跨页选择的词条均被正确选中
-2. 批量操作包含所有选中词条</td><td>P2</td><td>新增：来自AI评审（Dev边界遗漏）</td></tr>
+2. 批量操作包含所有选中词条</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 批量操作未测试跨页选择等边界场景（边界遗漏）→ 已采纳新增</td></tr>
 <tr><td>Session-History-008</td><td>会话记录</td><td>历史记录</td><td>删除展示中记录</td><td>删除当前正在展示的问答记录</td><td>正在查看某条问答记录详情</td><td>1. 删除当前正在展示的记录
 2. 观察页面变化</td><td>1. 记录成功删除
-2. 页面正确返回列表或展示空状态</td><td>P1</td><td>新增：来自AI评审（QA场景遗漏）</td></tr>
+2. 页面正确返回列表或展示空状态</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[QA] 删除记录场景未覆盖删除正在展示中的会话（场景遗漏）→ 已采纳新增</td></tr>
 <tr><td>QA-Display-006</td><td>用户端问答</td><td>答案展示</td><td>部分匹配</td><td>部分关键词命中但整体不匹配的处理</td><td>知识库有部分关键词相关的词条</td><td>1. 输入仅部分关键词命中的问题
 2. 观察匹配结果</td><td>1. 不返回低相关度的答案
-2. 走兜底流程或推荐相似问题</td><td>P1</td><td>新增：来自AI评审（QA场景遗漏）</td></tr>
+2. 走兜底流程或推荐相似问题</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[QA] 匹配失败场景未覆盖部分匹配的情况（场景遗漏）→ 已采纳新增</td></tr>
 <tr><td>Sec-Input-001</td><td>非功能需求</td><td>安全</td><td>输入安全过滤</td><td>用户输入XSS/注入攻击防护</td><td>系统已部署</td><td>1. 在问答输入框输入恶意脚本
 2. 输入SQL注入语句
 3. 观察系统响应</td><td>1. 恶意脚本被过滤或转义
 2. 不执行注入代码
-3. 正常返回兜底或拒绝</td><td>P0</td><td>新增：来自AI评审（Sec安全漏洞）</td></tr>
+3. 正常返回兜底或拒绝</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Sec] 用户输入内容未说明XSS/注入防护措施（安全漏洞）→ 已采纳新增</td></tr>
 <tr><td>Perf-Stress-001</td><td>非功能需求</td><td>性能</td><td>压力测试</td><td>阶梯压力测试验证系统承载</td><td>测试环境准备</td><td>1. 从50用户逐步增加到300用户
 2. 每阶梯持续5分钟
 3. 记录各阶梯响应时间和错误率</td><td>1. 200用户以内响应正常
 2. 超过200用户时有优雅降级
-3. 不出现系统崩溃</td><td>P1</td><td>新增：来自AI评审（Perf性能风险）</td></tr>
+3. 不出现系统崩溃</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Perf] 200并发测试未说明持续时长和压力递增策略（性能风险）→ 已采纳新增</td></tr>
 <tr><td>Ops-Monitor-001</td><td>非功能需求</td><td>运维</td><td>监控指标</td><td>问答链路关键监控指标验证</td><td>监控系统已配置</td><td>1. 配置问答请求成功率、响应时间监控
 2. 模拟异常触发告警</td><td>1. 监控指标准确采集
 2. 异常时正确触发告警
-3. 告警信息包含足够排查内容</td><td>P1</td><td>新增：来自AI评审（Ops运维盲区）</td></tr>
+3. 告警信息包含足够排查内容</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Ops] 问答请求链路涉及多个服务，缺少各环节的监控告警指标定义（运维盲区）→ 已采纳新增</td></tr>
 </tbody></table>
 </section>
 <section id="report">
