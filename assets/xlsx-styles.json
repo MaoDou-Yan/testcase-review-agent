@@ -1,0 +1,11 @@
+{
+  "header_fill": "FFD6E4F0",
+  "header_font_bold": true,
+  "priority_colors": {
+    "P0": "FFFFC7CE",
+    "P1": "FFFFEB9C",
+    "P2": "FFFFFFCC",
+    "P3": null
+  },
+  "border_color": "FFD9DEE8"
+}

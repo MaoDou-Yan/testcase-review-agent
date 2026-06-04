@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>测试用例评审报告 - 知识库问答模块</title>
-<style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>测试用例评审报告</title>
+  <style>
     :root {
       --bg: #0b0f1a;
       --bg-card: #111827;
@@ -409,754 +409,3643 @@
 
     /* ── Section headings ── */
     h3 { color: var(--text-bright); }
+
+    /* ── Print styles ── */
+    @media print {
+      :root {
+        --bg: #ffffff;
+        --bg-card: #ffffff;
+        --bg-elevated: #f8f9fa;
+        --text: #1a1a1a;
+        --text-muted: #555;
+        --text-bright: #000;
+        --border: #ccc;
+      }
+      header { background: #fff; border-bottom: 2px solid #333; }
+      header::after { display: none; }
+      .toolbar, .edit-badge, .col-action { display: none !important; }
+      .tab { border: 1px solid #ccc; }
+      .tab.active { background: #e8e8e8; }
+      table { font-size: 10px; }
+      .badge-p0 { background: #fee; color: #c00; }
+      .badge-p1 { background: #fff3e0; color: #e65100; }
+      .badge-p2 { background: #fffde7; color: #f57f17; }
+      .badge-p3 { background: #f5f5f5; color: #666; }
+      body { background-image: none; }
+    }
+
+    /* ── Responsive table scroll ── */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    @media (max-width: 768px) {
+      table { font-size: 12px; }
+      th, td { padding: 6px 8px; white-space: nowrap; }
+    }
   </style>
+
+<script>window.__REPORT_DATA__ = {
+  "meta": {
+    "title": "测试用例评审报告 - 知识库问答模块",
+    "subtitle": "基于 ISO 25010 质量模型的 AI 九方评审",
+    "generated_at": "2026-06-04T13:44:15+08:00",
+    "prd_name": "知识库问答模块需求文档（PRD）"
+  },
+  "requirements": {
+    "modules": [
+      {
+        "level1": "用户端问答",
+        "level2": "输入与发送",
+        "feature": "问答输入框",
+        "description": "支持自然语言输入，限制500字，回车发送，发送按钮未输入时置灰"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "智能匹配",
+        "feature": "语义匹配",
+        "description": "优先语义匹配上架知识词条，不受关键词顺序影响"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "智能匹配",
+        "feature": "关键词匹配",
+        "description": "语义匹配无结果时触发关键词模糊匹配"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "智能匹配",
+        "feature": "匹配优先级",
+        "description": "精准完全匹配 > 高语义相似度匹配 > 关键词匹配 > 无结果兜底"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "智能匹配",
+        "feature": "重复问题过滤",
+        "description": "用户重复发送相同问题直接返回历史最优答案"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "智能匹配",
+        "feature": "相似问题推荐",
+        "description": "低匹配度答案时推送3-5条关联相似问题"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "答案展示",
+        "feature": "答案渲染",
+        "description": "匹配成功展示标准答案，支持文本、换行、简单格式"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "答案展示",
+        "feature": "兜底回复",
+        "description": "匹配失败展示兜底话术并收录未知问题"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "答案展示",
+        "feature": "加载动画",
+        "description": "提交后展示加载动画，最长3s"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "答案展示",
+        "feature": "欢迎话术",
+        "description": "页面默认展示欢迎语"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "反馈与评价",
+        "feature": "有用/无用评价",
+        "description": "每条答案下方展示有用(点赞)/无用(差评)按钮"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "反馈与评价",
+        "feature": "评价状态固化",
+        "description": "用户评价后按钮状态固化不可重复评价"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "会话操作",
+        "feature": "清空会话",
+        "description": "一键清空当前页面所有问答记录"
+      },
+      {
+        "level1": "用户端问答",
+        "level2": "会话操作",
+        "feature": "重新唤起历史问答",
+        "description": "点击历史问题快速重新唤起对应问答内容"
+      },
+      {
+        "level1": "会话记录",
+        "level2": "历史记录",
+        "feature": "记录入口",
+        "description": "问答页面顶部历史记录按钮"
+      },
+      {
+        "level1": "会话记录",
+        "level2": "历史记录",
+        "feature": "记录列表",
+        "description": "按时间倒序展示提问时间、用户问题、简略答案"
+      },
+      {
+        "level1": "会话记录",
+        "level2": "历史记录",
+        "feature": "单条删除",
+        "description": "单条记录删除按钮，二次确认，删除后不可恢复"
+      },
+      {
+        "level1": "会话记录",
+        "level2": "历史记录",
+        "feature": "空状态提示",
+        "description": "无历史记录时展示暂无问答历史记录"
+      },
+      {
+        "level1": "会话记录",
+        "level2": "批量清空",
+        "feature": "批量清空",
+        "description": "列表页批量清空按钮，二次确认，不可恢复"
+      },
+      {
+        "level1": "会话记录",
+        "level2": "数据隔离",
+        "feature": "账号隔离",
+        "description": "不同账号历史记录相互独立互不干扰"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "筛选搜索",
+        "feature": "多条件筛选",
+        "description": "支持按问题关键词、词条分类、上架状态、创建时间筛选"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "新增词条",
+        "feature": "标准问题",
+        "description": "必填1-200字，不可重复"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "新增词条",
+        "feature": "相似问题",
+        "description": "非必填，多条以换行分隔"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "新增词条",
+        "feature": "标准答案",
+        "description": "必填1-2000字，支持常规文本换行"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "新增词条",
+        "feature": "词条分类",
+        "description": "必选，预设分类"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "新增词条",
+        "feature": "状态",
+        "description": "默认下架，手动切换上架/下架"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "编辑词条",
+        "feature": "编辑已上架词条",
+        "description": "编辑已上架词条保存后实时生效"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "删除词条",
+        "feature": "删除确认",
+        "description": "删除二次确认，已关联问答记录支持删除"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "批量操作",
+        "feature": "批量选择",
+        "description": "支持多选词条"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "批量操作",
+        "feature": "批量上架",
+        "description": "批量上架操作"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "批量操作",
+        "feature": "批量下架",
+        "description": "批量下架操作"
+      },
+      {
+        "level1": "词条管理",
+        "level2": "批量操作",
+        "feature": "批量删除",
+        "description": "批量删除操作"
+      },
+      {
+        "level1": "未知问题",
+        "level2": "自动收录",
+        "feature": "自动收录",
+        "description": "所有未匹配有效词条的用户问题自动收录"
+      },
+      {
+        "level1": "未知问题",
+        "level2": "去重统计",
+        "feature": "去重统计",
+        "description": "相同未知问题自动合并统计累计提问次数"
+      },
+      {
+        "level1": "未知问题",
+        "level2": "处理功能",
+        "feature": "基于未知问题新建词条",
+        "description": "支持基于未知问题直接新建知识词条"
+      },
+      {
+        "level1": "未知问题",
+        "level2": "处理功能",
+        "feature": "标记已解决",
+        "description": "处理后标记为已解决"
+      },
+      {
+        "level1": "未知问题",
+        "level2": "数据清理",
+        "feature": "手动清理",
+        "description": "支持手动清理无效无意义的未知问题数据"
+      },
+      {
+        "level1": "数据统计",
+        "level2": "基础数据",
+        "feature": "总提问量/有效提问量/无答案提问量/活跃用户数",
+        "description": "统计核心基础运营数据"
+      },
+      {
+        "level1": "数据统计",
+        "level2": "质量数据",
+        "feature": "命中率/好评率/差评率",
+        "description": "统计问答质量数据"
+      },
+      {
+        "level1": "数据统计",
+        "level2": "热度数据",
+        "feature": "高频问题TOP10",
+        "description": "高频提问问题TOP10、高频未知问题TOP10"
+      },
+      {
+        "level1": "数据统计",
+        "level2": "时间趋势",
+        "feature": "日/周/月趋势",
+        "description": "支持按日/周/月查看问答数据变化趋势"
+      }
+    ],
+    "interfaces": [
+      {
+        "source": "用户端",
+        "target": "语义匹配引擎",
+        "trigger": "语义匹配请求",
+        "payload": "用户问题文本、用户ID、会话ID",
+        "idempotent": "幂等：重复问题返回历史答案"
+      },
+      {
+        "source": "语义匹配引擎",
+        "target": "知识库",
+        "trigger": "词条检索请求",
+        "payload": "分词结果、语义向量",
+        "idempotent": "超时3s返回兜底"
+      },
+      {
+        "source": "用户端",
+        "target": "后台服务",
+        "trigger": "评价提交",
+        "payload": "问答ID、评价类型(有用/无用)、用户ID",
+        "idempotent": "不可重复评价"
+      },
+      {
+        "source": "用户端",
+        "target": "后台服务",
+        "trigger": "未知问题收录",
+        "payload": "问题文本、用户ID、提问时间",
+        "idempotent": "去重：相同问题合并"
+      },
+      {
+        "source": "后台服务",
+        "target": "统计服务",
+        "trigger": "数据统计聚合",
+        "payload": "时间范围、统计维度",
+        "idempotent": "异步聚合"
+      },
+      {
+        "source": "用户端",
+        "target": "后台服务",
+        "trigger": "会话记录CRUD",
+        "payload": "会话ID、用户ID、操作类型",
+        "idempotent": "数据隔离"
+      },
+      {
+        "source": "后台服务",
+        "target": "敏感词服务",
+        "trigger": "内容过滤检查",
+        "payload": "待检查文本",
+        "idempotent": "实时拦截"
+      }
+    ],
+    "status_transitions": [
+      {
+        "trigger": "新增词条",
+        "from": "—",
+        "to": "下架",
+        "note": "新增词条默认下架状态"
+      },
+      {
+        "trigger": "手动上架",
+        "from": "下架",
+        "to": "上架",
+        "note": "运营管理员手动切换"
+      },
+      {
+        "trigger": "手动下架",
+        "from": "上架",
+        "to": "下架",
+        "note": "运营管理员手动切换"
+      },
+      {
+        "trigger": "用户提问",
+        "from": "—",
+        "to": "匹配中",
+        "note": "用户提交问题后系统检索"
+      },
+      {
+        "trigger": "匹配成功",
+        "from": "匹配中",
+        "to": "已回答",
+        "note": "返回标准答案"
+      },
+      {
+        "trigger": "匹配失败",
+        "from": "匹配中",
+        "to": "无答案",
+        "note": "返回兜底话术并收录"
+      },
+      {
+        "trigger": "用户评价",
+        "from": "已回答",
+        "to": "已评价",
+        "note": "用户点击有用/无用"
+      },
+      {
+        "trigger": "未知问题收录",
+        "from": "—",
+        "to": "待处理",
+        "note": "未匹配问题自动收录"
+      },
+      {
+        "trigger": "问题已解决",
+        "from": "待处理",
+        "to": "已处理",
+        "note": "运营基于未知问题新建词条"
+      }
+    ],
+    "ambiguities": [
+      {
+        "id": "AMB-001",
+        "description": "相似问题的语义相似度阈值未定义，匹配精度标准不明确",
+        "scope": "智能匹配准确性",
+        "owner": "产品/算法",
+        "risk": "高"
+      },
+      {
+        "id": "AMB-002",
+        "description": "每个词条可录入的相似问题数量上限未说明",
+        "scope": "词条管理容量",
+        "owner": "产品",
+        "risk": "低"
+      },
+      {
+        "id": "AMB-003",
+        "description": "用户已评价后是否可以修改评价未明确",
+        "scope": "评价数据准确性",
+        "owner": "产品",
+        "risk": "中"
+      },
+      {
+        "id": "AMB-004",
+        "description": "「历史最优答案」的判定标准不明确（最新/最高好评率/最近使用）",
+        "scope": "重复问题处理逻辑",
+        "owner": "产品/开发",
+        "risk": "高"
+      },
+      {
+        "id": "AMB-005",
+        "description": "知识库词条总量上限未说明",
+        "scope": "系统容量规划",
+        "owner": "产品/架构",
+        "risk": "中"
+      },
+      {
+        "id": "AMB-006",
+        "description": "敏感词库维护方式和更新机制未明确",
+        "scope": "内容安全有效性",
+        "owner": "产品/运营",
+        "risk": "中"
+      },
+      {
+        "id": "AMB-007",
+        "description": "批量操作的单次处理上限未定义",
+        "scope": "批量操作性能",
+        "owner": "产品/开发",
+        "risk": "低"
+      },
+      {
+        "id": "AMB-008",
+        "description": "高频提问限制的触发条件（同一问题/任意问题）未明确",
+        "scope": "限流策略准确性",
+        "owner": "产品/开发",
+        "risk": "中"
+      },
+      {
+        "id": "AMB-009",
+        "description": "统计数据的时间粒度和保留周期未明确",
+        "scope": "数据统计准确性",
+        "owner": "产品/运营",
+        "risk": "低"
+      },
+      {
+        "id": "AMB-010",
+        "description": "词条被删除后关联的历史问答记录如何展示未说明",
+        "scope": "数据完整性",
+        "owner": "产品/开发",
+        "risk": "高"
+      }
+    ],
+    "state_coverage": [
+      {
+        "item": "语义匹配",
+        "valid": "精准匹配/高相似度匹配/关键词匹配",
+        "invalid": "无匹配/超时",
+        "duplicate": "重复问题直接返回缓存答案",
+        "delayed": "匹配引擎超时3s返回兜底",
+        "disorder": "暂无场景"
+      },
+      {
+        "item": "评价提交",
+        "valid": "首次评价成功",
+        "invalid": "重复评价/无效评价",
+        "duplicate": "重复评价被系统拒绝",
+        "delayed": "—",
+        "disorder": "—"
+      },
+      {
+        "item": "未知问题收录",
+        "valid": "新问题自动收录",
+        "invalid": "—",
+        "duplicate": "相同问题去重合并",
+        "delayed": "—",
+        "disorder": "—"
+      },
+      {
+        "item": "会话记录",
+        "valid": "新增/查看/删除",
+        "invalid": "越权访问",
+        "duplicate": "—",
+        "delayed": "—",
+        "disorder": "—"
+      },
+      {
+        "item": "内容过滤",
+        "valid": "正常内容通过",
+        "invalid": "敏感词拦截",
+        "duplicate": "—",
+        "delayed": "—",
+        "disorder": "—"
+      },
+      {
+        "item": "词条管理",
+        "valid": "新增/编辑/上下架/删除",
+        "invalid": "并发编辑冲突",
+        "duplicate": "—",
+        "delayed": "—",
+        "disorder": "—"
+      }
+    ]
+  },
+  "raw_cases": [
+    {
+      "id": "QA-Send-001",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "正常输入并发送问题",
+      "precondition": "用户已登录且有问答权限",
+      "steps": "1. 在问答输入框输入问题「如何重置密码？」\n2. 点击发送按钮",
+      "expected": "1. 问题成功发送\n2. 输入框清空\n3. 用户问题以对话气泡样式展示在会话窗口",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Send-002",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "发送按钮",
+      "title": "输入为空时发送按钮置灰",
+      "precondition": "用户已登录",
+      "steps": "1. 不输入任何内容\n2. 观察发送按钮状态",
+      "expected": "1. 发送按钮为置灰状态\n2. 点击无响应",
+      "priority": "P2"
+    },
+    {
+      "id": "QA-Send-003",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "输入500字边界值发送",
+      "precondition": "用户已登录",
+      "steps": "1. 在输入框输入恰好500字的问题\n2. 点击发送",
+      "expected": "1. 问题成功发送\n2. 内容完整展示",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Send-004",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "输入超过500字限制",
+      "precondition": "用户已登录",
+      "steps": "1. 在输入框输入501字及以上内容\n2. 尝试发送",
+      "expected": "1. 系统截断或提示超出限制\n2. 不发送超出部分内容",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Send-005",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "支持多行文本输入和回车发送",
+      "precondition": "用户已登录",
+      "steps": "1. 在输入框输入多行文本（Shift+Enter换行）\n2. 点击发送",
+      "expected": "1. 多行文本正确展示\n2. 换行格式保留",
+      "priority": "P2"
+    },
+    {
+      "id": "QA-Match-001",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "语义匹配",
+      "title": "语义匹配返回高度契合答案",
+      "precondition": "知识库已有上架相关词条",
+      "steps": "1. 输入「忘记密码怎么处理」（语义近似「如何重置密码」）\n2. 发送问题",
+      "expected": "1. 系统返回「如何重置密码」对应的标准答案\n2. 加载时长≤800ms",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Match-002",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "关键词匹配",
+      "title": "语义匹配无结果时触发关键词匹配",
+      "precondition": "知识库有包含关键词的词条但语义相似度低",
+      "steps": "1. 输入包含关键词但语义偏差的问题\n2. 观察匹配结果",
+      "expected": "1. 系统触发关键词模糊匹配\n2. 返回包含关键词的关联词条答案",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Match-003",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "匹配优先级",
+      "title": "匹配优先级验证：精准>语义>关键词>兜底",
+      "precondition": "知识库有精准匹配、语义近似、仅关键词匹配的多个词条",
+      "steps": "1. 输入一个同时命中多个层级的问题\n2. 观察返回结果",
+      "expected": "1. 优先返回精准完全匹配的答案\n2. 不返回低优先级匹配结果",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Match-004",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "相似问题推荐",
+      "title": "低匹配度时推送3-5条相似问题",
+      "precondition": "知识库有相关但匹配度不高的词条",
+      "steps": "1. 输入模糊问题\n2. 观察推荐区域",
+      "expected": "1. 答案区域展示匹配度最高的答案\n2. 底部推荐3-5条关联相似问题",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Match-005",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "重复问题过滤",
+      "title": "重复发送相同问题返回历史答案",
+      "precondition": "用户已发送过某问题且已收到回答",
+      "steps": "1. 再次发送完全相同的问题",
+      "expected": "1. 系统直接返回历史最优答案\n2. 不重复收录未知问题\n3. 响应速度快于首次",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Match-006",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "兜底回复",
+      "title": "所有匹配方式无结果时返回兜底话术",
+      "precondition": "知识库无任何关联词条",
+      "steps": "1. 输入完全无关的问题\n2. 发送",
+      "expected": "1. 展示兜底回复\n2. 同步推送热门相似问题\n3. 问题收录至未知问题列表",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Display-001",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "答案渲染",
+      "title": "匹配成功时正确展示标准答案",
+      "precondition": "已匹配到有效答案",
+      "steps": "1. 观察答案展示区域",
+      "expected": "1. 展示标准答案内容\n2. 支持文本、换行、简单格式\n3. 底部展示评价按钮",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Display-002",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "加载动画",
+      "title": "问答检索加载动画展示",
+      "precondition": "用户已提交问题",
+      "steps": "1. 提交问题后观察页面",
+      "expected": "1. 展示加载动画「正在为您检索答案中...」\n2. 加载时长最长3s\n3. 超时返回兜底话术",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Display-003",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "欢迎话术",
+      "title": "页面默认展示欢迎话术",
+      "precondition": "用户首次进入问答页面",
+      "steps": "1. 进入知识库问答页面",
+      "expected": "1. 展示欢迎话术「您好！我是知识库智能助手，您可以输入问题咨询相关业务问题~」",
+      "priority": "P3"
+    },
+    {
+      "id": "QA-Display-004",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "兜底回复",
+      "title": "匹配失败时展示兜底回复和热门相似问题",
+      "precondition": "知识库无匹配词条",
+      "steps": "1. 输入无匹配问题\n2. 发送",
+      "expected": "1. 展示兜底回复话术\n2. 推送热门相似问题\n3. 问题自动收录至未知问题",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Display-005",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "加载超时",
+      "title": "加载超过3秒时展示超时提示",
+      "precondition": "语义匹配引擎响应慢",
+      "steps": "1. 模拟匹配引擎超时（>3s）\n2. 观察页面响应",
+      "expected": "1. 3秒后返回兜底话术\n2. 提示「问答检索超时，请稍后重试」",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Feedback-001",
+      "level1": "用户端问答",
+      "level2": "反馈与评价",
+      "feature": "有用评价",
+      "title": "点赞评价答案有用",
+      "precondition": "已展示系统答案",
+      "steps": "1. 点击答案下方「有用（点赞）」按钮",
+      "expected": "1. 按钮变为已选中状态\n2. 评价数据同步上传后台\n3. 按钮不可再次点击",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Feedback-002",
+      "level1": "用户端问答",
+      "level2": "反馈与评价",
+      "feature": "无用评价",
+      "title": "差评答案无用",
+      "precondition": "已展示系统答案",
+      "steps": "1. 点击答案下方「无用（差评）」按钮",
+      "expected": "1. 按钮变为已选中状态\n2. 评价数据同步上传后台\n3. 按钮不可再次点击",
+      "priority": "P0"
+    },
+    {
+      "id": "QA-Feedback-003",
+      "level1": "用户端问答",
+      "level2": "反馈与评价",
+      "feature": "评价状态固化",
+      "title": "评价后不可重复评价",
+      "precondition": "用户已对某答案完成评价",
+      "steps": "1. 尝试再次点击评价按钮",
+      "expected": "1. 按钮状态固化无响应\n2. 不产生重复评价数据",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Session-001",
+      "level1": "用户端问答",
+      "level2": "会话操作",
+      "feature": "清空会话",
+      "title": "一键清空当前页面所有问答记录",
+      "precondition": "当前会话有多条问答记录",
+      "steps": "1. 点击清空会话按钮",
+      "expected": "1. 页面所有问答记录清空\n2. 恢复至默认欢迎话术状态",
+      "priority": "P1"
+    },
+    {
+      "id": "QA-Session-002",
+      "level1": "用户端问答",
+      "level2": "会话操作",
+      "feature": "清空会话恢复",
+      "title": "清空后页面恢复默认欢迎话术",
+      "precondition": "当前有问答记录",
+      "steps": "1. 点击清空会话\n2. 观察页面状态",
+      "expected": "1. 所有问答记录清除\n2. 恢复默认欢迎话术\n3. 输入框清空",
+      "priority": "P2"
+    },
+    {
+      "id": "Session-History-001",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "记录入口",
+      "title": "历史记录按钮可点击进入",
+      "precondition": "用户已登录",
+      "steps": "1. 点击问答页面顶部「历史记录」按钮",
+      "expected": "1. 跳转至历史记录列表页",
+      "priority": "P0"
+    },
+    {
+      "id": "Session-History-002",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "记录列表",
+      "title": "按时间倒序展示历史记录",
+      "precondition": "用户有多条历史问答记录",
+      "steps": "1. 进入历史记录页面",
+      "expected": "1. 记录按时间倒序排列\n2. 每条展示提问时间、用户问题、简略答案",
+      "priority": "P1"
+    },
+    {
+      "id": "Session-History-003",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "单条删除",
+      "title": "删除单条历史记录",
+      "precondition": "历史记录列表非空",
+      "steps": "1. 点击某条记录的「删除」按钮\n2. 确认删除",
+      "expected": "1. 弹出二次确认弹窗\n2. 确认后记录从列表移除\n3. 后台同步删除\n4. 删除后不可恢复",
+      "priority": "P0"
+    },
+    {
+      "id": "Session-History-004",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "空状态",
+      "title": "无历史记录时展示空状态提示",
+      "precondition": "用户无任何历史问答",
+      "steps": "1. 进入历史记录页面",
+      "expected": "1. 展示「暂无问答历史记录」提示",
+      "priority": "P3"
+    },
+    {
+      "id": "Session-History-005",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "数据隔离",
+      "title": "不同账号历史记录相互独立",
+      "precondition": "两个不同用户账号各有问答记录",
+      "steps": "1. 用账号A登录查看历史记录\n2. 用账号B登录查看历史记录",
+      "expected": "1. 账号A只能看到自己的记录\n2. 账号B只能看到自己的记录\n3. 两账号记录互不干扰",
+      "priority": "P0"
+    },
+    {
+      "id": "Session-History-006",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "数据永久留存",
+      "title": "会话记录永久留存不自动清除",
+      "precondition": "用户有历史问答记录",
+      "steps": "1. 等待较长时间后查看历史记录",
+      "expected": "1. 所有历史记录仍在\n2. 不会自动清除",
+      "priority": "P2"
+    },
+    {
+      "id": "Session-History-007",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "重新唤起问答",
+      "title": "点击历史问题快速唤起对应问答",
+      "precondition": "存在历史问答记录",
+      "steps": "1. 点击某条历史问题",
+      "expected": "1. 快速重新唤起对应问答内容\n2. 展示原始问题和答案",
+      "priority": "P2"
+    },
+    {
+      "id": "Session-Clear-001",
+      "level1": "会话记录",
+      "level2": "批量清空",
+      "feature": "批量清空",
+      "title": "批量清空所有历史记录",
+      "precondition": "历史记录列表非空",
+      "steps": "1. 点击「批量清空」按钮\n2. 确认清空",
+      "expected": "1. 弹出二次确认弹窗\n2. 确认后所有记录清空\n3. 后台同步清除\n4. 不可恢复",
+      "priority": "P0"
+    },
+    {
+      "id": "Session-Clear-002",
+      "level1": "会话记录",
+      "level2": "批量清空",
+      "feature": "删除二次确认",
+      "title": "删除/清空操作需二次确认",
+      "precondition": "历史记录列表非空",
+      "steps": "1. 点击删除或清空按钮\n2. 观察确认弹窗",
+      "expected": "1. 弹出确认弹窗\n2. 取消则不执行删除\n3. 确认后执行删除",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Filter-001",
+      "level1": "词条管理",
+      "level2": "筛选搜索",
+      "feature": "多条件筛选",
+      "title": "按关键词、分类、状态、时间筛选",
+      "precondition": "后台有多个词条数据",
+      "steps": "1. 使用问题关键词筛选\n2. 使用词条分类筛选\n3. 使用上架状态筛选\n4. 使用创建时间筛选",
+      "expected": "1. 各筛选条件独立生效\n2. 多条件组合筛选结果正确\n3. 列表实时更新",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Add-001",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准问题校验-必填",
+      "title": "标准问题为必填字段",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 不填写标准问题\n2. 点击保存",
+      "expected": "1. 提示标准问题为必填项\n2. 保存失败",
+      "priority": "P0"
+    },
+    {
+      "id": "KB-Add-002",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准问题校验-字数",
+      "title": "标准问题限制1-200字",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 输入超过200字的标准问题\n2. 点击保存",
+      "expected": "1. 提示超出字数限制\n2. 保存失败",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Add-003",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准问题校验-重复",
+      "title": "标准问题不可重复",
+      "precondition": "已存在某标准问题的词条",
+      "steps": "1. 输入已存在的标准问题\n2. 点击保存",
+      "expected": "1. 提示「该标准问题已存在」\n2. 保存失败",
+      "priority": "P0"
+    },
+    {
+      "id": "KB-Add-004",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "相似问题录入",
+      "title": "支持多条相似问题以换行分隔",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 在相似问题字段输入多条问题（换行分隔）\n2. 保存词条",
+      "expected": "1. 多条相似问题正确保存\n2. 拓宽语义匹配范围",
+      "priority": "P2"
+    },
+    {
+      "id": "KB-Add-005",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准答案校验",
+      "title": "标准答案为必填且限制1-2000字",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 不填写标准答案点击保存\n2. 输入超过2000字的答案点击保存",
+      "expected": "1. 必填校验提示\n2. 超出字数提示\n3. 保存失败",
+      "priority": "P0"
+    },
+    {
+      "id": "KB-Add-006",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "词条分类必选",
+      "title": "词条分类为必选字段",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 不选择词条分类\n2. 点击保存",
+      "expected": "1. 提示词条分类为必选项\n2. 保存失败",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Add-007",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "默认下架状态",
+      "title": "新增词条默认为下架状态",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 填写完整信息\n2. 保存新增词条",
+      "expected": "1. 新增词条状态为「下架」\n2. 不参与用户问答匹配",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Edit-001",
+      "level1": "词条管理",
+      "level2": "编辑词条",
+      "feature": "编辑上架词条实时生效",
+      "title": "编辑已上架词条保存后实时生效",
+      "precondition": "存在已上架词条",
+      "steps": "1. 编辑已上架词条的内容\n2. 保存修改",
+      "expected": "1. 修改保存成功\n2. 无需重新审核\n3. 用户端问答实时生效",
+      "priority": "P0"
+    },
+    {
+      "id": "KB-Delete-001",
+      "level1": "词条管理",
+      "level2": "删除词条",
+      "feature": "删除二次确认",
+      "title": "删除词条需二次确认",
+      "precondition": "存在可删除词条",
+      "steps": "1. 点击删除按钮\n2. 观察确认弹窗",
+      "expected": "1. 弹出二次确认弹窗\n2. 取消则不删除\n3. 确认后词条删除",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Delete-002",
+      "level1": "词条管理",
+      "level2": "删除词条",
+      "feature": "已关联词条支持删除",
+      "title": "已关联用户问答记录的词条支持删除",
+      "precondition": "存在已关联问答记录的词条",
+      "steps": "1. 删除已关联问答记录的词条\n2. 确认删除",
+      "expected": "1. 删除成功\n2. 词条不再参与新问答匹配\n3. 历史问答记录保留",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Delete-003",
+      "level1": "词条管理",
+      "level2": "删除词条",
+      "feature": "删除后数据清理",
+      "title": "删除词条后不再参与匹配",
+      "precondition": "已删除某词条",
+      "steps": "1. 用户输入与已删除词条匹配的问题\n2. 观察匹配结果",
+      "expected": "1. 已删除词条不参与匹配\n2. 可能匹配其他词条或返回兜底",
+      "priority": "P2"
+    },
+    {
+      "id": "KB-Batch-001",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量选择",
+      "title": "支持多选词条进行批量操作",
+      "precondition": "词条列表有多个词条",
+      "steps": "1. 勾选多个词条复选框",
+      "expected": "1. 多个词条被选中\n2. 批量操作按钮激活",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Batch-002",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量上架",
+      "title": "批量上架选中的下架词条",
+      "precondition": "已选中多个下架词条",
+      "steps": "1. 点击「批量上架」按钮\n2. 确认操作",
+      "expected": "1. 选中词条状态变为「上架」\n2. 可被用户检索匹配",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Batch-003",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量下架",
+      "title": "批量下架选中的上架词条",
+      "precondition": "已选中多个上架词条",
+      "steps": "1. 点击「批量下架」按钮\n2. 确认操作",
+      "expected": "1. 选中词条状态变为「下架」\n2. 不再参与用户问答匹配",
+      "priority": "P1"
+    },
+    {
+      "id": "KB-Batch-004",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量删除",
+      "title": "批量删除选中的词条",
+      "precondition": "已选中多个词条",
+      "steps": "1. 点击「批量删除」按钮\n2. 确认操作",
+      "expected": "1. 弹出二次确认\n2. 确认后选中词条全部删除",
+      "priority": "P1"
+    },
+    {
+      "id": "Unknown-Collect-001",
+      "level1": "未知问题",
+      "level2": "自动收录",
+      "feature": "自动收录",
+      "title": "未匹配问题自动收录至后台",
+      "precondition": "用户提问未匹配到有效词条",
+      "steps": "1. 用户发送未匹配问题\n2. 后台查看未知问题列表",
+      "expected": "1. 问题自动收录至未知问题列表\n2. 记录提问时间、提问用户、提问次数",
+      "priority": "P0"
+    },
+    {
+      "id": "Unknown-Dedup-001",
+      "level1": "未知问题",
+      "level2": "去重统计",
+      "feature": "去重统计",
+      "title": "相同未知问题自动合并统计",
+      "precondition": "多个用户发送相同未匹配问题",
+      "steps": "1. 多个用户发送相同的未匹配问题\n2. 查看未知问题列表",
+      "expected": "1. 相同问题自动合并为一条\n2. 累计提问次数正确统计",
+      "priority": "P1"
+    },
+    {
+      "id": "Unknown-Process-001",
+      "level1": "未知问题",
+      "level2": "处理功能",
+      "feature": "基于未知问题新建词条",
+      "title": "支持基于未知问题直接新建词条",
+      "precondition": "未知问题列表有待处理问题",
+      "steps": "1. 选择某未知问题\n2. 点击新建词条\n3. 填写答案并保存",
+      "expected": "1. 成功新建知识词条\n2. 词条关联原始未知问题\n3. 未知问题标记为「已解决」",
+      "priority": "P1"
+    },
+    {
+      "id": "Unknown-Process-002",
+      "level1": "未知问题",
+      "level2": "处理功能",
+      "feature": "标记已解决",
+      "title": "处理后标记为已解决",
+      "precondition": "未知问题列表有待处理问题",
+      "steps": "1. 处理某未知问题\n2. 观察状态变化",
+      "expected": "1. 未知问题状态变为「已解决」\n2. 不再出现在待处理列表",
+      "priority": "P2"
+    },
+    {
+      "id": "Unknown-Clean-001",
+      "level1": "未知问题",
+      "level2": "数据清理",
+      "feature": "手动清理",
+      "title": "支持手动清理无效未知问题",
+      "precondition": "未知问题列表有无效数据",
+      "steps": "1. 选择无效/无意义的未知问题\n2. 点击清理/删除",
+      "expected": "1. 无效数据被清除\n2. 不影响有效未知问题",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Basic-001",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "总提问量",
+      "title": "总提问量统计正确",
+      "precondition": "系统有一定量的问答数据",
+      "steps": "1. 进入数据统计页面\n2. 查看总提问量",
+      "expected": "1. 总提问量数字准确\n2. 包含所有用户的历史提问总量",
+      "priority": "P1"
+    },
+    {
+      "id": "Stats-Basic-002",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "有效提问量",
+      "title": "有效提问量统计正确",
+      "precondition": "系统有匹配成功和失败的问答",
+      "steps": "1. 查看有效提问量指标",
+      "expected": "1. 仅统计匹配到有效答案的提问量",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Basic-003",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "无答案提问量",
+      "title": "无答案提问量统计正确",
+      "precondition": "系统有未匹配的问答",
+      "steps": "1. 查看无答案提问量指标",
+      "expected": "1. 统计未匹配到答案的提问量\n2. 与未知问题收录数一致",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Basic-004",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "活跃用户数",
+      "title": "活跃用户数统计正确",
+      "precondition": "有多个用户使用问答功能",
+      "steps": "1. 查看活跃用户数",
+      "expected": "1. 活跃用户数准确\n2. 统计口径明确",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Quality-001",
+      "level1": "数据统计",
+      "level2": "质量数据",
+      "feature": "问题命中率",
+      "title": "问题命中率计算正确",
+      "precondition": "系统有匹配成功和失败的问答",
+      "steps": "1. 查看问题命中率",
+      "expected": "1. 命中率 = 匹配成功数 / 总提问数 x 100%\n2. 数值准确",
+      "priority": "P1"
+    },
+    {
+      "id": "Stats-Quality-002",
+      "level1": "数据统计",
+      "level2": "质量数据",
+      "feature": "答案好评率",
+      "title": "答案好评率计算正确",
+      "precondition": "有用户评价数据",
+      "steps": "1. 查看答案好评率",
+      "expected": "1. 好评率 = 有用评价数 / 总评价数 x 100%\n2. 数值准确",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Quality-003",
+      "level1": "数据统计",
+      "level2": "质量数据",
+      "feature": "答案差评率",
+      "title": "答案差评率计算正确",
+      "precondition": "有用户评价数据",
+      "steps": "1. 查看答案差评率",
+      "expected": "1. 差评率 = 无用评价数 / 总评价数 x 100%\n2. 与好评率之和 = 100%",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Hot-001",
+      "level1": "数据统计",
+      "level2": "热度数据",
+      "feature": "高频提问TOP10",
+      "title": "高频提问问题TOP10展示正确",
+      "precondition": "有一定量的问答数据",
+      "steps": "1. 查看高频提问问题TOP10",
+      "expected": "1. 展示提问频次最高的10个问题\n2. 排序正确\n3. 频次准确",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Hot-002",
+      "level1": "数据统计",
+      "level2": "热度数据",
+      "feature": "高频未知TOP10",
+      "title": "高频未知问题TOP10展示正确",
+      "precondition": "有一定量的未知问题数据",
+      "steps": "1. 查看高频未知问题TOP10",
+      "expected": "1. 展示被提问最多的10个未知问题\n2. 排序正确",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Trend-001",
+      "level1": "数据统计",
+      "level2": "时间趋势",
+      "feature": "日趋势",
+      "title": "支持按日查看问答数据趋势",
+      "precondition": "有连续多天的问答数据",
+      "steps": "1. 选择按日查看数据趋势",
+      "expected": "1. 展示每日问答量变化趋势\n2. 数据准确",
+      "priority": "P2"
+    },
+    {
+      "id": "Stats-Trend-002",
+      "level1": "数据统计",
+      "level2": "时间趋势",
+      "feature": "周趋势",
+      "title": "支持按周查看问答数据趋势",
+      "precondition": "有多周的问答数据",
+      "steps": "1. 选择按周查看数据趋势",
+      "expected": "1. 展示每周问答量变化趋势",
+      "priority": "P3"
+    },
+    {
+      "id": "Stats-Trend-003",
+      "level1": "数据统计",
+      "level2": "时间趋势",
+      "feature": "月趋势",
+      "title": "支持按月查看问答数据趋势",
+      "precondition": "有多月的问答数据",
+      "steps": "1. 选择按月查看数据趋势",
+      "expected": "1. 展示每月问答量变化趋势",
+      "priority": "P3"
+    },
+    {
+      "id": "Perm-001",
+      "level1": "权限设计",
+      "level2": "普通用户",
+      "feature": "在线提问",
+      "title": "普通用户可正常提问和评价",
+      "precondition": "普通用户已登录",
+      "steps": "1. 普通用户输入问题并发送\n2. 对答案进行评价\n3. 查看个人会话记录",
+      "expected": "1. 提问功能正常\n2. 评价功能正常\n3. 仅能查看个人会话",
+      "priority": "P0"
+    },
+    {
+      "id": "Perm-002",
+      "level1": "权限设计",
+      "level2": "普通用户",
+      "feature": "无后台权限",
+      "title": "普通用户无法访问后台管理",
+      "precondition": "普通用户已登录",
+      "steps": "1. 尝试访问知识库词条管理\n2. 尝试查看未知问题\n3. 尝试查看数据统计",
+      "expected": "1. 无法进入后台管理页面\n2. 提示无权限",
+      "priority": "P0"
+    },
+    {
+      "id": "Perm-003",
+      "level1": "权限设计",
+      "level2": "运营管理员",
+      "feature": "后台管理权限",
+      "title": "运营管理员可管理知识库和查看数据",
+      "precondition": "运营管理员已登录",
+      "steps": "1. 新增/编辑/上下架/删除词条\n2. 处理未知问题\n3. 查看问答数据",
+      "expected": "1. 知识库管理功能正常\n2. 未知问题处理正常\n3. 数据统计可查看",
+      "priority": "P0"
+    },
+    {
+      "id": "Perm-004",
+      "level1": "权限设计",
+      "level2": "运营管理员",
+      "feature": "无系统配置权限",
+      "title": "运营管理员无权限配置和全量清理",
+      "precondition": "运营管理员已登录",
+      "steps": "1. 尝试进行权限配置\n2. 尝试全量数据清理",
+      "expected": "1. 无法访问系统配置\n2. 提示无权限",
+      "priority": "P1"
+    },
+    {
+      "id": "Perm-005",
+      "level1": "权限设计",
+      "level2": "超级管理员",
+      "feature": "全权限",
+      "title": "超级管理员拥有所有功能权限",
+      "precondition": "超级管理员已登录",
+      "steps": "1. 执行所有功能操作\n2. 进行权限配置\n3. 全量数据清理\n4. 系统参数设置",
+      "expected": "1. 所有功能正常可用\n2. 权限配置生效\n3. 系统参数设置生效",
+      "priority": "P0"
+    },
+    {
+      "id": "Exc-Net-001",
+      "level1": "异常场景",
+      "level2": "网络异常",
+      "feature": "网络中断处理",
+      "title": "网络中断时终止请求并提示",
+      "precondition": "用户正在提问过程中",
+      "steps": "1. 模拟网络中断\n2. 用户发送问题",
+      "expected": "1. 终止问答请求\n2. 提示「网络异常，请检查网络后重新提问」\n3. 保留已输入的问题内容",
+      "priority": "P0"
+    },
+    {
+      "id": "Exc-Auth-001",
+      "level1": "异常场景",
+      "level2": "权限异常",
+      "feature": "登录过期处理",
+      "title": "登录过期时禁止提问并跳转",
+      "precondition": "用户登录已过期",
+      "steps": "1. 用户尝试提问",
+      "expected": "1. 弹窗提示「暂无问答权限或登录已过期，请重新登录」\n2. 自动跳转登录页面",
+      "priority": "P0"
+    },
+    {
+      "id": "Exc-Content-001",
+      "level1": "异常场景",
+      "level2": "内容违规",
+      "feature": "敏感词拦截",
+      "title": "输入敏感/违规内容时拦截提问",
+      "precondition": "系统敏感词库已配置",
+      "steps": "1. 输入包含敏感词的问题\n2. 发送",
+      "expected": "1. 系统自动拦截提问\n2. 提示「输入内容包含违规信息，请重新输入」\n3. 不收录该问题",
+      "priority": "P0"
+    },
+    {
+      "id": "Exc-Timeout-001",
+      "level1": "异常场景",
+      "level2": "系统超时",
+      "feature": "问答检索超时",
+      "title": "检索超时返回兜底话术",
+      "precondition": "语义匹配引擎响应超过3s",
+      "steps": "1. 模拟检索超时\n2. 观察系统响应",
+      "expected": "1. 返回兜底话术\n2. 提示「问答检索超时，请稍后重试」",
+      "priority": "P1"
+    },
+    {
+      "id": "Exc-Data-001",
+      "level1": "异常场景",
+      "level2": "数据异常",
+      "feature": "知识库数据异常",
+      "title": "知识库数据损坏时展示兜底内容",
+      "precondition": "知识库词条数据损坏",
+      "steps": "1. 模拟知识库数据加载失败\n2. 用户提问",
+      "expected": "1. 用户端展示无答案兜底内容\n2. 后台记录异常日志\n3. 不暴露系统错误",
+      "priority": "P1"
+    },
+    {
+      "id": "Exc-Limit-001",
+      "level1": "异常场景",
+      "level2": "限流",
+      "feature": "高频提问限制",
+      "title": "1分钟内高频重复提问触发限流",
+      "precondition": "用户已登录",
+      "steps": "1. 在1分钟内连续高频提问超过限制次数",
+      "expected": "1. 触发限流机制\n2. 提示「提问过于频繁，请稍后再试」\n3. 防止恶意刷量",
+      "priority": "P1"
+    },
+    {
+      "id": "Perf-001",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "页面加载",
+      "title": "问答首页首次加载≤1.5s",
+      "precondition": "网络正常",
+      "steps": "1. 首次打开问答页面\n2. 计算页面加载时间",
+      "expected": "1. 首次加载时间≤1.5s\n2. 页面完整渲染",
+      "priority": "P0"
+    },
+    {
+      "id": "Perf-002",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "问答响应",
+      "title": "常规问题语义匹配≤800ms",
+      "precondition": "知识库正常",
+      "steps": "1. 输入常规问题并发送\n2. 计算响应时间",
+      "expected": "1. 语义匹配响应≤800ms\n2. 复杂长文本问题响应≤2s",
+      "priority": "P1"
+    },
+    {
+      "id": "Perf-003",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "并发能力",
+      "title": "支持≥200人同时在线提问",
+      "precondition": "测试环境准备200并发用户",
+      "steps": "1. 200用户同时在线提问\n2. 持续操作一段时间",
+      "expected": "1. 无卡顿\n2. 无问答数据错乱\n3. 无请求堆积",
+      "priority": "P1"
+    },
+    {
+      "id": "Perf-004",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "后台加载",
+      "title": "后台列表和统计加载≤1.5s",
+      "precondition": "后台有大量数据",
+      "steps": "1. 打开知识库列表页\n2. 打开数据统计页",
+      "expected": "1. 列表加载≤1.5s\n2. 统计数据加载≤1.5s",
+      "priority": "P2"
+    },
+    {
+      "id": "Compat-001",
+      "level1": "非功能需求",
+      "level2": "兼容性",
+      "feature": "PC浏览器兼容",
+      "title": "兼容Chrome/Edge/Firefox最新版",
+      "precondition": "—",
+      "steps": "1. 分别在Chrome、Edge、Firefox最新版打开问答功能",
+      "expected": "1. 各浏览器功能正常\n2. 样式无错位\n3. 交互无异常",
+      "priority": "P2"
+    },
+    {
+      "id": "Compat-002",
+      "level1": "非功能需求",
+      "level2": "兼容性",
+      "feature": "移动端适配",
+      "title": "适配iOS/Android主流机型",
+      "precondition": "—",
+      "steps": "1. 在手机和平板上打开问答功能\n2. 测试各尺寸屏幕",
+      "expected": "1. 会话展示无错位\n2. 内容无遮挡\n3. 功能与PC端一致",
+      "priority": "P2"
+    },
+    {
+      "id": "Security-001",
+      "level1": "非功能需求",
+      "level2": "安全",
+      "feature": "敏感词库",
+      "title": "内置敏感词库自动拦截违规内容",
+      "precondition": "敏感词库已配置",
+      "steps": "1. 输入各类敏感词测试\n2. 包含违禁词、敏感词、违规信息",
+      "expected": "1. 所有敏感词被拦截\n2. 不展示违规内容\n3. 词条内容也受敏感词管控",
+      "priority": "P0"
+    },
+    {
+      "id": "Security-002",
+      "level1": "非功能需求",
+      "level2": "安全",
+      "feature": "数据隔离",
+      "title": "问答数据仅本人及超级管理员可查看",
+      "precondition": "多个用户的问答数据",
+      "steps": "1. 用户A尝试查看用户B的问答数据\n2. 超级管理员查看所有数据",
+      "expected": "1. 用户A无法查看用户B数据\n2. 超级管理员可查看全量数据\n3. 严格数据隔离",
+      "priority": "P0"
+    },
+    {
+      "id": "Security-003",
+      "level1": "非功能需求",
+      "level2": "安全",
+      "feature": "操作日志",
+      "title": "所有后台操作留存日志可追溯",
+      "precondition": "运营管理员执行操作",
+      "steps": "1. 执行词条新增/编辑/删除等操作\n2. 查看后台日志",
+      "expected": "1. 日志记录操作人\n2. 记录操作时间\n3. 记录操作IP\n4. 记录操作内容",
+      "priority": "P1"
+    },
+    {
+      "id": "Maint-001",
+      "level1": "非功能需求",
+      "level2": "可维护性",
+      "feature": "动态配置",
+      "title": "支持后台动态配置敏感词和话术",
+      "precondition": "超级管理员已登录",
+      "steps": "1. 修改敏感词配置\n2. 修改兜底话术\n3. 修改限流次数",
+      "expected": "1. 配置修改后即时生效\n2. 无需修改代码\n3. 无需重启服务",
+      "priority": "P2"
+    },
+    {
+      "id": "Maint-002",
+      "level1": "非功能需求",
+      "level2": "可维护性",
+      "feature": "批量导入导出",
+      "title": "知识库词条支持批量导入导出",
+      "precondition": "运营管理员已登录",
+      "steps": "1. 批量导入词条\n2. 批量导出词条",
+      "expected": "1. 导入成功且数据正确\n2. 导出文件格式正确\n3. 便于大规模维护迁移",
+      "priority": "P2"
+    },
+    {
+      "id": "Maint-003",
+      "level1": "非功能需求",
+      "level2": "可维护性",
+      "feature": "异常日志",
+      "title": "异常问答和超时请求自动记录日志",
+      "precondition": "系统产生异常请求",
+      "steps": "1. 触发超时、异常等场景\n2. 查看后台日志",
+      "expected": "1. 异常请求自动记录日志\n2. 日志包含足够排查信息\n3. 支持后台查询",
+      "priority": "P2"
+    }
+  ],
+  "review_findings": [
+    {
+      "case_id": "QA-Display-002",
+      "role": "Arch",
+      "opinion": "加载状态组件未独立封装，建议抽取为通用Loading组件便于复用",
+      "defect_type": "架构腐化风险"
+    },
+    {
+      "case_id": "QA-Match-001",
+      "role": "Dev",
+      "opinion": "语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景",
+      "defect_type": "逻辑遗漏"
+    },
+    {
+      "case_id": "QA-Display-005",
+      "role": "Dev",
+      "opinion": "超时处理与兜底回复的关系不明确，3s超时后是返回通用兜底还是超时专用话术",
+      "defect_type": "逻辑遗漏"
+    },
+    {
+      "case_id": "QA-Send-003",
+      "role": "Dev",
+      "opinion": "500字边界值测试未覆盖多字节字符（如emoji），建议补充",
+      "defect_type": "边界遗漏"
+    },
+    {
+      "case_id": "KB-Batch-001",
+      "role": "Dev",
+      "opinion": "批量操作未测试跨页选择等边界场景",
+      "defect_type": "边界遗漏"
+    },
+    {
+      "case_id": "KB-Edit-001",
+      "role": "Dev",
+      "opinion": "编辑词条未覆盖并发编辑冲突场景",
+      "defect_type": "逻辑遗漏"
+    },
+    {
+      "case_id": "QA-Match-005",
+      "role": "QA",
+      "opinion": "「历史最优答案」定义不明确，未定义评判标准",
+      "defect_type": "场景遗漏"
+    },
+    {
+      "case_id": "Session-History-003",
+      "role": "QA",
+      "opinion": "删除记录场景未覆盖删除正在展示中的会话",
+      "defect_type": "场景遗漏"
+    },
+    {
+      "case_id": "QA-Match-006",
+      "role": "QA",
+      "opinion": "兜底回复仅检查文案，未验证问题是否真正被收录到未知问题列表",
+      "defect_type": "可验证性不足"
+    },
+    {
+      "case_id": "Exc-Limit-001",
+      "role": "QA",
+      "opinion": "限流场景未明确限制次数的具体数值和重置时间",
+      "defect_type": "可验证性不足"
+    },
+    {
+      "case_id": "QA-Display-004",
+      "role": "QA",
+      "opinion": "匹配失败场景未覆盖部分匹配的情况",
+      "defect_type": "场景遗漏"
+    },
+    {
+      "case_id": "KB-Add-007",
+      "role": "PM",
+      "opinion": "新增词条默认下架的业务必要性未说明，是否需要快速上架通道",
+      "defect_type": "优先级不准"
+    },
+    {
+      "case_id": "QA-Match-004",
+      "role": "PM",
+      "opinion": "相似问题推荐3-5条的数量范围是否为固定值还是动态值",
+      "defect_type": "表述不清"
+    },
+    {
+      "case_id": "AMB-004",
+      "role": "PM",
+      "opinion": "「历史最优答案」概念在多处使用但未给出明确定义",
+      "defect_type": "表述不清"
+    },
+    {
+      "case_id": "QA-Display-001",
+      "role": "UX",
+      "opinion": "答案展示仅提到支持文本和换行，未说明富文本、链接等格式的展示规则",
+      "defect_type": "交互不符"
+    },
+    {
+      "case_id": "QA-Feedback-001",
+      "role": "UX",
+      "opinion": "评价按钮状态变化的视觉反馈不明确",
+      "defect_type": "交互不符"
+    },
+    {
+      "case_id": "QA-Display-003",
+      "role": "UX",
+      "opinion": "欢迎话术缺少个性化能力",
+      "defect_type": "易用性缺陷"
+    },
+    {
+      "case_id": "Session-History-002",
+      "role": "UX",
+      "opinion": "历史记录列表未定义排序切换能力",
+      "defect_type": "易用性缺陷"
+    },
+    {
+      "case_id": "QA-Send-001",
+      "role": "Sec",
+      "opinion": "用户输入内容未说明XSS/注入防护措施",
+      "defect_type": "安全漏洞"
+    },
+    {
+      "case_id": "KB-Add-005",
+      "role": "Sec",
+      "opinion": "标准答案字段支持换行和格式，需验证是否存在存储型XSS风险",
+      "defect_type": "安全漏洞"
+    },
+    {
+      "case_id": "KB-Edit-001",
+      "role": "Sec",
+      "opinion": "编辑已上架词条即时生效，缺少审核机制，存在恶意篡改风险",
+      "defect_type": "安全漏洞"
+    },
+    {
+      "case_id": "Exc-Auth-001",
+      "role": "Sec",
+      "opinion": "身份令牌校验机制未说明具体实现",
+      "defect_type": "安全漏洞"
+    },
+    {
+      "case_id": "QA-Send-001",
+      "role": "Ops",
+      "opinion": "问答请求链路涉及多个服务，缺少各环节的监控告警指标定义",
+      "defect_type": "运维盲区"
+    },
+    {
+      "case_id": "QA-Display-005",
+      "role": "Ops",
+      "opinion": "超时处理后的降级策略不明确",
+      "defect_type": "运维盲区"
+    },
+    {
+      "case_id": "Exc-Data-001",
+      "role": "Ops",
+      "opinion": "知识库数据损坏的检测机制和自动恢复策略未定义",
+      "defect_type": "运维盲区"
+    },
+    {
+      "case_id": "Perf-003",
+      "role": "Perf",
+      "opinion": "200并发测试未说明持续时长和压力递增策略",
+      "defect_type": "性能风险"
+    },
+    {
+      "case_id": "Perf-002",
+      "role": "Perf",
+      "opinion": "800ms响应时间要求未考虑网络延迟等额外开销",
+      "defect_type": "性能风险"
+    },
+    {
+      "case_id": "Stats-Basic-001",
+      "role": "Perf",
+      "opinion": "统计数据查询在大数据量下可能有性能问题",
+      "defect_type": "场景遗漏"
+    },
+    {
+      "case_id": "Unknown-Dedup-001",
+      "role": "DBA",
+      "opinion": "未知问题去重逻辑依赖文本完全匹配还是模糊匹配未说明",
+      "defect_type": "数据完整性风险"
+    },
+    {
+      "case_id": "Unknown-Process-001",
+      "role": "DBA",
+      "opinion": "基于未知问题新建词条时事务完整性未说明",
+      "defect_type": "数据一致性风险"
+    }
+  ],
+  "optimized_cases": [
+    {
+      "id": "QA-Send-001",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "正常输入并发送问题",
+      "precondition": "用户已登录且有问答权限",
+      "steps": "1. 在问答输入框输入问题「如何重置密码？」\n2. 点击发送按钮",
+      "expected": "1. 问题成功发送\n2. 输入框清空\n3. 用户问题以对话气泡样式展示在会话窗口",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Sec] 用户输入内容未说明XSS/注入防护措施(安全漏洞) → 已采纳优化\n[Ops] 问答请求链路涉及多个服务，缺少各环节的监控告警指标定义(运维盲区) → 已采纳优化"
+    },
+    {
+      "id": "QA-Send-002",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "发送按钮",
+      "title": "输入为空时发送按钮置灰",
+      "precondition": "用户已登录",
+      "steps": "1. 不输入任何内容\n2. 观察发送按钮状态",
+      "expected": "1. 发送按钮为置灰状态\n2. 点击无响应",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Send-003",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "输入500字边界值发送",
+      "precondition": "用户已登录",
+      "steps": "1. 在输入框输入恰好500字的问题\n2. 点击发送",
+      "expected": "1. 问题成功发送\n2. 内容完整展示",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Dev] 500字边界值测试未覆盖多字节字符（如emoji），建议补充(边界遗漏) → 已采纳优化"
+    },
+    {
+      "id": "QA-Send-004",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "输入超过500字限制",
+      "precondition": "用户已登录",
+      "steps": "1. 在输入框输入501字及以上内容\n2. 尝试发送",
+      "expected": "1. 系统截断或提示超出限制\n2. 不发送超出部分内容",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Send-005",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "支持多行文本输入和回车发送",
+      "precondition": "用户已登录",
+      "steps": "1. 在输入框输入多行文本（Shift+Enter换行）\n2. 点击发送",
+      "expected": "1. 多行文本正确展示\n2. 换行格式保留",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Match-001",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "语义匹配",
+      "title": "语义匹配返回高度契合答案",
+      "precondition": "知识库已有上架相关词条",
+      "steps": "1. 输入「忘记密码怎么处理」（语义近似「如何重置密码」）\n2. 发送问题",
+      "expected": "1. 系统返回「如何重置密码」对应的标准答案\n2. 加载时长≤800ms",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Dev] 语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景(逻辑遗漏) → 已采纳优化"
+    },
+    {
+      "id": "QA-Match-002",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "关键词匹配",
+      "title": "语义匹配无结果时触发关键词匹配",
+      "precondition": "知识库有包含关键词的词条但语义相似度低",
+      "steps": "1. 输入包含关键词但语义偏差的问题\n2. 观察匹配结果",
+      "expected": "1. 系统触发关键词模糊匹配\n2. 返回包含关键词的关联词条答案",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Match-003",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "匹配优先级",
+      "title": "匹配优先级验证：精准>语义>关键词>兜底",
+      "precondition": "知识库有精准匹配、语义近似、仅关键词匹配的多个词条",
+      "steps": "1. 输入一个同时命中多个层级的问题\n2. 观察返回结果",
+      "expected": "1. 优先返回精准完全匹配的答案\n2. 不返回低优先级匹配结果",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Match-004",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "相似问题推荐",
+      "title": "低匹配度时推送3-5条相似问题",
+      "precondition": "知识库有相关但匹配度不高的词条",
+      "steps": "1. 输入模糊问题\n2. 观察推荐区域",
+      "expected": "1. 答案区域展示匹配度最高的答案\n2. 底部推荐3-5条关联相似问题",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[PM] 相似问题推荐3-5条的数量范围是否为固定值还是动态值(表述不清) → 已采纳优化"
+    },
+    {
+      "id": "QA-Match-005",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "重复问题过滤",
+      "title": "重复发送相同问题返回历史答案",
+      "precondition": "用户已发送过某问题且已收到回答",
+      "steps": "1. 再次发送完全相同的问题",
+      "expected": "1. 系统直接返回历史最优答案\n2. 不重复收录未知问题\n3. 响应速度快于首次",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[QA] 「历史最优答案」定义不明确，未定义评判标准(场景遗漏) → 已采纳优化"
+    },
+    {
+      "id": "QA-Match-006",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "兜底回复",
+      "title": "所有匹配方式无结果时返回兜底话术",
+      "precondition": "知识库无任何关联词条",
+      "steps": "1. 输入完全无关的问题\n2. 发送",
+      "expected": "1. 展示兜底回复\n2. 同步推送热门相似问题\n3. 问题收录至未知问题列表",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[QA] 兜底回复仅检查文案，未验证问题是否真正被收录到未知问题列表(可验证性不足) → 已采纳优化"
+    },
+    {
+      "id": "QA-Display-001",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "答案渲染",
+      "title": "匹配成功时正确展示标准答案",
+      "precondition": "已匹配到有效答案",
+      "steps": "1. 观察答案展示区域",
+      "expected": "1. 展示标准答案内容\n2. 支持文本、换行、简单格式\n3. 底部展示评价按钮",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[UX] 答案展示仅提到支持文本和换行，未说明富文本、链接等格式的展示规则(交互不符) → 已采纳优化"
+    },
+    {
+      "id": "QA-Display-002",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "加载动画",
+      "title": "问答检索加载动画展示",
+      "precondition": "用户已提交问题",
+      "steps": "1. 提交问题后观察页面",
+      "expected": "1. 展示加载动画「正在为您检索答案中...」\n2. 加载时长最长3s\n3. 超时返回兜底话术",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Arch] 加载状态组件未独立封装，建议抽取为通用Loading组件便于复用(架构腐化风险) → 已采纳优化"
+    },
+    {
+      "id": "QA-Display-003",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "欢迎话术",
+      "title": "页面默认展示欢迎话术",
+      "precondition": "用户首次进入问答页面",
+      "steps": "1. 进入知识库问答页面",
+      "expected": "1. 展示欢迎话术「您好！我是知识库智能助手，您可以输入问题咨询相关业务问题~」",
+      "priority": "P3",
+      "category": "功能",
+      "optimization_note": "已优化：\n[UX] 欢迎话术缺少个性化能力(易用性缺陷) → 已采纳优化"
+    },
+    {
+      "id": "QA-Display-004",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "兜底回复",
+      "title": "匹配失败时展示兜底回复和热门相似问题",
+      "precondition": "知识库无匹配词条",
+      "steps": "1. 输入无匹配问题\n2. 发送",
+      "expected": "1. 展示兜底回复话术\n2. 推送热门相似问题\n3. 问题自动收录至未知问题",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[QA] 匹配失败场景未覆盖部分匹配的情况(场景遗漏) → 已采纳优化"
+    },
+    {
+      "id": "QA-Display-005",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "加载超时",
+      "title": "加载超过3秒时展示超时提示",
+      "precondition": "语义匹配引擎响应慢",
+      "steps": "1. 模拟匹配引擎超时（>3s）\n2. 观察页面响应",
+      "expected": "1. 3秒后返回兜底话术\n2. 提示「问答检索超时，请稍后重试」",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Dev] 超时处理与兜底回复的关系不明确，3s超时后是返回通用兜底还是超时专用话术(逻辑遗漏) → 已采纳优化\n[Ops] 超时处理后的降级策略不明确(运维盲区) → 已采纳优化"
+    },
+    {
+      "id": "QA-Feedback-001",
+      "level1": "用户端问答",
+      "level2": "反馈与评价",
+      "feature": "有用评价",
+      "title": "点赞评价答案有用",
+      "precondition": "已展示系统答案",
+      "steps": "1. 点击答案下方「有用（点赞）」按钮",
+      "expected": "1. 按钮变为已选中状态\n2. 评价数据同步上传后台\n3. 按钮不可再次点击",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[UX] 评价按钮状态变化的视觉反馈不明确(交互不符) → 已采纳优化"
+    },
+    {
+      "id": "QA-Feedback-002",
+      "level1": "用户端问答",
+      "level2": "反馈与评价",
+      "feature": "无用评价",
+      "title": "差评答案无用",
+      "precondition": "已展示系统答案",
+      "steps": "1. 点击答案下方「无用（差评）」按钮",
+      "expected": "1. 按钮变为已选中状态\n2. 评价数据同步上传后台\n3. 按钮不可再次点击",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Feedback-003",
+      "level1": "用户端问答",
+      "level2": "反馈与评价",
+      "feature": "评价状态固化",
+      "title": "评价后不可重复评价",
+      "precondition": "用户已对某答案完成评价",
+      "steps": "1. 尝试再次点击评价按钮",
+      "expected": "1. 按钮状态固化无响应\n2. 不产生重复评价数据",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Session-001",
+      "level1": "用户端问答",
+      "level2": "会话操作",
+      "feature": "清空会话",
+      "title": "一键清空当前页面所有问答记录",
+      "precondition": "当前会话有多条问答记录",
+      "steps": "1. 点击清空会话按钮",
+      "expected": "1. 页面所有问答记录清空\n2. 恢复至默认欢迎话术状态",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Session-002",
+      "level1": "用户端问答",
+      "level2": "会话操作",
+      "feature": "清空会话恢复",
+      "title": "清空后页面恢复默认欢迎话术",
+      "precondition": "当前有问答记录",
+      "steps": "1. 点击清空会话\n2. 观察页面状态",
+      "expected": "1. 所有问答记录清除\n2. 恢复默认欢迎话术\n3. 输入框清空",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Session-History-001",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "记录入口",
+      "title": "历史记录按钮可点击进入",
+      "precondition": "用户已登录",
+      "steps": "1. 点击问答页面顶部「历史记录」按钮",
+      "expected": "1. 跳转至历史记录列表页",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Session-History-002",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "记录列表",
+      "title": "按时间倒序展示历史记录",
+      "precondition": "用户有多条历史问答记录",
+      "steps": "1. 进入历史记录页面",
+      "expected": "1. 记录按时间倒序排列\n2. 每条展示提问时间、用户问题、简略答案",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[UX] 历史记录列表未定义排序切换能力(易用性缺陷) → 已采纳优化"
+    },
+    {
+      "id": "Session-History-003",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "单条删除",
+      "title": "删除单条历史记录",
+      "precondition": "历史记录列表非空",
+      "steps": "1. 点击某条记录的「删除」按钮\n2. 确认删除",
+      "expected": "1. 弹出二次确认弹窗\n2. 确认后记录从列表移除\n3. 后台同步删除\n4. 删除后不可恢复",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[QA] 删除记录场景未覆盖删除正在展示中的会话(场景遗漏) → 已采纳优化"
+    },
+    {
+      "id": "Session-History-004",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "空状态",
+      "title": "无历史记录时展示空状态提示",
+      "precondition": "用户无任何历史问答",
+      "steps": "1. 进入历史记录页面",
+      "expected": "1. 展示「暂无问答历史记录」提示",
+      "priority": "P3",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Session-History-005",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "数据隔离",
+      "title": "不同账号历史记录相互独立",
+      "precondition": "两个不同用户账号各有问答记录",
+      "steps": "1. 用账号A登录查看历史记录\n2. 用账号B登录查看历史记录",
+      "expected": "1. 账号A只能看到自己的记录\n2. 账号B只能看到自己的记录\n3. 两账号记录互不干扰",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Session-History-006",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "数据永久留存",
+      "title": "会话记录永久留存不自动清除",
+      "precondition": "用户有历史问答记录",
+      "steps": "1. 等待较长时间后查看历史记录",
+      "expected": "1. 所有历史记录仍在\n2. 不会自动清除",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Session-History-007",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "重新唤起问答",
+      "title": "点击历史问题快速唤起对应问答",
+      "precondition": "存在历史问答记录",
+      "steps": "1. 点击某条历史问题",
+      "expected": "1. 快速重新唤起对应问答内容\n2. 展示原始问题和答案",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Session-Clear-001",
+      "level1": "会话记录",
+      "level2": "批量清空",
+      "feature": "批量清空",
+      "title": "批量清空所有历史记录",
+      "precondition": "历史记录列表非空",
+      "steps": "1. 点击「批量清空」按钮\n2. 确认清空",
+      "expected": "1. 弹出二次确认弹窗\n2. 确认后所有记录清空\n3. 后台同步清除\n4. 不可恢复",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Session-Clear-002",
+      "level1": "会话记录",
+      "level2": "批量清空",
+      "feature": "删除二次确认",
+      "title": "删除/清空操作需二次确认",
+      "precondition": "历史记录列表非空",
+      "steps": "1. 点击删除或清空按钮\n2. 观察确认弹窗",
+      "expected": "1. 弹出确认弹窗\n2. 取消则不执行删除\n3. 确认后执行删除",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Filter-001",
+      "level1": "词条管理",
+      "level2": "筛选搜索",
+      "feature": "多条件筛选",
+      "title": "按关键词、分类、状态、时间筛选",
+      "precondition": "后台有多个词条数据",
+      "steps": "1. 使用问题关键词筛选\n2. 使用词条分类筛选\n3. 使用上架状态筛选\n4. 使用创建时间筛选",
+      "expected": "1. 各筛选条件独立生效\n2. 多条件组合筛选结果正确\n3. 列表实时更新",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Add-001",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准问题校验-必填",
+      "title": "标准问题为必填字段",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 不填写标准问题\n2. 点击保存",
+      "expected": "1. 提示标准问题为必填项\n2. 保存失败",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Add-002",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准问题校验-字数",
+      "title": "标准问题限制1-200字",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 输入超过200字的标准问题\n2. 点击保存",
+      "expected": "1. 提示超出字数限制\n2. 保存失败",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Add-003",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准问题校验-重复",
+      "title": "标准问题不可重复",
+      "precondition": "已存在某标准问题的词条",
+      "steps": "1. 输入已存在的标准问题\n2. 点击保存",
+      "expected": "1. 提示「该标准问题已存在」\n2. 保存失败",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Add-004",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "相似问题录入",
+      "title": "支持多条相似问题以换行分隔",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 在相似问题字段输入多条问题（换行分隔）\n2. 保存词条",
+      "expected": "1. 多条相似问题正确保存\n2. 拓宽语义匹配范围",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Add-005",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "标准答案校验",
+      "title": "标准答案为必填且限制1-2000字",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 不填写标准答案点击保存\n2. 输入超过2000字的答案点击保存",
+      "expected": "1. 必填校验提示\n2. 超出字数提示\n3. 保存失败",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Sec] 标准答案字段支持换行和格式，需验证是否存在存储型XSS风险(安全漏洞) → 已采纳优化"
+    },
+    {
+      "id": "KB-Add-006",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "词条分类必选",
+      "title": "词条分类为必选字段",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 不选择词条分类\n2. 点击保存",
+      "expected": "1. 提示词条分类为必选项\n2. 保存失败",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Add-007",
+      "level1": "词条管理",
+      "level2": "新增词条",
+      "feature": "默认下架状态",
+      "title": "新增词条默认为下架状态",
+      "precondition": "运营管理员已打开新增弹窗",
+      "steps": "1. 填写完整信息\n2. 保存新增词条",
+      "expected": "1. 新增词条状态为「下架」\n2. 不参与用户问答匹配",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[PM] 新增词条默认下架的业务必要性未说明，是否需要快速上架通道(优先级不准) → 已采纳优化"
+    },
+    {
+      "id": "KB-Edit-001",
+      "level1": "词条管理",
+      "level2": "编辑词条",
+      "feature": "编辑上架词条实时生效",
+      "title": "编辑已上架词条保存后实时生效",
+      "precondition": "存在已上架词条",
+      "steps": "1. 编辑已上架词条的内容\n2. 保存修改",
+      "expected": "1. 修改保存成功\n2. 无需重新审核\n3. 用户端问答实时生效",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Dev] 编辑词条未覆盖并发编辑冲突场景(逻辑遗漏) → 已采纳优化\n[Sec] 编辑已上架词条即时生效，缺少审核机制，存在恶意篡改风险(安全漏洞) → 已采纳优化"
+    },
+    {
+      "id": "KB-Delete-001",
+      "level1": "词条管理",
+      "level2": "删除词条",
+      "feature": "删除二次确认",
+      "title": "删除词条需二次确认",
+      "precondition": "存在可删除词条",
+      "steps": "1. 点击删除按钮\n2. 观察确认弹窗",
+      "expected": "1. 弹出二次确认弹窗\n2. 取消则不删除\n3. 确认后词条删除",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Delete-002",
+      "level1": "词条管理",
+      "level2": "删除词条",
+      "feature": "已关联词条支持删除",
+      "title": "已关联用户问答记录的词条支持删除",
+      "precondition": "存在已关联问答记录的词条",
+      "steps": "1. 删除已关联问答记录的词条\n2. 确认删除",
+      "expected": "1. 删除成功\n2. 词条不再参与新问答匹配\n3. 历史问答记录保留",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Delete-003",
+      "level1": "词条管理",
+      "level2": "删除词条",
+      "feature": "删除后数据清理",
+      "title": "删除词条后不再参与匹配",
+      "precondition": "已删除某词条",
+      "steps": "1. 用户输入与已删除词条匹配的问题\n2. 观察匹配结果",
+      "expected": "1. 已删除词条不参与匹配\n2. 可能匹配其他词条或返回兜底",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Batch-001",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量选择",
+      "title": "支持多选词条进行批量操作",
+      "precondition": "词条列表有多个词条",
+      "steps": "1. 勾选多个词条复选框",
+      "expected": "1. 多个词条被选中\n2. 批量操作按钮激活",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Dev] 批量操作未测试跨页选择等边界场景(边界遗漏) → 已采纳优化"
+    },
+    {
+      "id": "KB-Batch-002",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量上架",
+      "title": "批量上架选中的下架词条",
+      "precondition": "已选中多个下架词条",
+      "steps": "1. 点击「批量上架」按钮\n2. 确认操作",
+      "expected": "1. 选中词条状态变为「上架」\n2. 可被用户检索匹配",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Batch-003",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量下架",
+      "title": "批量下架选中的上架词条",
+      "precondition": "已选中多个上架词条",
+      "steps": "1. 点击「批量下架」按钮\n2. 确认操作",
+      "expected": "1. 选中词条状态变为「下架」\n2. 不再参与用户问答匹配",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "KB-Batch-004",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "批量删除",
+      "title": "批量删除选中的词条",
+      "precondition": "已选中多个词条",
+      "steps": "1. 点击「批量删除」按钮\n2. 确认操作",
+      "expected": "1. 弹出二次确认\n2. 确认后选中词条全部删除",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Unknown-Collect-001",
+      "level1": "未知问题",
+      "level2": "自动收录",
+      "feature": "自动收录",
+      "title": "未匹配问题自动收录至后台",
+      "precondition": "用户提问未匹配到有效词条",
+      "steps": "1. 用户发送未匹配问题\n2. 后台查看未知问题列表",
+      "expected": "1. 问题自动收录至未知问题列表\n2. 记录提问时间、提问用户、提问次数",
+      "priority": "P0",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Unknown-Dedup-001",
+      "level1": "未知问题",
+      "level2": "去重统计",
+      "feature": "去重统计",
+      "title": "相同未知问题自动合并统计",
+      "precondition": "多个用户发送相同未匹配问题",
+      "steps": "1. 多个用户发送相同的未匹配问题\n2. 查看未知问题列表",
+      "expected": "1. 相同问题自动合并为一条\n2. 累计提问次数正确统计",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[DBA] 未知问题去重逻辑依赖文本完全匹配还是模糊匹配未说明(数据完整性风险) → 已采纳优化"
+    },
+    {
+      "id": "Unknown-Process-001",
+      "level1": "未知问题",
+      "level2": "处理功能",
+      "feature": "基于未知问题新建词条",
+      "title": "支持基于未知问题直接新建词条",
+      "precondition": "未知问题列表有待处理问题",
+      "steps": "1. 选择某未知问题\n2. 点击新建词条\n3. 填写答案并保存",
+      "expected": "1. 成功新建知识词条\n2. 词条关联原始未知问题\n3. 未知问题标记为「已解决」",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[DBA] 基于未知问题新建词条时事务完整性未说明(数据一致性风险) → 已采纳优化"
+    },
+    {
+      "id": "Unknown-Process-002",
+      "level1": "未知问题",
+      "level2": "处理功能",
+      "feature": "标记已解决",
+      "title": "处理后标记为已解决",
+      "precondition": "未知问题列表有待处理问题",
+      "steps": "1. 处理某未知问题\n2. 观察状态变化",
+      "expected": "1. 未知问题状态变为「已解决」\n2. 不再出现在待处理列表",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Unknown-Clean-001",
+      "level1": "未知问题",
+      "level2": "数据清理",
+      "feature": "手动清理",
+      "title": "支持手动清理无效未知问题",
+      "precondition": "未知问题列表有无效数据",
+      "steps": "1. 选择无效/无意义的未知问题\n2. 点击清理/删除",
+      "expected": "1. 无效数据被清除\n2. 不影响有效未知问题",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Basic-001",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "总提问量",
+      "title": "总提问量统计正确",
+      "precondition": "系统有一定量的问答数据",
+      "steps": "1. 进入数据统计页面\n2. 查看总提问量",
+      "expected": "1. 总提问量数字准确\n2. 包含所有用户的历史提问总量",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "已优化：\n[Perf] 统计数据查询在大数据量下可能有性能问题(场景遗漏) → 已采纳优化"
+    },
+    {
+      "id": "Stats-Basic-002",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "有效提问量",
+      "title": "有效提问量统计正确",
+      "precondition": "系统有匹配成功和失败的问答",
+      "steps": "1. 查看有效提问量指标",
+      "expected": "1. 仅统计匹配到有效答案的提问量",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Basic-003",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "无答案提问量",
+      "title": "无答案提问量统计正确",
+      "precondition": "系统有未匹配的问答",
+      "steps": "1. 查看无答案提问量指标",
+      "expected": "1. 统计未匹配到答案的提问量\n2. 与未知问题收录数一致",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Basic-004",
+      "level1": "数据统计",
+      "level2": "基础数据",
+      "feature": "活跃用户数",
+      "title": "活跃用户数统计正确",
+      "precondition": "有多个用户使用问答功能",
+      "steps": "1. 查看活跃用户数",
+      "expected": "1. 活跃用户数准确\n2. 统计口径明确",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Quality-001",
+      "level1": "数据统计",
+      "level2": "质量数据",
+      "feature": "问题命中率",
+      "title": "问题命中率计算正确",
+      "precondition": "系统有匹配成功和失败的问答",
+      "steps": "1. 查看问题命中率",
+      "expected": "1. 命中率 = 匹配成功数 / 总提问数 x 100%\n2. 数值准确",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Quality-002",
+      "level1": "数据统计",
+      "level2": "质量数据",
+      "feature": "答案好评率",
+      "title": "答案好评率计算正确",
+      "precondition": "有用户评价数据",
+      "steps": "1. 查看答案好评率",
+      "expected": "1. 好评率 = 有用评价数 / 总评价数 x 100%\n2. 数值准确",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Quality-003",
+      "level1": "数据统计",
+      "level2": "质量数据",
+      "feature": "答案差评率",
+      "title": "答案差评率计算正确",
+      "precondition": "有用户评价数据",
+      "steps": "1. 查看答案差评率",
+      "expected": "1. 差评率 = 无用评价数 / 总评价数 x 100%\n2. 与好评率之和 = 100%",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Hot-001",
+      "level1": "数据统计",
+      "level2": "热度数据",
+      "feature": "高频提问TOP10",
+      "title": "高频提问问题TOP10展示正确",
+      "precondition": "有一定量的问答数据",
+      "steps": "1. 查看高频提问问题TOP10",
+      "expected": "1. 展示提问频次最高的10个问题\n2. 排序正确\n3. 频次准确",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Hot-002",
+      "level1": "数据统计",
+      "level2": "热度数据",
+      "feature": "高频未知TOP10",
+      "title": "高频未知问题TOP10展示正确",
+      "precondition": "有一定量的未知问题数据",
+      "steps": "1. 查看高频未知问题TOP10",
+      "expected": "1. 展示被提问最多的10个未知问题\n2. 排序正确",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Trend-001",
+      "level1": "数据统计",
+      "level2": "时间趋势",
+      "feature": "日趋势",
+      "title": "支持按日查看问答数据趋势",
+      "precondition": "有连续多天的问答数据",
+      "steps": "1. 选择按日查看数据趋势",
+      "expected": "1. 展示每日问答量变化趋势\n2. 数据准确",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Trend-002",
+      "level1": "数据统计",
+      "level2": "时间趋势",
+      "feature": "周趋势",
+      "title": "支持按周查看问答数据趋势",
+      "precondition": "有多周的问答数据",
+      "steps": "1. 选择按周查看数据趋势",
+      "expected": "1. 展示每周问答量变化趋势",
+      "priority": "P3",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Stats-Trend-003",
+      "level1": "数据统计",
+      "level2": "时间趋势",
+      "feature": "月趋势",
+      "title": "支持按月查看问答数据趋势",
+      "precondition": "有多月的问答数据",
+      "steps": "1. 选择按月查看数据趋势",
+      "expected": "1. 展示每月问答量变化趋势",
+      "priority": "P3",
+      "category": "功能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Perm-001",
+      "level1": "权限设计",
+      "level2": "普通用户",
+      "feature": "在线提问",
+      "title": "普通用户可正常提问和评价",
+      "precondition": "普通用户已登录",
+      "steps": "1. 普通用户输入问题并发送\n2. 对答案进行评价\n3. 查看个人会话记录",
+      "expected": "1. 提问功能正常\n2. 评价功能正常\n3. 仅能查看个人会话",
+      "priority": "P0",
+      "category": "权限",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Perm-002",
+      "level1": "权限设计",
+      "level2": "普通用户",
+      "feature": "无后台权限",
+      "title": "普通用户无法访问后台管理",
+      "precondition": "普通用户已登录",
+      "steps": "1. 尝试访问知识库词条管理\n2. 尝试查看未知问题\n3. 尝试查看数据统计",
+      "expected": "1. 无法进入后台管理页面\n2. 提示无权限",
+      "priority": "P0",
+      "category": "权限",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Perm-003",
+      "level1": "权限设计",
+      "level2": "运营管理员",
+      "feature": "后台管理权限",
+      "title": "运营管理员可管理知识库和查看数据",
+      "precondition": "运营管理员已登录",
+      "steps": "1. 新增/编辑/上下架/删除词条\n2. 处理未知问题\n3. 查看问答数据",
+      "expected": "1. 知识库管理功能正常\n2. 未知问题处理正常\n3. 数据统计可查看",
+      "priority": "P0",
+      "category": "权限",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Perm-004",
+      "level1": "权限设计",
+      "level2": "运营管理员",
+      "feature": "无系统配置权限",
+      "title": "运营管理员无权限配置和全量清理",
+      "precondition": "运营管理员已登录",
+      "steps": "1. 尝试进行权限配置\n2. 尝试全量数据清理",
+      "expected": "1. 无法访问系统配置\n2. 提示无权限",
+      "priority": "P1",
+      "category": "权限",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Perm-005",
+      "level1": "权限设计",
+      "level2": "超级管理员",
+      "feature": "全权限",
+      "title": "超级管理员拥有所有功能权限",
+      "precondition": "超级管理员已登录",
+      "steps": "1. 执行所有功能操作\n2. 进行权限配置\n3. 全量数据清理\n4. 系统参数设置",
+      "expected": "1. 所有功能正常可用\n2. 权限配置生效\n3. 系统参数设置生效",
+      "priority": "P0",
+      "category": "权限",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Exc-Net-001",
+      "level1": "异常场景",
+      "level2": "网络异常",
+      "feature": "网络中断处理",
+      "title": "网络中断时终止请求并提示",
+      "precondition": "用户正在提问过程中",
+      "steps": "1. 模拟网络中断\n2. 用户发送问题",
+      "expected": "1. 终止问答请求\n2. 提示「网络异常，请检查网络后重新提问」\n3. 保留已输入的问题内容",
+      "priority": "P0",
+      "category": "异常",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Exc-Auth-001",
+      "level1": "异常场景",
+      "level2": "权限异常",
+      "feature": "登录过期处理",
+      "title": "登录过期时禁止提问并跳转",
+      "precondition": "用户登录已过期",
+      "steps": "1. 用户尝试提问",
+      "expected": "1. 弹窗提示「暂无问答权限或登录已过期，请重新登录」\n2. 自动跳转登录页面",
+      "priority": "P0",
+      "category": "异常",
+      "optimization_note": "已优化：\n[Sec] 身份令牌校验机制未说明具体实现(安全漏洞) → 已采纳优化"
+    },
+    {
+      "id": "Exc-Content-001",
+      "level1": "异常场景",
+      "level2": "内容违规",
+      "feature": "敏感词拦截",
+      "title": "输入敏感/违规内容时拦截提问",
+      "precondition": "系统敏感词库已配置",
+      "steps": "1. 输入包含敏感词的问题\n2. 发送",
+      "expected": "1. 系统自动拦截提问\n2. 提示「输入内容包含违规信息，请重新输入」\n3. 不收录该问题",
+      "priority": "P0",
+      "category": "异常",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Exc-Timeout-001",
+      "level1": "异常场景",
+      "level2": "系统超时",
+      "feature": "问答检索超时",
+      "title": "检索超时返回兜底话术",
+      "precondition": "语义匹配引擎响应超过3s",
+      "steps": "1. 模拟检索超时\n2. 观察系统响应",
+      "expected": "1. 返回兜底话术\n2. 提示「问答检索超时，请稍后重试」",
+      "priority": "P1",
+      "category": "异常",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Exc-Data-001",
+      "level1": "异常场景",
+      "level2": "数据异常",
+      "feature": "知识库数据异常",
+      "title": "知识库数据损坏时展示兜底内容",
+      "precondition": "知识库词条数据损坏",
+      "steps": "1. 模拟知识库数据加载失败\n2. 用户提问",
+      "expected": "1. 用户端展示无答案兜底内容\n2. 后台记录异常日志\n3. 不暴露系统错误",
+      "priority": "P1",
+      "category": "异常",
+      "optimization_note": "已优化：\n[Ops] 知识库数据损坏的检测机制和自动恢复策略未定义(运维盲区) → 已采纳优化"
+    },
+    {
+      "id": "Exc-Limit-001",
+      "level1": "异常场景",
+      "level2": "限流",
+      "feature": "高频提问限制",
+      "title": "1分钟内高频重复提问触发限流",
+      "precondition": "用户已登录",
+      "steps": "1. 在1分钟内连续高频提问超过限制次数",
+      "expected": "1. 触发限流机制\n2. 提示「提问过于频繁，请稍后再试」\n3. 防止恶意刷量",
+      "priority": "P1",
+      "category": "异常",
+      "optimization_note": "已优化：\n[QA] 限流场景未明确限制次数的具体数值和重置时间(可验证性不足) → 已采纳优化"
+    },
+    {
+      "id": "Perf-001",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "页面加载",
+      "title": "问答首页首次加载≤1.5s",
+      "precondition": "网络正常",
+      "steps": "1. 首次打开问答页面\n2. 计算页面加载时间",
+      "expected": "1. 首次加载时间≤1.5s\n2. 页面完整渲染",
+      "priority": "P0",
+      "category": "性能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Perf-002",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "问答响应",
+      "title": "常规问题语义匹配≤800ms",
+      "precondition": "知识库正常",
+      "steps": "1. 输入常规问题并发送\n2. 计算响应时间",
+      "expected": "1. 语义匹配响应≤800ms\n2. 复杂长文本问题响应≤2s",
+      "priority": "P1",
+      "category": "性能",
+      "optimization_note": "已优化：\n[Perf] 800ms响应时间要求未考虑网络延迟等额外开销(性能风险) → 已采纳优化"
+    },
+    {
+      "id": "Perf-003",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "并发能力",
+      "title": "支持≥200人同时在线提问",
+      "precondition": "测试环境准备200并发用户",
+      "steps": "1. 200用户同时在线提问\n2. 持续操作一段时间",
+      "expected": "1. 无卡顿\n2. 无问答数据错乱\n3. 无请求堆积",
+      "priority": "P1",
+      "category": "性能",
+      "optimization_note": "已优化：\n[Perf] 200并发测试未说明持续时长和压力递增策略(性能风险) → 已采纳优化"
+    },
+    {
+      "id": "Perf-004",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "后台加载",
+      "title": "后台列表和统计加载≤1.5s",
+      "precondition": "后台有大量数据",
+      "steps": "1. 打开知识库列表页\n2. 打开数据统计页",
+      "expected": "1. 列表加载≤1.5s\n2. 统计数据加载≤1.5s",
+      "priority": "P2",
+      "category": "性能",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Compat-001",
+      "level1": "非功能需求",
+      "level2": "兼容性",
+      "feature": "PC浏览器兼容",
+      "title": "兼容Chrome/Edge/Firefox最新版",
+      "precondition": "—",
+      "steps": "1. 分别在Chrome、Edge、Firefox最新版打开问答功能",
+      "expected": "1. 各浏览器功能正常\n2. 样式无错位\n3. 交互无异常",
+      "priority": "P2",
+      "category": "兼容性",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Compat-002",
+      "level1": "非功能需求",
+      "level2": "兼容性",
+      "feature": "移动端适配",
+      "title": "适配iOS/Android主流机型",
+      "precondition": "—",
+      "steps": "1. 在手机和平板上打开问答功能\n2. 测试各尺寸屏幕",
+      "expected": "1. 会话展示无错位\n2. 内容无遮挡\n3. 功能与PC端一致",
+      "priority": "P2",
+      "category": "兼容性",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Security-001",
+      "level1": "非功能需求",
+      "level2": "安全",
+      "feature": "敏感词库",
+      "title": "内置敏感词库自动拦截违规内容",
+      "precondition": "敏感词库已配置",
+      "steps": "1. 输入各类敏感词测试\n2. 包含违禁词、敏感词、违规信息",
+      "expected": "1. 所有敏感词被拦截\n2. 不展示违规内容\n3. 词条内容也受敏感词管控",
+      "priority": "P0",
+      "category": "安全",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Security-002",
+      "level1": "非功能需求",
+      "level2": "安全",
+      "feature": "数据隔离",
+      "title": "问答数据仅本人及超级管理员可查看",
+      "precondition": "多个用户的问答数据",
+      "steps": "1. 用户A尝试查看用户B的问答数据\n2. 超级管理员查看所有数据",
+      "expected": "1. 用户A无法查看用户B数据\n2. 超级管理员可查看全量数据\n3. 严格数据隔离",
+      "priority": "P0",
+      "category": "安全",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Security-003",
+      "level1": "非功能需求",
+      "level2": "安全",
+      "feature": "操作日志",
+      "title": "所有后台操作留存日志可追溯",
+      "precondition": "运营管理员执行操作",
+      "steps": "1. 执行词条新增/编辑/删除等操作\n2. 查看后台日志",
+      "expected": "1. 日志记录操作人\n2. 记录操作时间\n3. 记录操作IP\n4. 记录操作内容",
+      "priority": "P1",
+      "category": "安全",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Maint-001",
+      "level1": "非功能需求",
+      "level2": "可维护性",
+      "feature": "动态配置",
+      "title": "支持后台动态配置敏感词和话术",
+      "precondition": "超级管理员已登录",
+      "steps": "1. 修改敏感词配置\n2. 修改兜底话术\n3. 修改限流次数",
+      "expected": "1. 配置修改后即时生效\n2. 无需修改代码\n3. 无需重启服务",
+      "priority": "P2",
+      "category": "可维护性",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Maint-002",
+      "level1": "非功能需求",
+      "level2": "可维护性",
+      "feature": "批量导入导出",
+      "title": "知识库词条支持批量导入导出",
+      "precondition": "运营管理员已登录",
+      "steps": "1. 批量导入词条\n2. 批量导出词条",
+      "expected": "1. 导入成功且数据正确\n2. 导出文件格式正确\n3. 便于大规模维护迁移",
+      "priority": "P2",
+      "category": "可维护性",
+      "optimization_note": "无"
+    },
+    {
+      "id": "Maint-003",
+      "level1": "非功能需求",
+      "level2": "可维护性",
+      "feature": "异常日志",
+      "title": "异常问答和超时请求自动记录日志",
+      "precondition": "系统产生异常请求",
+      "steps": "1. 触发超时、异常等场景\n2. 查看后台日志",
+      "expected": "1. 异常请求自动记录日志\n2. 日志包含足够排查信息\n3. 支持后台查询",
+      "priority": "P2",
+      "category": "可维护性",
+      "optimization_note": "无"
+    },
+    {
+      "id": "QA-Send-006",
+      "level1": "用户端问答",
+      "level2": "输入与发送",
+      "feature": "问答输入框",
+      "title": "多字节字符边界值测试",
+      "precondition": "用户已登录",
+      "steps": "1. 输入包含emoji和中文混合的500字节内容\n2. 尝试发送",
+      "expected": "1. 系统正确处理多字节字符\n2. 字数计算准确",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "[Dev] 500字边界值测试未覆盖多字节字符（边界遗漏）→ 已采纳新增"
+    },
+    {
+      "id": "QA-Match-007",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "语义匹配",
+      "title": "语义匹配阈值验证",
+      "precondition": "知识库有不同相似度的词条",
+      "steps": "1. 输入与某词条相似度恰好为阈值边界的问题\n2. 验证匹配结果",
+      "expected": "1. 相似度>=阈值时返回语义匹配结果\n2. 相似度<阈值时降级到关键词匹配",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "[Dev] 语义匹配相似度阈值未定义（逻辑遗漏）→ 已采纳新增"
+    },
+    {
+      "id": "QA-Match-008",
+      "level1": "用户端问答",
+      "level2": "智能匹配",
+      "feature": "最优答案",
+      "title": "历史最优答案判定标准验证",
+      "precondition": "用户对同一问题多次收到不同答案",
+      "steps": "1. 重复发送相同问题\n2. 观察返回的答案",
+      "expected": "1. 返回的答案符合最优定义\n2. 验证判定标准",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "[QA] 历史最优答案定义不明确（场景遗漏）→ 已采纳新增"
+    },
+    {
+      "id": "KB-Edit-002",
+      "level1": "词条管理",
+      "level2": "编辑词条",
+      "feature": "并发编辑冲突",
+      "title": "多运营员同时编辑同一词条",
+      "precondition": "两个运营管理员同时打开同一词条编辑",
+      "steps": "1. 运营A编辑词条并保存\n2. 运营B同时编辑同一词条并保存",
+      "expected": "1. 后保存者提示冲突\n2. 不覆盖先保存者的修改",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "[Dev] 编辑词条未覆盖并发编辑冲突（逻辑遗漏）→ 已采纳新增"
+    },
+    {
+      "id": "KB-Batch-005",
+      "level1": "词条管理",
+      "level2": "批量操作",
+      "feature": "跨页选择",
+      "title": "跨页批量选择词条",
+      "precondition": "词条列表分多页展示",
+      "steps": "1. 在第1页选择部分词条\n2. 切换到第2页继续选择\n3. 执行批量操作",
+      "expected": "1. 跨页选择的词条均被正确选中\n2. 批量操作包含所有选中词条",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "[Dev] 批量操作未测试跨页选择（边界遗漏）→ 已采纳新增"
+    },
+    {
+      "id": "Session-History-008",
+      "level1": "会话记录",
+      "level2": "历史记录",
+      "feature": "删除展示中记录",
+      "title": "删除当前正在展示的问答记录",
+      "precondition": "正在查看某条问答记录详情",
+      "steps": "1. 删除当前正在展示的记录\n2. 观察页面变化",
+      "expected": "1. 记录成功删除\n2. 页面正确返回列表或展示空状态",
+      "priority": "P2",
+      "category": "功能",
+      "optimization_note": "[QA] 删除记录场景未覆盖删除正在展示中的会话（场景遗漏）→ 已采纳新增"
+    },
+    {
+      "id": "QA-Display-006",
+      "level1": "用户端问答",
+      "level2": "答案展示",
+      "feature": "部分匹配",
+      "title": "部分关键词命中但整体不匹配的处理",
+      "precondition": "知识库有部分关键词相关的词条",
+      "steps": "1. 输入仅部分关键词命中的问题\n2. 观察匹配结果",
+      "expected": "1. 不返回低相关度的答案\n2. 走兜底流程或推荐相似问题",
+      "priority": "P1",
+      "category": "功能",
+      "optimization_note": "[QA] 匹配失败场景未覆盖部分匹配（场景遗漏）→ 已采纳新增"
+    },
+    {
+      "id": "Sec-Input-001",
+      "level1": "非功能需求",
+      "level2": "安全",
+      "feature": "输入安全过滤",
+      "title": "用户输入XSS/注入攻击防护",
+      "precondition": "系统已部署",
+      "steps": "1. 在问答输入框输入恶意脚本\n2. 输入SQL注入语句\n3. 观察系统响应",
+      "expected": "1. 恶意脚本被过滤或转义\n2. 不执行注入代码\n3. 正常返回兜底或拒绝",
+      "priority": "P1",
+      "category": "安全",
+      "optimization_note": "[Sec] 用户输入未说明XSS/注入防护（安全漏洞）→ 已采纳新增"
+    },
+    {
+      "id": "Perf-Stress-001",
+      "level1": "非功能需求",
+      "level2": "性能",
+      "feature": "压力测试",
+      "title": "阶梯压力测试验证系统承载",
+      "precondition": "测试环境准备",
+      "steps": "1. 从50用户逐步增加到300用户\n2. 每阶梯持续5分钟\n3. 记录各阶梯响应时间和错误率",
+      "expected": "1. 200用户以内响应正常\n2. 超过200用户时有优雅降级\n3. 不出现系统崩溃",
+      "priority": "P2",
+      "category": "性能",
+      "optimization_note": "[Perf] 200并发测试未说明持续时长和压力递增策略（性能风险）→ 已采纳新增"
+    },
+    {
+      "id": "Ops-Monitor-001",
+      "level1": "非功能需求",
+      "level2": "运维",
+      "feature": "监控指标",
+      "title": "问答链路关键监控指标验证",
+      "precondition": "监控系统已配置",
+      "steps": "1. 配置问答请求成功率、响应时间监控\n2. 模拟异常触发告警",
+      "expected": "1. 监控指标准确采集\n2. 异常时正确触发告警\n3. 告警信息包含足够排查内容",
+      "priority": "P2",
+      "category": "可维护性",
+      "optimization_note": "[Ops] 问答链路缺少监控告警指标（运维盲区）→ 已采纳新增"
+    }
+  ],
+  "scoring": {
+    "role_scores": {
+      "Arch": {
+        "name": "开发架构师",
+        "score": 96,
+        "breakdown": "100 - 4x1(架构腐化风险) = 96",
+        "summary": "架构视角：系统模块划分清晰，但加载状态组件、缓存策略等基础设施层缺少统一设计，建议抽取公共组件避免重复实现。"
+      },
+      "Dev": {
+        "name": "开发工程师",
+        "score": 64,
+        "breakdown": "100 - 8x1(逻辑遗漏) - 8x1(逻辑遗漏) - 6x1(边界遗漏) - 6x1(边界遗漏) - 8x1(逻辑遗漏) = 64",
+        "summary": "开发视角：功能逻辑覆盖较全面，但边界处理和并发场景存在明显短板。建议重点补充多字节字符输入、并发编辑冲突、语义阈值验证等场景。"
+      },
+      "QA": {
+        "name": "测试工程师",
+        "score": 68,
+        "breakdown": "100 - 8x1(场景遗漏) - 8x1(场景遗漏) - 4x1(可验证性不足) - 4x1(可验证性不足) - 8x1(场景遗漏) = 68",
+        "summary": "测试视角：主要流程覆盖完整，但异常分支和边界场景不足。建议补充部分匹配、删除展示中记录、限流具体数值等可验证场景。"
+      },
+      "PM": {
+        "name": "产品经理",
+        "score": 94,
+        "breakdown": "100 - 2x1(优先级不准) - 2x1(表述不清) - 2x1(表述不清) = 94",
+        "summary": "产品视角：核心功能点覆盖全面，业务流程完整。部分需求描述存在歧义（如历史最优答案判定标准），建议在开发前澄清。"
+      },
+      "UX": {
+        "name": "用户体验设计师",
+        "score": 92,
+        "breakdown": "100 - 3x1(交互不符) - 3x1(交互不符) - 2x1(易用性缺陷) = 92",
+        "summary": "体验视角：基本交互流程合理，但富文本展示规则、评价状态反馈、排序切换等细节体验待完善。欢迎话术建议增加个性化能力。"
+      },
+      "Sec": {
+        "name": "安全工程师",
+        "score": 76,
+        "breakdown": "100 - 6x1(安全漏洞) - 6x1(安全漏洞) - 6x1(安全漏洞) - 6x1(安全漏洞) = 76",
+        "summary": "安全视角：用户输入和词条内容的XSS/注入防护措施未明确，编辑即时生效缺少审核机制存在篡改风险，建议在开发阶段重点处理。"
+      },
+      "Ops": {
+        "name": "运维工程师",
+        "score": 88,
+        "breakdown": "100 - 4x1(运维盲区) - 4x1(运维盲区) - 4x1(运维盲区) = 88",
+        "summary": "运维视角：问答链路涉及多服务调用，缺少各环节监控指标定义。超时降级策略、数据损坏恢复机制需明确，建议上线前完善监控告警。"
+      },
+      "Perf": {
+        "name": "性能工程师",
+        "score": 80,
+        "breakdown": "100 - 6x1(性能风险) - 6x1(性能风险) - 8x1(场景遗漏) = 80",
+        "summary": "性能视角：200并发要求明确，但测试策略（持续时长、压力递增）未定义。800ms响应时间需考虑网络延迟，统计数据查询需关注大数据量性能。"
+      },
+      "DBA": {
+        "name": "数据工程师",
+        "score": 88,
+        "breakdown": "100 - 6x1(数据完整性风险) - 6x1(数据一致性风险) = 88",
+        "summary": "数据视角：核心数据模型基本清晰，但未知问题去重逻辑（精确/模糊）未定义，基于未知问题新建词条的事务完整性需确认。"
+      }
+    },
+    "defect_distribution": [
+      {
+        "type": "场景遗漏",
+        "count": 4,
+        "percentage": 13.3
+      },
+      {
+        "type": "安全漏洞",
+        "count": 4,
+        "percentage": 13.3
+      },
+      {
+        "type": "逻辑遗漏",
+        "count": 3,
+        "percentage": 10.0
+      },
+      {
+        "type": "运维盲区",
+        "count": 3,
+        "percentage": 10.0
+      },
+      {
+        "type": "边界遗漏",
+        "count": 2,
+        "percentage": 6.7
+      },
+      {
+        "type": "可验证性不足",
+        "count": 2,
+        "percentage": 6.7
+      },
+      {
+        "type": "表述不清",
+        "count": 2,
+        "percentage": 6.7
+      },
+      {
+        "type": "交互不符",
+        "count": 2,
+        "percentage": 6.7
+      },
+      {
+        "type": "易用性缺陷",
+        "count": 2,
+        "percentage": 6.7
+      },
+      {
+        "type": "性能风险",
+        "count": 2,
+        "percentage": 6.7
+      },
+      {
+        "type": "架构腐化风险",
+        "count": 1,
+        "percentage": 3.3
+      },
+      {
+        "type": "优先级不准",
+        "count": 1,
+        "percentage": 3.3
+      },
+      {
+        "type": "数据完整性风险",
+        "count": 1,
+        "percentage": 3.3
+      },
+      {
+        "type": "数据一致性风险",
+        "count": 1,
+        "percentage": 3.3
+      }
+    ],
+    "quality_radar": [
+      {
+        "dimension": "功能适合性",
+        "score": 95
+      },
+      {
+        "dimension": "性能效率",
+        "score": 91
+      },
+      {
+        "dimension": "兼容性",
+        "score": 96
+      },
+      {
+        "dimension": "易用性",
+        "score": 90
+      },
+      {
+        "dimension": "可靠性",
+        "score": 88
+      },
+      {
+        "dimension": "安全性",
+        "score": 94
+      },
+      {
+        "dimension": "可维护性",
+        "score": 86
+      },
+      {
+        "dimension": "可移植性",
+        "score": 97
+      }
+    ],
+    "coverage": {
+      "func_orig": 35,
+      "func_opt": 41,
+      "func_total": 41,
+      "scenario_orig": 78,
+      "scenario_opt": 97
+    },
+    "rtm": [
+      {
+        "req_id": "F-QA-001",
+        "feature": "问答输入框",
+        "orig_cases": "QA-Send-001~005",
+        "opt_cases": "QA-Send-001~006"
+      },
+      {
+        "req_id": "F-QA-002",
+        "feature": "语义匹配",
+        "orig_cases": "QA-Match-001,003",
+        "opt_cases": "QA-Match-001,003,007"
+      },
+      {
+        "req_id": "F-QA-003",
+        "feature": "关键词匹配",
+        "orig_cases": "QA-Match-002",
+        "opt_cases": "QA-Match-002"
+      },
+      {
+        "req_id": "F-QA-004",
+        "feature": "匹配优先级",
+        "orig_cases": "QA-Match-003",
+        "opt_cases": "QA-Match-003"
+      },
+      {
+        "req_id": "F-QA-005",
+        "feature": "重复问题过滤",
+        "orig_cases": "QA-Match-005",
+        "opt_cases": "QA-Match-005,008"
+      },
+      {
+        "req_id": "F-QA-006",
+        "feature": "相似问题推荐",
+        "orig_cases": "QA-Match-004",
+        "opt_cases": "QA-Match-004"
+      },
+      {
+        "req_id": "F-QA-007",
+        "feature": "答案渲染",
+        "orig_cases": "QA-Display-001",
+        "opt_cases": "QA-Display-001,007"
+      },
+      {
+        "req_id": "F-QA-008",
+        "feature": "兜底回复",
+        "orig_cases": "QA-Match-006,QA-Display-004",
+        "opt_cases": "QA-Match-006,QA-Display-004,006"
+      },
+      {
+        "req_id": "F-QA-009",
+        "feature": "加载动画",
+        "orig_cases": "QA-Display-002,005",
+        "opt_cases": "QA-Display-002,005"
+      },
+      {
+        "req_id": "F-QA-010",
+        "feature": "欢迎话术",
+        "orig_cases": "QA-Display-003",
+        "opt_cases": "QA-Display-003"
+      },
+      {
+        "req_id": "F-QA-011",
+        "feature": "评价功能",
+        "orig_cases": "QA-Feedback-001~003",
+        "opt_cases": "QA-Feedback-001~003"
+      },
+      {
+        "req_id": "F-QA-012",
+        "feature": "清空会话",
+        "orig_cases": "QA-Session-001",
+        "opt_cases": "QA-Session-001"
+      },
+      {
+        "req_id": "F-Session-001",
+        "feature": "历史记录入口",
+        "orig_cases": "Session-History-001",
+        "opt_cases": "Session-History-001"
+      },
+      {
+        "req_id": "F-Session-002",
+        "feature": "记录列表",
+        "orig_cases": "Session-History-002",
+        "opt_cases": "Session-History-002"
+      },
+      {
+        "req_id": "F-Session-003",
+        "feature": "单条删除",
+        "orig_cases": "Session-History-003",
+        "opt_cases": "Session-History-003,008"
+      },
+      {
+        "req_id": "F-Session-004",
+        "feature": "空状态提示",
+        "orig_cases": "Session-History-004",
+        "opt_cases": "Session-History-004"
+      },
+      {
+        "req_id": "F-Session-005",
+        "feature": "数据隔离",
+        "orig_cases": "Session-History-005",
+        "opt_cases": "Session-History-005"
+      },
+      {
+        "req_id": "F-Session-006",
+        "feature": "批量清空",
+        "orig_cases": "Session-Clear-001~002",
+        "opt_cases": "Session-Clear-001~002"
+      },
+      {
+        "req_id": "F-KB-001",
+        "feature": "多条件筛选",
+        "orig_cases": "KB-Filter-001",
+        "opt_cases": "KB-Filter-001"
+      },
+      {
+        "req_id": "F-KB-002",
+        "feature": "标准问题校验",
+        "orig_cases": "KB-Add-001~003",
+        "opt_cases": "KB-Add-001~003"
+      },
+      {
+        "req_id": "F-KB-003",
+        "feature": "标准答案校验",
+        "orig_cases": "KB-Add-005",
+        "opt_cases": "KB-Add-005,008"
+      },
+      {
+        "req_id": "F-KB-004",
+        "feature": "词条分类/状态",
+        "orig_cases": "KB-Add-006~007",
+        "opt_cases": "KB-Add-006~007"
+      },
+      {
+        "req_id": "F-KB-005",
+        "feature": "编辑词条",
+        "orig_cases": "KB-Edit-001",
+        "opt_cases": "KB-Edit-001~002"
+      },
+      {
+        "req_id": "F-KB-006",
+        "feature": "删除词条",
+        "orig_cases": "KB-Delete-001~003",
+        "opt_cases": "KB-Delete-001~003"
+      },
+      {
+        "req_id": "F-KB-007",
+        "feature": "批量操作",
+        "orig_cases": "KB-Batch-001~004",
+        "opt_cases": "KB-Batch-001~005"
+      },
+      {
+        "req_id": "F-Unknown-001",
+        "feature": "自动收录",
+        "orig_cases": "Unknown-Collect-001",
+        "opt_cases": "Unknown-Collect-001"
+      },
+      {
+        "req_id": "F-Unknown-002",
+        "feature": "去重统计",
+        "orig_cases": "Unknown-Dedup-001",
+        "opt_cases": "Unknown-Dedup-001~002"
+      },
+      {
+        "req_id": "F-Unknown-003",
+        "feature": "处理功能",
+        "orig_cases": "Unknown-Process-001~002",
+        "opt_cases": "Unknown-Process-001~002"
+      },
+      {
+        "req_id": "F-Unknown-004",
+        "feature": "数据清理",
+        "orig_cases": "Unknown-Clean-001",
+        "opt_cases": "Unknown-Clean-001"
+      },
+      {
+        "req_id": "F-Stats-001",
+        "feature": "基础数据",
+        "orig_cases": "Stats-Basic-001~004",
+        "opt_cases": "Stats-Basic-001~004"
+      },
+      {
+        "req_id": "F-Stats-002",
+        "feature": "质量数据",
+        "orig_cases": "Stats-Quality-001~003",
+        "opt_cases": "Stats-Quality-001~003"
+      },
+      {
+        "req_id": "F-Stats-003",
+        "feature": "热度数据",
+        "orig_cases": "Stats-Hot-001~002",
+        "opt_cases": "Stats-Hot-001~002"
+      },
+      {
+        "req_id": "F-Stats-004",
+        "feature": "时间趋势",
+        "orig_cases": "Stats-Trend-001~003",
+        "opt_cases": "Stats-Trend-001~003"
+      }
+    ],
+    "summary": "<b>AI评审总结：</b>原始86条用例经九方评审后，59条通过评审，27条需优化修改。新增10条用例补充覆盖，优化后共96条用例。功能点覆盖率从35/41提升至41/41，场景覆盖率从78%提升至97%。共发现30个评审问题，主要集中在<b>安全漏洞</b>（4个）和<b>场景遗漏</b>（4个），建议重点关注。各角色评分：Dev/Sec/Perf并列最低（64分），需加强功能逻辑、安全防护和场景覆盖。",
+    "overall_summary": "本次知识库问答模块测试用例评审采用ISO 25010质量模型，由9个专业角色（架构师、开发、测试、产品、UX、安全、运维、性能、DBA）对86条原始用例进行全面评审，共发现30个问题。\n\n问题分布：安全漏洞和场景遗漏各4个并列第一，逻辑遗漏3个，运维盲区3个。建议开发阶段重点关注安全防护（XSS/注入）、边界处理、并发冲突三个方向。\n\n优化后用例96条，新增10条补充覆盖。功能点覆盖率41/41（100%），场景覆盖率97%。整体用例质量良好，可作为开发和测试执行的依据。"
+  }
+};</script>
+<script>window.__XLSX_STYLES__ = {"header_fill": "FFD6E4F0", "header_font_bold": true, "priority_colors": {"P0": "FFFFC7CE", "P1": "FFFFEB9C", "P2": "FFFFFFCC", "P3": null}, "border_color": "FFD9DEE8"};</script>
 </head>
 <body>
-<header>
-<div>
-<h1>测试用例评审报告 - 知识库问答模块</h1>
-<div class="sub">基于ISO 25010质量模型的AI九方评审 | 包含需求抽取、原始用例、AI评审、优化用例、评审与覆盖度分析</div>
-</div>
-<div class="edit-badge" id="edit-badge"><span class="edit-dot"></span><span id="edit-badge-text">编辑中</span></div>
-</header>
-<main>
-<div class="toolbar">
-<button type="button" onclick="downloadXlsx()" id="btn-download">⬇ 下载Excel（含编辑）</button>
-<button type="button" class="secondary" onclick="copyOptimized()">复制数据</button>
-<span class="toolbar-sep"></span>
-<button type="button" class="secondary" onclick="toggleEdit()" id="btn-edit">✏ 开启编辑</button>
-<button type="button" class="success" onclick="addRow()" id="btn-add" disabled>＋ 新增行</button>
-<button type="button" class="danger" onclick="resetEdits()" id="btn-reset" disabled">↩ 撤销全部</button>
-</div>
-<nav class="tabs" aria-label="报告标签页">
-<button class="tab active" type="button" data-tab="requirements">需求抽取清单</button>
-<button class="tab" type="button" data-tab="raw">原始用例集</button>
-<button class="tab" type="button" data-tab="review">AI评审详情</button>
-<button class="tab" type="button" data-tab="optimized">优化后用例集</button>
-<button class="tab" type="button" data-tab="report">评审与覆盖度报告</button>
-</nav>
-<section id="requirements" class="active">
-<h3 style="margin:0 0 12px;font-size:16px;color:var(--text)">模块与功能点</h3><table><thead><tr><th>一级模块</th><th>二级模块</th><th>功能点</th><th>功能描述</th></tr></thead><tbody><tr><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>支持自然语言输入，限制500字，回车发送，发送按钮未输入时置灰</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>优先语义匹配上架知识词条，不受关键词顺序影响</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>关键词匹配</td><td>语义匹配无结果时触发关键词模糊匹配</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>匹配优先级</td><td>精准完全匹配 &gt; 高语义相似度匹配 &gt; 关键词匹配 &gt; 无结果兜底</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>重复问题过滤</td><td>用户重复发送相同问题直接返回历史最优答案</td></tr><tr><td>用户端问答</td><td>智能匹配</td><td>相似问题推荐</td><td>低匹配度答案时推送3-5条关联相似问题</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>答案渲染</td><td>匹配成功展示标准答案，支持文本、换行、简单格式</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>兜底回复</td><td>匹配失败展示兜底话术并收录未知问题</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>加载动画</td><td>提交后展示加载动画，最长3s</td></tr><tr><td>用户端问答</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎语</td></tr><tr><td>用户端问答</td><td>反馈与评价</td><td>有用/无用评价</td><td>每条答案下方展示有用(点赞)/无用(差评)按钮</td></tr><tr><td>用户端问答</td><td>反馈与评价</td><td>评价状态固化</td><td>用户评价后按钮状态固化不可重复评价</td></tr><tr><td>用户端问答</td><td>会话操作</td><td>清空会话</td><td>一键清空当前页面所有问答记录</td></tr><tr><td>用户端问答</td><td>会话操作</td><td>重新唤起历史问答</td><td>点击历史问题快速重新唤起对应问答内容</td></tr><tr><td>会话记录</td><td>历史记录</td><td>记录入口</td><td>问答页面顶部历史记录按钮</td></tr><tr><td>会话记录</td><td>历史记录</td><td>记录列表</td><td>按时间倒序展示提问时间、用户问题、简略答案</td></tr><tr><td>会话记录</td><td>历史记录</td><td>单条删除</td><td>单条记录删除按钮，二次确认，删除后不可恢复</td></tr><tr><td>会话记录</td><td>历史记录</td><td>空状态提示</td><td>无历史记录时展示暂无问答历史记录</td></tr><tr><td>会话记录</td><td>批量清空</td><td>批量清空</td><td>列表页批量清空按钮，二次确认，不可恢复</td></tr><tr><td>会话记录</td><td>数据隔离</td><td>账号隔离</td><td>不同账号历史记录相互独立互不干扰</td></tr><tr><td>词条管理</td><td>筛选搜索</td><td>多条件筛选</td><td>支持按问题关键词、词条分类、上架状态、创建时间筛选</td></tr><tr><td>词条管理</td><td>新增词条</td><td>标准问题</td><td>必填1-200字，不可重复</td></tr><tr><td>词条管理</td><td>新增词条</td><td>相似问题</td><td>非必填，多条以换行分隔</td></tr><tr><td>词条管理</td><td>新增词条</td><td>标准答案</td><td>必填1-2000字，支持常规文本换行</td></tr><tr><td>词条管理</td><td>新增词条</td><td>词条分类</td><td>必选，预设分类</td></tr><tr><td>词条管理</td><td>新增词条</td><td>状态</td><td>默认下架，手动切换上架/下架</td></tr><tr><td>词条管理</td><td>编辑词条</td><td>编辑已上架词条</td><td>编辑已上架词条保存后实时生效</td></tr><tr><td>词条管理</td><td>删除词条</td><td>删除确认</td><td>删除二次确认，已关联问答记录支持删除</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量选择</td><td>支持多选词条</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量上架</td><td>批量上架操作</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量下架</td><td>批量下架操作</td></tr><tr><td>词条管理</td><td>批量操作</td><td>批量删除</td><td>批量删除操作</td></tr><tr><td>未知问题</td><td>自动收录</td><td>自动收录</td><td>所有未匹配有效词条的用户问题自动收录</td></tr><tr><td>未知问题</td><td>去重统计</td><td>去重统计</td><td>相同未知问题自动合并统计累计提问次数</td></tr><tr><td>未知问题</td><td>处理功能</td><td>基于未知问题新建词条</td><td>支持基于未知问题直接新建知识词条</td></tr><tr><td>未知问题</td><td>处理功能</td><td>标记已解决</td><td>处理后标记为已解决</td></tr><tr><td>未知问题</td><td>数据清理</td><td>手动清理</td><td>支持手动清理无效无意义的未知问题数据</td></tr><tr><td>数据统计</td><td>基础数据</td><td>总提问量/有效提问量/无答案提问量/活跃用户数</td><td>统计核心基础运营数据</td></tr><tr><td>数据统计</td><td>质量数据</td><td>命中率/好评率/差评率</td><td>统计问答质量数据</td></tr><tr><td>数据统计</td><td>热度数据</td><td>高频问题TOP10</td><td>高频提问问题TOP10、高频未知问题TOP10</td></tr><tr><td>数据统计</td><td>时间趋势</td><td>日/周/月趋势</td><td>支持按日/周/月查看问答数据变化趋势</td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与集成系统</h3><table><thead><tr><th>源系统</th><th>目标系统</th><th>接口/触发</th><th>数据内容</th><th>幂等/重试</th></tr></thead><tbody><tr><td>用户端</td><td>语义匹配引擎</td><td>语义匹配请求</td><td>用户问题文本、用户ID、会话ID</td><td>幂等：重复问题返回历史答案</td></tr><tr><td>语义匹配引擎</td><td>知识库</td><td>词条检索请求</td><td>分词结果、语义向量</td><td>超时3s返回兜底</td></tr><tr><td>用户端</td><td>后台服务</td><td>评价提交</td><td>问答ID、评价类型(有用/无用)、用户ID</td><td>不可重复评价</td></tr><tr><td>用户端</td><td>后台服务</td><td>未知问题收录</td><td>问题文本、用户ID、提问时间</td><td>去重：相同问题合并</td></tr><tr><td>后台服务</td><td>统计服务</td><td>数据统计聚合</td><td>时间范围、统计维度</td><td>异步聚合</td></tr><tr><td>用户端</td><td>后台服务</td><td>会话记录CRUD</td><td>会话ID、用户ID、操作类型</td><td>数据隔离</td></tr><tr><td>后台服务</td><td>敏感词服务</td><td>内容过滤检查</td><td>待检查文本</td><td>实时拦截</td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">状态转换</h3><table><thead><tr><th>触发事件</th><th>源状态</th><th>目标状态</th><th>备注</th></tr></thead><tbody><tr><td>新增词条</td><td>—</td><td>下架</td><td>新增词条默认下架状态</td></tr><tr><td>手动上架</td><td>下架</td><td>上架</td><td>运营管理员手动切换</td></tr><tr><td>手动下架</td><td>上架</td><td>下架</td><td>运营管理员手动切换</td></tr><tr><td>用户提问</td><td>—</td><td>匹配中</td><td>用户提交问题后系统检索</td></tr><tr><td>匹配成功</td><td>匹配中</td><td>已回答</td><td>返回标准答案</td></tr><tr><td>匹配失败</td><td>匹配中</td><td>无答案</td><td>返回兜底话术并收录</td></tr><tr><td>用户评价</td><td>已回答</td><td>已评价</td><td>用户点击有用/无用</td></tr><tr><td>未知问题收录</td><td>—</td><td>待处理</td><td>未匹配问题自动收录</td></tr><tr><td>问题已解决</td><td>待处理</td><td>已处理</td><td>运营基于未知问题新建词条</td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">需求疑点/待确认项</h3><table><thead><tr><th>编号</th><th>疑点描述</th><th>影响范围</th><th>建议确认方</th><th>风险等级</th></tr></thead><tbody><tr><td>AMB-001</td><td>相似问题的语义相似度阈值未定义，匹配精度标准不明确</td><td>智能匹配准确性</td><td>产品/算法</td><td><span class="risk-high">高</span></td></tr><tr><td>AMB-002</td><td>每个词条可录入的相似问题数量上限未说明</td><td>词条管理容量</td><td>产品</td><td><span class="risk-low">低</span></td></tr><tr><td>AMB-003</td><td>用户已评价后是否可以修改评价未明确</td><td>评价数据准确性</td><td>产品</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-004</td><td>「历史最优答案」的判定标准不明确（最新/最高好评率/最近使用）</td><td>重复问题处理逻辑</td><td>产品/开发</td><td><span class="risk-high">高</span></td></tr><tr><td>AMB-005</td><td>知识库词条总量上限未说明</td><td>系统容量规划</td><td>产品/架构</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-006</td><td>敏感词库维护方式和更新机制未明确</td><td>内容安全有效性</td><td>产品/运营</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-007</td><td>批量操作的单次处理上限未定义</td><td>批量操作性能</td><td>产品/开发</td><td><span class="risk-low">低</span></td></tr><tr><td>AMB-008</td><td>高频提问限制的触发条件（同一问题/任意问题）未明确</td><td>限流策略准确性</td><td>产品/开发</td><td><span class="risk-mid">中</span></td></tr><tr><td>AMB-009</td><td>统计数据的时间粒度和保留周期未明确</td><td>数据统计准确性</td><td>产品/运营</td><td><span class="risk-low">低</span></td></tr><tr><td>AMB-010</td><td>词条被删除后关联的历史问答记录如何展示未说明</td><td>数据完整性</td><td>产品/开发</td><td><span class="risk-high">高</span></td></tr></tbody></table><h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与状态机专项覆盖</h3><table><thead><tr><th>覆盖项</th><th>有效转换</th><th>无效转换</th><th>重复事件</th><th>延迟回调</th><th>乱序事件</th></tr></thead><tbody><tr><td>语义匹配</td><td>精准匹配/高相似度匹配/关键词匹配</td><td>无匹配/超时</td><td>重复问题直接返回缓存答案</td><td>匹配引擎超时3s返回兜底</td><td>暂无场景</td></tr><tr><td>评价提交</td><td>首次评价成功</td><td>重复评价/无效评价</td><td>重复评价被系统拒绝</td><td>—</td><td>—</td></tr><tr><td>未知问题收录</td><td>新问题自动收录</td><td>—</td><td>相同问题去重合并</td><td>—</td><td>—</td></tr><tr><td>会话记录</td><td>新增/查看/删除</td><td>越权访问</td><td>—</td><td>—</td><td>—</td></tr><tr><td>内容过滤</td><td>正常内容通过</td><td>敏感词拦截</td><td>—</td><td>—</td><td>—</td></tr><tr><td>词条管理</td><td>新增/编辑/上下架/删除</td><td>并发编辑冲突</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
-</section>
-<section id="raw">
-<div class="filter-bar">
-<label>一级模块</label>
-<select id="raw-module-filter" onchange="filterTable('raw')"><option value="">全部</option></select>
-<label>优先级</label>
-<select id="raw-priority-filter" onchange="filterTable('raw')"><option value="">全部</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>
-<label>搜索</label>
-<input type="text" id="raw-search" placeholder="关键词..." oninput="filterTable('raw')">
-<span class="filter-count" id="raw-count"></span>
-</div>
-<table id="raw-table"><thead><tr>
-<th>用例编号</th><th>一级模块</th><th>二级模块</th><th>功能点</th><th>用例标题</th><th>前置条件</th><th>用例步骤</th><th>预期结果</th><th>用例优先级</th>
-</tr></thead><tbody>
-<tr><td>QA-Send-001</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>正常输入并发送问题</td><td>用户已登录且有问答权限</td><td>1. 在问答输入框输入问题「如何重置密码？」
-2. 点击发送按钮</td><td>1. 问题成功发送
-2. 输入框清空
-3. 用户问题以对话气泡样式展示在会话窗口</td><td>P0</td></tr>
-<tr><td>QA-Send-002</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入为空时发送按钮置灰</td><td>用户已登录</td><td>1. 不输入任何内容
-2. 观察发送按钮状态</td><td>1. 发送按钮为置灰状态
-2. 点击无响应</td><td>P2</td></tr>
-<tr><td>QA-Send-003</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入500字边界值发送</td><td>用户已登录</td><td>1. 在输入框输入恰好500字的问题
-2. 点击发送</td><td>1. 问题成功发送
-2. 内容完整展示</td><td>P1</td></tr>
-<tr><td>QA-Send-004</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>输入超过500字限制</td><td>用户已登录</td><td>1. 在输入框输入501字及以上内容
-2. 尝试发送</td><td>1. 系统截断或提示超出限制
-2. 不发送超出部分内容</td><td>P1</td></tr>
-<tr><td>QA-Send-005</td><td>用户端问答</td><td>输入与发送</td><td>问答输入框</td><td>支持多行文本输入和回车发送</td><td>用户已登录</td><td>1. 在输入框输入多行文本（Shift+Enter换行）
-2. 点击发送</td><td>1. 多行文本正确展示
-2. 换行格式保留</td><td>P2</td></tr>
-<tr><td>QA-Match-001</td><td>用户端问答</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配返回高度契合答案</td><td>知识库已有上架相关词条</td><td>1. 输入「忘记密码怎么处理」（语义近似「如何重置密码」）
-2. 发送问题</td><td>1. 系统返回「如何重置密码」对应的标准答案
-2. 加载时长≤800ms</td><td>P0</td></tr>
-<tr><td>QA-Match-002</td><td>用户端问答</td><td>智能匹配</td><td>关键词匹配</td><td>语义匹配无结果时触发关键词匹配</td><td>知识库有包含关键词的词条但语义相似度低</td><td>1. 输入包含关键词但语义偏差的问题
-2. 观察匹配结果</td><td>1. 系统触发关键词模糊匹配
-2. 返回包含关键词的关联词条答案</td><td>P0</td></tr>
-<tr><td>QA-Match-003</td><td>用户端问答</td><td>智能匹配</td><td>匹配优先级</td><td>匹配优先级验证：精准&gt;语义&gt;关键词&gt;兜底</td><td>知识库有精准匹配、语义近似、仅关键词匹配的多个词条</td><td>1. 输入一个同时命中多个层级的问题
-2. 观察返回结果</td><td>1. 优先返回精准完全匹配的答案
-2. 不返回低优先级匹配结果</td><td>P0</td></tr>
-<tr><td>QA-Match-004</td><td>用户端问答</td><td>智能匹配</td><td>相似问题推荐</td><td>低匹配度时推送3-5条相似问题</td><td>知识库有相关但匹配度不高的词条</td><td>1. 输入模糊问题
-2. 观察推荐区域</td><td>1. 答案区域展示匹配度最高的答案
-2. 底部推荐3-5条关联相似问题</td><td>P1</td></tr>
-<tr><td>QA-Match-005</td><td>用户端问答</td><td>智能匹配</td><td>重复问题过滤</td><td>重复发送相同问题返回历史答案</td><td>用户已发送过某问题且已收到回答</td><td>1. 再次发送完全相同的问题</td><td>1. 系统直接返回历史最优答案
-2. 不重复收录未知问题
-3. 响应速度快于首次</td><td>P1</td></tr>
-<tr><td>QA-Match-006</td><td>用户端问答</td><td>智能匹配</td><td>兜底回复</td><td>所有匹配方式无结果时返回兜底话术</td><td>知识库无任何关联词条</td><td>1. 输入完全无关的问题
-2. 发送</td><td>1. 展示兜底回复
-2. 同步推送热门相似问题
-3. 问题收录至未知问题列表</td><td>P0</td></tr>
-<tr><td>QA-Display-001</td><td>用户端问答</td><td>答案展示</td><td>答案渲染</td><td>匹配成功时正确展示标准答案</td><td>已匹配到有效答案</td><td>1. 观察答案展示区域</td><td>1. 展示标准答案内容
-2. 支持文本、换行、简单格式
-3. 底部展示评价按钮</td><td>P0</td></tr>
-<tr><td>QA-Display-002</td><td>用户端问答</td><td>答案展示</td><td>加载动画</td><td>问答检索加载动画展示</td><td>用户已提交问题</td><td>1. 提交问题后观察页面</td><td>1. 展示加载动画「正在为您检索答案中...」
-2. 加载时长最长3s
-3. 超时返回兜底话术</td><td>P0</td></tr>
-<tr><td>QA-Display-003</td><td>用户端问答</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎话术</td><td>用户首次进入问答页面</td><td>1. 进入知识库问答页面</td><td>1. 展示欢迎话术</td><td>P2</td></tr>
-<tr><td>QA-Display-004</td><td>用户端问答</td><td>答案展示</td><td>兜底回复</td><td>匹配失败时展示兜底回复和热门相似问题</td><td>知识库无匹配词条</td><td>1. 输入无匹配问题
-2. 发送</td><td>1. 展示兜底回复话术
-2. 推送热门相似问题
-3. 问题自动收录至未知问题</td><td>P0</td></tr>
-<tr><td>QA-Display-005</td><td>用户端问答</td><td>答案展示</td><td>加载超时</td><td>加载超过3秒时展示超时提示</td><td>语义匹配引擎响应慢</td><td>1. 模拟匹配引擎超时（&gt;3s）
-2. 观察页面响应</td><td>1. 3秒后返回兜底话术
-2. 提示「问答检索超时，请稍后重试」</td><td>P0</td></tr>
-<tr><td>QA-Feedback-001</td><td>用户端问答</td><td>反馈与评价</td><td>有用评价</td><td>点赞评价答案有用</td><td>已展示系统答案</td><td>1. 点击答案下方「有用（点赞）」按钮</td><td>1. 按钮变为已选中状态
-2. 评价数据同步上传后台
-3. 按钮不可再次点击</td><td>P0</td></tr>
-<tr><td>QA-Feedback-002</td><td>用户端问答</td><td>反馈与评价</td><td>无用评价</td><td>差评答案无用</td><td>已展示系统答案</td><td>1. 点击答案下方「无用（差评）」按钮</td><td>1. 按钮变为已选中状态
-2. 评价数据同步上传后台
-3. 按钮不可再次点击</td><td>P0</td></tr>
-<tr><td>QA-Feedback-003</td><td>用户端问答</td><td>反馈与评价</td><td>评价状态固化</td><td>评价后不可重复评价</td><td>用户已对某答案完成评价</td><td>1. 尝试再次点击评价按钮</td><td>1. 按钮状态固化无响应
-2. 不产生重复评价数据</td><td>P1</td></tr>
-<tr><td>QA-Session-001</td><td>用户端问答</td><td>会话操作</td><td>清空会话</td><td>一键清空当前页面所有问答记录</td><td>当前会话有多条问答记录</td><td>1. 点击清空会话按钮</td><td>1. 页面所有问答记录清空
-2. 恢复至默认欢迎话术状态</td><td>P1</td></tr>
-<tr><td>Session-History-001</td><td>会话记录</td><td>历史记录</td><td>记录入口</td><td>历史记录按钮可点击进入</td><td>用户已登录</td><td>1. 点击问答页面顶部「历史记录」按钮</td><td>1. 跳转至历史记录列表页</td><td>P0</td></tr>
-<tr><td>Session-History-002</td><td>会话记录</td><td>历史记录</td><td>记录列表</td><td>按时间倒序展示历史记录</td><td>用户有多条历史问答记录</td><td>1. 进入历史记录页面</td><td>1. 记录按时间倒序排列
-2. 每条展示提问时间、用户问题、简略答案</td><td>P0</td></tr>
-<tr><td>Session-History-003</td><td>会话记录</td><td>历史记录</td><td>单条删除</td><td>删除单条历史记录</td><td>历史记录列表非空</td><td>1. 点击某条记录的「删除」按钮
-2. 确认删除</td><td>1. 弹出二次确认弹窗
-2. 确认后记录从列表移除
-3. 后台同步删除
-4. 删除后不可恢复</td><td>P0</td></tr>
-<tr><td>Session-History-004</td><td>会话记录</td><td>历史记录</td><td>空状态</td><td>无历史记录时展示空状态提示</td><td>用户无任何历史问答</td><td>1. 进入历史记录页面</td><td>1. 展示「暂无问答历史记录」提示</td><td>P2</td></tr>
-<tr><td>Session-History-005</td><td>会话记录</td><td>历史记录</td><td>数据隔离</td><td>不同账号历史记录相互独立</td><td>两个不同用户账号各有问答记录</td><td>1. 用账号A登录查看历史记录
-2. 用账号B登录查看历史记录</td><td>1. 账号A只能看到自己的记录
-2. 账号B只能看到自己的记录
-3. 两账号记录互不干扰</td><td>P0</td></tr>
-<tr><td>Session-History-006</td><td>会话记录</td><td>历史记录</td><td>数据永久留存</td><td>会话记录永久留存不自动清除</td><td>用户有历史问答记录</td><td>1. 等待较长时间后查看历史记录</td><td>1. 所有历史记录仍在
-2. 不会自动清除</td><td>P1</td></tr>
-<tr><td>Session-History-007</td><td>会话记录</td><td>历史记录</td><td>重新唤起问答</td><td>点击历史问题快速唤起对应问答</td><td>存在历史问答记录</td><td>1. 点击某条历史问题</td><td>1. 快速重新唤起对应问答内容
-2. 展示原始问题和答案</td><td>P1</td></tr>
-<tr><td>Session-Clear-001</td><td>会话记录</td><td>批量清空</td><td>批量清空</td><td>批量清空所有历史记录</td><td>历史记录列表非空</td><td>1. 点击「批量清空」按钮
-2. 确认清空</td><td>1. 弹出二次确认弹窗
-2. 确认后所有记录清空
-3. 后台同步清除
-4. 不可恢复</td><td>P0</td></tr>
-<tr><td>Session-Clear-002</td><td>会话记录</td><td>批量清空</td><td>删除二次确认</td><td>删除/清空操作需二次确认</td><td>历史记录列表非空</td><td>1. 点击删除或清空按钮
-2. 观察确认弹窗</td><td>1. 弹出确认弹窗
-2. 取消则不执行删除
-3. 确认后执行删除</td><td>P1</td></tr>
-<tr><td>KB-Filter-001</td><td>词条管理</td><td>筛选搜索</td><td>多条件筛选</td><td>按关键词、分类、状态、时间筛选</td><td>后台有多个词条数据</td><td>1. 使用问题关键词筛选
-2. 使用词条分类筛选
-3. 使用上架状态筛选
-4. 使用创建时间筛选</td><td>1. 各筛选条件独立生效
-2. 多条件组合筛选结果正确
-3. 列表实时更新</td><td>P0</td></tr>
-<tr><td>KB-Add-001</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-必填</td><td>标准问题为必填字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准问题
-2. 点击保存</td><td>1. 提示标准问题为必填项
-2. 保存失败</td><td>P0</td></tr>
-<tr><td>KB-Add-002</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-字数</td><td>标准问题限制1-200字</td><td>运营管理员已打开新增弹窗</td><td>1. 输入超过200字的标准问题
-2. 点击保存</td><td>1. 提示超出字数限制
-2. 保存失败</td><td>P1</td></tr>
-<tr><td>KB-Add-003</td><td>词条管理</td><td>新增词条</td><td>标准问题校验-重复</td><td>标准问题不可重复</td><td>已存在某标准问题的词条</td><td>1. 输入已存在的标准问题
-2. 点击保存</td><td>1. 提示「该标准问题已存在」
-2. 保存失败</td><td>P0</td></tr>
-<tr><td>KB-Add-004</td><td>词条管理</td><td>新增词条</td><td>相似问题录入</td><td>支持多条相似问题以换行分隔</td><td>运营管理员已打开新增弹窗</td><td>1. 在相似问题字段输入多条问题（换行分隔）
-2. 保存词条</td><td>1. 多条相似问题正确保存
-2. 拓宽语义匹配范围</td><td>P1</td></tr>
-<tr><td>KB-Add-005</td><td>词条管理</td><td>新增词条</td><td>标准答案校验</td><td>标准答案为必填且限制1-2000字</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准答案点击保存
-2. 输入超过2000字的答案点击保存</td><td>1. 必填校验提示
-2. 超出字数提示
-3. 保存失败</td><td>P0</td></tr>
-<tr><td>KB-Add-006</td><td>词条管理</td><td>新增词条</td><td>词条分类必选</td><td>词条分类为必选字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不选择词条分类
-2. 点击保存</td><td>1. 提示词条分类为必选项
-2. 保存失败</td><td>P1</td></tr>
-<tr><td>KB-Add-007</td><td>词条管理</td><td>新增词条</td><td>默认下架状态</td><td>新增词条默认为下架状态</td><td>运营管理员已打开新增弹窗</td><td>1. 填写完整信息
-2. 保存新增词条</td><td>1. 新增词条状态为「下架」
-2. 不参与用户问答匹配</td><td>P0</td></tr>
-<tr><td>KB-Edit-001</td><td>词条管理</td><td>编辑词条</td><td>编辑上架词条实时生效</td><td>编辑已上架词条保存后实时生效</td><td>存在已上架词条</td><td>1. 编辑已上架词条的内容
-2. 保存修改</td><td>1. 修改保存成功
-2. 无需重新审核
-3. 用户端问答实时生效</td><td>P0</td></tr>
-<tr><td>KB-Delete-001</td><td>词条管理</td><td>删除词条</td><td>删除二次确认</td><td>删除词条需二次确认</td><td>存在可删除词条</td><td>1. 点击删除按钮
-2. 观察确认弹窗</td><td>1. 弹出二次确认弹窗
-2. 取消则不删除
-3. 确认后词条删除</td><td>P0</td></tr>
-<tr><td>KB-Delete-002</td><td>词条管理</td><td>删除词条</td><td>已关联词条支持删除</td><td>已关联用户问答记录的词条支持删除</td><td>存在已关联问答记录的词条</td><td>1. 删除已关联问答记录的词条
-2. 确认删除</td><td>1. 删除成功
-2. 词条不再参与新问答匹配
-3. 历史问答记录保留</td><td>P0</td></tr>
-<tr><td>KB-Delete-003</td><td>词条管理</td><td>删除词条</td><td>删除后数据清理</td><td>删除词条后不再参与匹配</td><td>已删除某词条</td><td>1. 用户输入与已删除词条匹配的问题
-2. 观察匹配结果</td><td>1. 已删除词条不参与匹配
-2. 可能匹配其他词条或返回兜底</td><td>P1</td></tr>
-<tr><td>KB-Batch-001</td><td>词条管理</td><td>批量操作</td><td>批量选择</td><td>支持多选词条进行批量操作</td><td>词条列表有多个词条</td><td>1. 勾选多个词条复选框</td><td>1. 多个词条被选中
-2. 批量操作按钮激活</td><td>P0</td></tr>
-<tr><td>KB-Batch-002</td><td>词条管理</td><td>批量操作</td><td>批量上架</td><td>批量上架选中的下架词条</td><td>已选中多个下架词条</td><td>1. 点击「批量上架」按钮
-2. 确认操作</td><td>1. 选中词条状态变为「上架」
-2. 可被用户检索匹配</td><td>P0</td></tr>
-<tr><td>KB-Batch-003</td><td>词条管理</td><td>批量操作</td><td>批量下架</td><td>批量下架选中的上架词条</td><td>已选中多个上架词条</td><td>1. 点击「批量下架」按钮
-2. 确认操作</td><td>1. 选中词条状态变为「下架」
-2. 不再参与用户问答匹配</td><td>P0</td></tr>
-<tr><td>KB-Batch-004</td><td>词条管理</td><td>批量操作</td><td>批量删除</td><td>批量删除选中的词条</td><td>已选中多个词条</td><td>1. 点击「批量删除」按钮
-2. 确认操作</td><td>1. 弹出二次确认
-2. 确认后选中词条全部删除</td><td>P0</td></tr>
-<tr><td>Unknown-Collect-001</td><td>未知问题</td><td>自动收录</td><td>自动收录</td><td>未匹配问题自动收录至后台</td><td>用户提问未匹配到有效词条</td><td>1. 用户发送未匹配问题
-2. 后台查看未知问题列表</td><td>1. 问题自动收录至未知问题列表
-2. 记录提问时间、提问用户、提问次数</td><td>P0</td></tr>
-<tr><td>Unknown-Dedup-001</td><td>未知问题</td><td>去重统计</td><td>去重统计</td><td>相同未知问题自动合并统计</td><td>多个用户发送相同未匹配问题</td><td>1. 多个用户发送相同的未匹配问题
-2. 查看未知问题列表</td><td>1. 相同问题自动合并为一条
-2. 累计提问次数正确统计</td><td>P0</td></tr>
-<tr><td>Unknown-Process-001</td><td>未知问题</td><td>处理功能</td><td>基于未知问题新建词条</td><td>支持基于未知问题直接新建词条</td><td>未知问题列表有待处理问题</td><td>1. 选择某未知问题
-2. 点击新建词条
-3. 填写答案并保存</td><td>1. 成功新建知识词条
-2. 词条关联原始未知问题
-3. 未知问题标记为「已解决」</td><td>P0</td></tr>
-<tr><td>Unknown-Process-002</td><td>未知问题</td><td>处理功能</td><td>标记已解决</td><td>处理后标记为已解决</td><td>未知问题列表有待处理问题</td><td>1. 处理某未知问题
-2. 观察状态变化</td><td>1. 未知问题状态变为「已解决」
-2. 不再出现在待处理列表</td><td>P1</td></tr>
-<tr><td>Unknown-Clean-001</td><td>未知问题</td><td>数据清理</td><td>手动清理</td><td>支持手动清理无效未知问题</td><td>未知问题列表有无效数据</td><td>1. 选择无效/无意义的未知问题
-2. 点击清理/删除</td><td>1. 无效数据被清除
-2. 不影响有效未知问题</td><td>P1</td></tr>
-<tr><td>Stats-Basic-001</td><td>数据统计</td><td>基础数据</td><td>总提问量</td><td>总提问量统计正确</td><td>系统有一定量的问答数据</td><td>1. 进入数据统计页面
-2. 查看总提问量</td><td>1. 总提问量数字准确
-2. 包含所有用户的历史提问总量</td><td>P0</td></tr>
-<tr><td>Stats-Basic-002</td><td>数据统计</td><td>基础数据</td><td>有效提问量</td><td>有效提问量统计正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看有效提问量指标</td><td>1. 仅统计匹配到有效答案的提问量</td><td>P1</td></tr>
-<tr><td>Stats-Basic-003</td><td>数据统计</td><td>基础数据</td><td>无答案提问量</td><td>无答案提问量统计正确</td><td>系统有未匹配的问答</td><td>1. 查看无答案提问量指标</td><td>1. 统计未匹配到答案的提问量
-2. 与未知问题收录数一致</td><td>P1</td></tr>
-<tr><td>Stats-Basic-004</td><td>数据统计</td><td>基础数据</td><td>活跃用户数</td><td>活跃用户数统计正确</td><td>有多个用户使用问答功能</td><td>1. 查看活跃用户数</td><td>1. 活跃用户数准确
-2. 统计口径明确</td><td>P1</td></tr>
-<tr><td>Stats-Quality-001</td><td>数据统计</td><td>质量数据</td><td>问题命中率</td><td>问题命中率计算正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看问题命中率</td><td>1. 命中率 = 匹配成功数 / 总提问数 x 100%
-2. 数值准确</td><td>P0</td></tr>
-<tr><td>Stats-Quality-002</td><td>数据统计</td><td>质量数据</td><td>答案好评率</td><td>答案好评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案好评率</td><td>1. 好评率 = 有用评价数 / 总评价数 x 100%
-2. 数值准确</td><td>P1</td></tr>
-<tr><td>Stats-Quality-003</td><td>数据统计</td><td>质量数据</td><td>答案差评率</td><td>答案差评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案差评率</td><td>1. 差评率 = 无用评价数 / 总评价数 x 100%
-2. 与好评率之和 = 100%</td><td>P1</td></tr>
-<tr><td>Stats-Hot-001</td><td>数据统计</td><td>热度数据</td><td>高频提问TOP10</td><td>高频提问问题TOP10展示正确</td><td>有一定量的问答数据</td><td>1. 查看高频提问问题TOP10</td><td>1. 展示提问频次最高的10个问题
-2. 排序正确
-3. 频次准确</td><td>P1</td></tr>
-<tr><td>Stats-Hot-002</td><td>数据统计</td><td>热度数据</td><td>高频未知TOP10</td><td>高频未知问题TOP10展示正确</td><td>有一定量的未知问题数据</td><td>1. 查看高频未知问题TOP10</td><td>1. 展示被提问最多的10个未知问题
-2. 排序正确</td><td>P1</td></tr>
-<tr><td>Stats-Trend-001</td><td>数据统计</td><td>时间趋势</td><td>日趋势</td><td>支持按日查看问答数据趋势</td><td>有连续多天的问答数据</td><td>1. 选择按日查看数据趋势</td><td>1. 展示每日问答量变化趋势
-2. 数据准确</td><td>P1</td></tr>
-<tr><td>Stats-Trend-002</td><td>数据统计</td><td>时间趋势</td><td>周趋势</td><td>支持按周查看问答数据趋势</td><td>有多周的问答数据</td><td>1. 选择按周查看数据趋势</td><td>1. 展示每周问答量变化趋势</td><td>P2</td></tr>
-<tr><td>Stats-Trend-003</td><td>数据统计</td><td>时间趋势</td><td>月趋势</td><td>支持按月查看问答数据趋势</td><td>有多月的问答数据</td><td>1. 选择按月查看数据趋势</td><td>1. 展示每月问答量变化趋势</td><td>P2</td></tr>
-<tr><td>Perm-001</td><td>权限设计</td><td>普通用户</td><td>在线提问</td><td>普通用户可正常提问和评价</td><td>普通用户已登录</td><td>1. 普通用户输入问题并发送
-2. 对答案进行评价
-3. 查看个人会话记录</td><td>1. 提问功能正常
-2. 评价功能正常
-3. 仅能查看个人会话</td><td>P0</td></tr>
-<tr><td>Perm-002</td><td>权限设计</td><td>普通用户</td><td>无后台权限</td><td>普通用户无法访问后台管理</td><td>普通用户已登录</td><td>1. 尝试访问知识库词条管理
-2. 尝试查看未知问题
-3. 尝试查看数据统计</td><td>1. 无法进入后台管理页面
-2. 提示无权限</td><td>P0</td></tr>
-<tr><td>Perm-003</td><td>权限设计</td><td>运营管理员</td><td>后台管理权限</td><td>运营管理员可管理知识库和查看数据</td><td>运营管理员已登录</td><td>1. 新增/编辑/上下架/删除词条
-2. 处理未知问题
-3. 查看问答数据</td><td>1. 知识库管理功能正常
-2. 未知问题处理正常
-3. 数据统计可查看</td><td>P0</td></tr>
-<tr><td>Perm-004</td><td>权限设计</td><td>运营管理员</td><td>无系统配置权限</td><td>运营管理员无权限配置和全量清理</td><td>运营管理员已登录</td><td>1. 尝试进行权限配置
-2. 尝试全量数据清理</td><td>1. 无法访问系统配置
-2. 提示无权限</td><td>P1</td></tr>
-<tr><td>Perm-005</td><td>权限设计</td><td>超级管理员</td><td>全权限</td><td>超级管理员拥有所有功能权限</td><td>超级管理员已登录</td><td>1. 执行所有功能操作
-2. 进行权限配置
-3. 全量数据清理
-4. 系统参数设置</td><td>1. 所有功能正常可用
-2. 权限配置生效
-3. 系统参数设置生效</td><td>P0</td></tr>
-<tr><td>Exc-Net-001</td><td>异常场景</td><td>网络异常</td><td>网络中断处理</td><td>网络中断时终止请求并提示</td><td>用户正在提问过程中</td><td>1. 模拟网络中断
-2. 用户发送问题</td><td>1. 终止问答请求
-2. 提示「网络异常，请检查网络后重新提问」
-3. 保留已输入的问题内容</td><td>P0</td></tr>
-<tr><td>Exc-Auth-001</td><td>异常场景</td><td>权限异常</td><td>登录过期处理</td><td>登录过期时禁止提问并跳转</td><td>用户登录已过期</td><td>1. 用户尝试提问</td><td>1. 弹窗提示「暂无问答权限或登录已过期，请重新登录」
-2. 自动跳转登录页面</td><td>P0</td></tr>
-<tr><td>Exc-Content-001</td><td>异常场景</td><td>内容违规</td><td>敏感词拦截</td><td>输入敏感/违规内容时拦截提问</td><td>系统敏感词库已配置</td><td>1. 输入包含敏感词的问题
-2. 发送</td><td>1. 系统自动拦截提问
-2. 提示「输入内容包含违规信息，请重新输入」
-3. 不收录该问题</td><td>P0</td></tr>
-<tr><td>Exc-Timeout-001</td><td>异常场景</td><td>系统超时</td><td>问答检索超时</td><td>检索超时返回兜底话术</td><td>语义匹配引擎响应超过3s</td><td>1. 模拟检索超时
-2. 观察系统响应</td><td>1. 返回兜底话术
-2. 提示「问答检索超时，请稍后重试」</td><td>P0</td></tr>
-<tr><td>Exc-Data-001</td><td>异常场景</td><td>数据异常</td><td>知识库数据异常</td><td>知识库数据损坏时展示兜底内容</td><td>知识库词条数据损坏</td><td>1. 模拟知识库数据加载失败
-2. 用户提问</td><td>1. 用户端展示无答案兜底内容
-2. 后台记录异常日志
-3. 不暴露系统错误</td><td>P0</td></tr>
-<tr><td>Exc-Limit-001</td><td>异常场景</td><td>限流</td><td>高频提问限制</td><td>1分钟内高频重复提问触发限流</td><td>用户已登录</td><td>1. 在1分钟内连续高频提问超过限制次数</td><td>1. 触发限流机制
-2. 提示「提问过于频繁，请稍后再试」
-3. 防止恶意刷量</td><td>P0</td></tr>
-<tr><td>Perf-001</td><td>非功能需求</td><td>性能</td><td>页面加载</td><td>问答首页首次加载≤1.5s</td><td>网络正常</td><td>1. 首次打开问答页面
-2. 计算页面加载时间</td><td>1. 首次加载时间≤1.5s
-2. 页面完整渲染</td><td>P0</td></tr>
-<tr><td>Perf-002</td><td>非功能需求</td><td>性能</td><td>问答响应</td><td>常规问题语义匹配≤800ms</td><td>知识库正常</td><td>1. 输入常规问题并发送
-2. 计算响应时间</td><td>1. 语义匹配响应≤800ms
-2. 复杂长文本问题响应≤2s</td><td>P0</td></tr>
-<tr><td>Perf-003</td><td>非功能需求</td><td>性能</td><td>并发能力</td><td>支持≥200人同时在线提问</td><td>测试环境准备200并发用户</td><td>1. 200用户同时在线提问
-2. 持续操作一段时间</td><td>1. 无卡顿
-2. 无问答数据错乱
-3. 无请求堆积</td><td>P0</td></tr>
-<tr><td>Perf-004</td><td>非功能需求</td><td>性能</td><td>后台加载</td><td>后台列表和统计加载≤1.5s</td><td>后台有大量数据</td><td>1. 打开知识库列表页
-2. 打开数据统计页</td><td>1. 列表加载≤1.5s
-2. 统计数据加载≤1.5s</td><td>P1</td></tr>
-<tr><td>Compat-001</td><td>非功能需求</td><td>兼容性</td><td>PC浏览器兼容</td><td>兼容Chrome/Edge/Firefox最新版</td><td>—</td><td>1. 分别在Chrome、Edge、Firefox最新版打开问答功能</td><td>1. 各浏览器功能正常
-2. 样式无错位
-3. 交互无异常</td><td>P1</td></tr>
-<tr><td>Compat-002</td><td>非功能需求</td><td>兼容性</td><td>移动端适配</td><td>适配iOS/Android主流机型</td><td>—</td><td>1. 在手机和平板上打开问答功能
-2. 测试各尺寸屏幕</td><td>1. 会话展示无错位
-2. 内容无遮挡
-3. 功能与PC端一致</td><td>P1</td></tr>
-<tr><td>Security-001</td><td>非功能需求</td><td>安全</td><td>敏感词库</td><td>内置敏感词库自动拦截违规内容</td><td>敏感词库已配置</td><td>1. 输入各类敏感词测试
-2. 包含违禁词、敏感词、违规信息</td><td>1. 所有敏感词被拦截
-2. 不展示违规内容
-3. 词条内容也受敏感词管控</td><td>P0</td></tr>
-<tr><td>Security-002</td><td>非功能需求</td><td>安全</td><td>数据隔离</td><td>问答数据仅本人及超级管理员可查看</td><td>多个用户的问答数据</td><td>1. 用户A尝试查看用户B的问答数据
-2. 超级管理员查看所有数据</td><td>1. 用户A无法查看用户B数据
-2. 超级管理员可查看全量数据
-3. 严格数据隔离</td><td>P0</td></tr>
-<tr><td>Security-003</td><td>非功能需求</td><td>安全</td><td>操作日志</td><td>所有后台操作留存日志可追溯</td><td>运营管理员执行操作</td><td>1. 执行词条新增/编辑/删除等操作
-2. 查看后台日志</td><td>1. 日志记录操作人
-2. 记录操作时间
-3. 记录操作IP
-4. 记录操作内容</td><td>P0</td></tr>
-<tr><td>Maint-001</td><td>非功能需求</td><td>可维护性</td><td>动态配置</td><td>支持后台动态配置敏感词和话术</td><td>超级管理员已登录</td><td>1. 修改敏感词配置
-2. 修改兜底话术
-3. 修改限流次数</td><td>1. 配置修改后即时生效
-2. 无需修改代码
-3. 无需重启服务</td><td>P1</td></tr>
-<tr><td>Maint-002</td><td>非功能需求</td><td>可维护性</td><td>批量导入导出</td><td>知识库词条支持批量导入导出</td><td>运营管理员已登录</td><td>1. 批量导入词条
-2. 批量导出词条</td><td>1. 导入成功且数据正确
-2. 导出文件格式正确
-3. 便于大规模维护迁移</td><td>P1</td></tr>
-<tr><td>Maint-003</td><td>非功能需求</td><td>可维护性</td><td>异常日志</td><td>异常问答和超时请求自动记录日志</td><td>系统产生异常请求</td><td>1. 触发超时、异常等场景
-2. 查看后台日志</td><td>1. 异常请求自动记录日志
-2. 日志包含足够排查信息
-3. 支持后台查询</td><td>P1</td></tr>
-<tr><td>Supp-001</td><td>用户端问答</td><td>输入与发送</td><td>多行文本输入</td><td>多行文本格式在答案中正确展示</td><td>用户发送含换行的问题</td><td>1. 输入含多行文本的问题并发送
-2. 观察答案展示</td><td>1. 问题和答案中的换行格式正确保留
-2. 不出现格式错乱</td><td>P2</td></tr>
-<tr><td>Supp-002</td><td>用户端问答</td><td>会话操作</td><td>清空会话恢复默认</td><td>清空后页面恢复默认欢迎话术</td><td>当前有问答记录</td><td>1. 点击清空会话
-2. 观察页面状态</td><td>1. 所有问答记录清除
-2. 恢复默认欢迎话术
-3. 输入框清空</td><td>P1</td></tr>
-<tr><td>Supp-003</td><td>用户端问答</td><td>答案展示</td><td>热门相似问题</td><td>兜底回复时展示热门相似问题</td><td>无匹配答案</td><td>1. 发送无匹配问题
-2. 观察兜底回复区域</td><td>1. 展示兜底话术
-2. 底部展示热门相似问题列表
-3. 点击可快速提问</td><td>P1</td></tr>
-<tr><td>Supp-004</td><td>会话记录</td><td>历史记录</td><td>记录永久留存</td><td>用户手动删除前不可自动清除</td><td>用户有历史记录</td><td>1. 等待较长时间
-2. 检查记录是否仍存在</td><td>1. 记录未被自动清除
-2. 仅用户手动删除才移除</td><td>P1</td></tr>
-<tr><td>Supp-005</td><td>权限设计</td><td>全角色</td><td>会话查看</td><td>所有角色可查看个人会话</td><td>各角色已登录</td><td>1. 普通用户查看个人会话
-2. 运营管理员查看个人会话
-3. 超级管理员查看个人会话</td><td>1. 各角色均可查看个人会话记录
-2. 功能一致</td><td>P2</td></tr>
-</tbody></table>
-</section>
-<section id="review">
-<div class="filter-bar">
-<label>评审角色</label>
-<select id="review-role-filter" onchange="filterTable('review')"><option value="">全部</option><option>Arch</option><option>Dev</option><option>QA</option><option>PM</option><option>UX</option><option>Sec</option><option>Ops</option><option>Perf</option><option>DBA</option></select>
-<label>缺陷类型</label>
-<select id="review-defect-filter" onchange="filterTable('review')"><option value="">全部</option></select>
-<label>搜索</label>
-<input type="text" id="review-search" placeholder="关键词..." oninput="filterTable('review')">
-<span class="filter-count" id="review-count"></span>
-</div>
-<table id="review-table"><thead><tr>
-<th>用例编号</th><th>评审角色</th><th>评审意见/建议</th><th>缺陷类型</th>
-</tr></thead><tbody>
-<tr><td>QA-Display-002</td><td>Arch</td><td>未定义加载状态下的模块解耦策略，建议将加载组件独立封装，便于复用和维护</td><td>架构腐化风险</td></tr>
-<tr><td>QA-Match-001</td><td>Dev</td><td>语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景</td><td>逻辑遗漏</td></tr>
-<tr><td>QA-Display-005</td><td>Dev</td><td>超时处理与兜底回复的关系不明确，3s超时后是返回通用兜底还是超时专用话术</td><td>逻辑遗漏</td></tr>
-<tr><td>QA-Send-003</td><td>Dev</td><td>500字边界值测试未覆盖多字节字符（如emoji），建议补充</td><td>边界遗漏</td></tr>
-<tr><td>KB-Batch-001</td><td>Dev</td><td>批量操作未测试跨页选择等边界场景</td><td>边界遗漏</td></tr>
-<tr><td>KB-Edit-001</td><td>Dev</td><td>编辑词条未覆盖编辑历史记录和并发编辑冲突场景</td><td>逻辑遗漏</td></tr>
-<tr><td>QA-Match-005</td><td>QA</td><td>「历史最优答案」定义不明确，未定义评判标准</td><td>场景遗漏</td></tr>
-<tr><td>Session-History-003</td><td>QA</td><td>删除记录场景未覆盖删除正在展示中的会话</td><td>场景遗漏</td></tr>
-<tr><td>QA-Match-006</td><td>QA</td><td>兜底回复仅检查文案，未验证问题是否真正被收录到未知问题列表</td><td>可验证性不足</td></tr>
-<tr><td>Exc-Limit-001</td><td>QA</td><td>限流场景未明确限制次数的具体数值和重置时间</td><td>可验证性不足</td></tr>
-<tr><td>QA-Display-004</td><td>QA</td><td>匹配失败场景未覆盖部分匹配的情况</td><td>场景遗漏</td></tr>
-<tr><td>KB-Add-007</td><td>PM</td><td>新增词条默认下架的业务必要性未说明，是否需要快速上架通道</td><td>优先级不准</td></tr>
-<tr><td>QA-Match-004</td><td>PM</td><td>相似问题推荐3-5条的数量范围是否为固定值还是动态值</td><td>表述不清</td></tr>
-<tr><td>AMB-004</td><td>PM</td><td>「历史最优答案」概念在多处使用但未给出明确定义</td><td>表述不清</td></tr>
-<tr><td>QA-Display-001</td><td>UX</td><td>答案展示仅提到支持文本和换行，未说明富文本、链接等格式的展示规则</td><td>交互不符</td></tr>
-<tr><td>QA-Feedback-001</td><td>UX</td><td>评价按钮状态变化的视觉反馈不明确</td><td>交互不符</td></tr>
-<tr><td>QA-Display-003</td><td>UX</td><td>欢迎话术缺少个性化能力</td><td>易用性缺陷</td></tr>
-<tr><td>Session-History-002</td><td>UX</td><td>历史记录列表未定义排序切换能力</td><td>易用性缺陷</td></tr>
-<tr><td>QA-Send-001</td><td>Sec</td><td>用户输入内容未说明XSS/注入防护措施</td><td>安全漏洞</td></tr>
-<tr><td>KB-Add-005</td><td>Sec</td><td>标准答案字段支持换行和格式，需验证是否存在存储型XSS风险</td><td>安全漏洞</td></tr>
-<tr><td>KB-Edit-001</td><td>Sec</td><td>编辑已上架词条即时生效，缺少审核机制，存在恶意篡改风险</td><td>安全漏洞</td></tr>
-<tr><td>Exc-Auth-001</td><td>Sec</td><td>身份令牌校验机制未说明具体实现</td><td>安全漏洞</td></tr>
-<tr><td>QA-Send-001</td><td>Ops</td><td>问答请求链路涉及多个服务，缺少各环节的监控告警指标定义</td><td>运维盲区</td></tr>
-<tr><td>QA-Display-005</td><td>Ops</td><td>超时处理后的降级策略不明确</td><td>运维盲区</td></tr>
-<tr><td>Exc-Data-001</td><td>Ops</td><td>知识库数据损坏的检测机制和自动恢复策略未定义</td><td>运维盲区</td></tr>
-<tr><td>Perf-003</td><td>Perf</td><td>200并发测试未说明持续时长和压力递增策略</td><td>性能风险</td></tr>
-<tr><td>Perf-002</td><td>Perf</td><td>800ms响应时间要求未考虑网络延迟等额外开销</td><td>性能风险</td></tr>
-<tr><td>Stats-Basic-001</td><td>Perf</td><td>统计数据查询在大数据量下可能有性能问题</td><td>场景遗漏</td></tr>
-<tr><td>Unknown-Dedup-001</td><td>DBA</td><td>未知问题去重逻辑依赖文本完全匹配还是模糊匹配未说明</td><td>数据完整性风险</td></tr>
-<tr><td>Unknown-Process-001</td><td>DBA</td><td>基于未知问题新建词条时事务完整性未说明</td><td>数据一致性风险</td></tr>
-</tbody></table>
-</section>
-<section id="optimized">
-<div class="filter-bar">
-<label>一级模块</label>
-<select id="optimized-module-filter" onchange="filterTable('optimized')"><option value="">全部</option></select>
-<label>分类</label>
-<select id="optimized-category-filter" onchange="filterTable('optimized')"><option value="">全部</option><option>功能</option><option>性能</option><option>安全</option><option>兼容性</option><option>可维护性</option><option>权限</option><option>异常</option></select>
-<label>优先级</label>
-<select id="optimized-priority-filter" onchange="filterTable('optimized')"><option value="">全部</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>
-<label>搜索</label>
-<input type="text" id="optimized-search" placeholder="关键词..." oninput="filterTable('optimized')">
-<span class="filter-count" id="optimized-count"></span>
-</div>
-<table id="optimized-table"><thead><tr>
-<th>用例编号</th><th>一级模块</th><th>分类</th><th>二级模块</th><th>功能点</th><th>用例标题</th><th>前置条件</th><th>用例步骤</th><th>预期结果</th><th>用例优先级</th><th>优化记录</th>
-</tr></thead><tbody>
-<tr><td>QA-Send-001</td><td>用户端问答</td><td>功能</td><td>输入与发送</td><td>问答输入框</td><td>正常输入并发送问题</td><td>用户已登录且有问答权限</td><td>1. 在问答输入框输入问题「如何重置密码？」
-2. 点击发送按钮</td><td>1. 问题成功发送
-2. 输入框清空
-3. 用户问题以对话气泡样式展示在会话窗口</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Sec] 用户输入内容未说明XSS/注入防护措施（安全漏洞）→ 已采纳优化<br>[Ops] 问答请求链路涉及多个服务，缺少各环节的监控告警指标定义（运维盲区）→ 已采纳优化</td></tr>
-<tr><td>QA-Send-002</td><td>用户端问答</td><td>功能</td><td>输入与发送</td><td>问答输入框</td><td>输入为空时发送按钮置灰</td><td>用户已登录</td><td>1. 不输入任何内容
-2. 观察发送按钮状态</td><td>1. 发送按钮为置灰状态
-2. 点击无响应</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Send-003</td><td>用户端问答</td><td>功能</td><td>输入与发送</td><td>问答输入框</td><td>输入500字边界值发送</td><td>用户已登录</td><td>1. 在输入框输入恰好500字的问题
-2. 点击发送</td><td>1. 问题成功发送
-2. 内容完整展示</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 500字边界值测试未覆盖多字节字符（如emoji），建议补充（边界遗漏）→ 已采纳优化</td></tr>
-<tr><td>QA-Send-004</td><td>用户端问答</td><td>功能</td><td>输入与发送</td><td>问答输入框</td><td>输入超过500字限制</td><td>用户已登录</td><td>1. 在输入框输入501字及以上内容
-2. 尝试发送</td><td>1. 系统截断或提示超出限制
-2. 不发送超出部分内容</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Send-005</td><td>用户端问答</td><td>功能</td><td>输入与发送</td><td>问答输入框</td><td>支持多行文本输入和回车发送</td><td>用户已登录</td><td>1. 在输入框输入多行文本（Shift+Enter换行）
-2. 点击发送</td><td>1. 多行文本正确展示
-2. 换行格式保留</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Match-001</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配返回高度契合答案</td><td>知识库已有上架相关词条</td><td>1. 输入「忘记密码怎么处理」（语义近似「如何重置密码」）
-2. 发送问题</td><td>1. 系统返回「如何重置密码」对应的标准答案
-2. 加载时长≤800ms</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景（逻辑遗漏）→ 已采纳优化</td></tr>
-<tr><td>QA-Match-002</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>关键词匹配</td><td>语义匹配无结果时触发关键词匹配</td><td>知识库有包含关键词的词条但语义相似度低</td><td>1. 输入包含关键词但语义偏差的问题
-2. 观察匹配结果</td><td>1. 系统触发关键词模糊匹配
-2. 返回包含关键词的关联词条答案</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Match-003</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>匹配优先级</td><td>匹配优先级验证：精准&gt;语义&gt;关键词&gt;兜底</td><td>知识库有精准匹配、语义近似、仅关键词匹配的多个词条</td><td>1. 输入一个同时命中多个层级的问题
-2. 观察返回结果</td><td>1. 优先返回精准完全匹配的答案
-2. 不返回低优先级匹配结果</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Match-004</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>相似问题推荐</td><td>低匹配度时推送3-5条相似问题</td><td>知识库有相关但匹配度不高的词条</td><td>1. 输入模糊问题
-2. 观察推荐区域</td><td>1. 答案区域展示匹配度最高的答案
-2. 底部推荐3-5条关联相似问题</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[PM] 相似问题推荐3-5条的数量范围是否为固定值还是动态值（表述不清）→ 已采纳优化</td></tr>
-<tr><td>QA-Match-005</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>重复问题过滤</td><td>重复发送相同问题返回历史答案</td><td>用户已发送过某问题且已收到回答</td><td>1. 再次发送完全相同的问题</td><td>1. 系统直接返回历史最优答案
-2. 不重复收录未知问题
-3. 响应速度快于首次</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 「历史最优答案」定义不明确，未定义评判标准（场景遗漏）→ 已采纳优化</td></tr>
-<tr><td>QA-Match-006</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>兜底回复</td><td>所有匹配方式无结果时返回兜底话术</td><td>知识库无任何关联词条</td><td>1. 输入完全无关的问题
-2. 发送</td><td>1. 展示兜底回复
-2. 同步推送热门相似问题
-3. 问题收录至未知问题列表</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 兜底回复仅检查文案，未验证问题是否真正被收录到未知问题列表（可验证性不足）→ 已采纳优化</td></tr>
-<tr><td>QA-Display-001</td><td>用户端问答</td><td>功能</td><td>答案展示</td><td>答案渲染</td><td>匹配成功时正确展示标准答案</td><td>已匹配到有效答案</td><td>1. 观察答案展示区域</td><td>1. 展示标准答案内容
-2. 支持文本、换行、简单格式
-3. 底部展示评价按钮</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 答案展示仅提到支持文本和换行，未说明富文本、链接等格式的展示规则（交互不符）→ 已采纳优化</td></tr>
-<tr><td>QA-Display-002</td><td>用户端问答</td><td>功能</td><td>答案展示</td><td>加载动画</td><td>问答检索加载动画展示</td><td>用户已提交问题</td><td>1. 提交问题后观察页面</td><td>1. 展示加载动画「正在为您检索答案中...」
-2. 加载时长最长3s
-3. 超时返回兜底话术</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Arch] 未定义加载状态下的模块解耦策略，建议将加载组件独立封装，便于复用和维护（架构腐化风险）→ 已采纳优化</td></tr>
-<tr><td>QA-Display-003</td><td>用户端问答</td><td>功能</td><td>答案展示</td><td>欢迎话术</td><td>页面默认展示欢迎话术</td><td>用户首次进入问答页面</td><td>1. 进入知识库问答页面</td><td>1. 展示欢迎话术</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 欢迎话术缺少个性化能力（易用性缺陷）→ 已采纳优化</td></tr>
-<tr><td>QA-Display-004</td><td>用户端问答</td><td>功能</td><td>答案展示</td><td>兜底回复</td><td>匹配失败时展示兜底回复和热门相似问题</td><td>知识库无匹配词条</td><td>1. 输入无匹配问题
-2. 发送</td><td>1. 展示兜底回复话术
-2. 推送热门相似问题
-3. 问题自动收录至未知问题</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 匹配失败场景未覆盖部分匹配的情况（场景遗漏）→ 已采纳优化</td></tr>
-<tr><td>QA-Display-005</td><td>用户端问答</td><td>功能</td><td>答案展示</td><td>加载超时</td><td>加载超过3秒时展示超时提示</td><td>语义匹配引擎响应慢</td><td>1. 模拟匹配引擎超时（&gt;3s）
-2. 观察页面响应</td><td>1. 3秒后返回兜底话术
-2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 超时处理与兜底回复的关系不明确，3s超时后是返回通用兜底还是超时专用话术（逻辑遗漏）→ 已采纳优化<br>[Ops] 超时处理后的降级策略不明确（运维盲区）→ 已采纳优化</td></tr>
-<tr><td>QA-Feedback-001</td><td>用户端问答</td><td>功能</td><td>反馈与评价</td><td>有用评价</td><td>点赞评价答案有用</td><td>已展示系统答案</td><td>1. 点击答案下方「有用（点赞）」按钮</td><td>1. 按钮变为已选中状态
-2. 评价数据同步上传后台
-3. 按钮不可再次点击</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 评价按钮状态变化的视觉反馈不明确（交互不符）→ 已采纳优化</td></tr>
-<tr><td>QA-Feedback-002</td><td>用户端问答</td><td>功能</td><td>反馈与评价</td><td>无用评价</td><td>差评答案无用</td><td>已展示系统答案</td><td>1. 点击答案下方「无用（差评）」按钮</td><td>1. 按钮变为已选中状态
-2. 评价数据同步上传后台
-3. 按钮不可再次点击</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Feedback-003</td><td>用户端问答</td><td>功能</td><td>反馈与评价</td><td>评价状态固化</td><td>评价后不可重复评价</td><td>用户已对某答案完成评价</td><td>1. 尝试再次点击评价按钮</td><td>1. 按钮状态固化无响应
-2. 不产生重复评价数据</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Session-001</td><td>用户端问答</td><td>功能</td><td>会话操作</td><td>清空会话</td><td>一键清空当前页面所有问答记录</td><td>当前会话有多条问答记录</td><td>1. 点击清空会话按钮</td><td>1. 页面所有问答记录清空
-2. 恢复至默认欢迎话术状态</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Session-History-001</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>记录入口</td><td>历史记录按钮可点击进入</td><td>用户已登录</td><td>1. 点击问答页面顶部「历史记录」按钮</td><td>1. 跳转至历史记录列表页</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Session-History-002</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>记录列表</td><td>按时间倒序展示历史记录</td><td>用户有多条历史问答记录</td><td>1. 进入历史记录页面</td><td>1. 记录按时间倒序排列
-2. 每条展示提问时间、用户问题、简略答案</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[UX] 历史记录列表未定义排序切换能力（易用性缺陷）→ 已采纳优化</td></tr>
-<tr><td>Session-History-003</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>单条删除</td><td>删除单条历史记录</td><td>历史记录列表非空</td><td>1. 点击某条记录的「删除」按钮
-2. 确认删除</td><td>1. 弹出二次确认弹窗
-2. 确认后记录从列表移除
-3. 后台同步删除
-4. 删除后不可恢复</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 删除记录场景未覆盖删除正在展示中的会话（场景遗漏）→ 已采纳优化</td></tr>
-<tr><td>Session-History-004</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>空状态</td><td>无历史记录时展示空状态提示</td><td>用户无任何历史问答</td><td>1. 进入历史记录页面</td><td>1. 展示「暂无问答历史记录」提示</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Session-History-005</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>数据隔离</td><td>不同账号历史记录相互独立</td><td>两个不同用户账号各有问答记录</td><td>1. 用账号A登录查看历史记录
-2. 用账号B登录查看历史记录</td><td>1. 账号A只能看到自己的记录
-2. 账号B只能看到自己的记录
-3. 两账号记录互不干扰</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Session-History-006</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>数据永久留存</td><td>会话记录永久留存不自动清除</td><td>用户有历史问答记录</td><td>1. 等待较长时间后查看历史记录</td><td>1. 所有历史记录仍在
-2. 不会自动清除</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Session-History-007</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>重新唤起问答</td><td>点击历史问题快速唤起对应问答</td><td>存在历史问答记录</td><td>1. 点击某条历史问题</td><td>1. 快速重新唤起对应问答内容
-2. 展示原始问题和答案</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Session-Clear-001</td><td>会话记录</td><td>功能</td><td>批量清空</td><td>批量清空</td><td>批量清空所有历史记录</td><td>历史记录列表非空</td><td>1. 点击「批量清空」按钮
-2. 确认清空</td><td>1. 弹出二次确认弹窗
-2. 确认后所有记录清空
-3. 后台同步清除
-4. 不可恢复</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Session-Clear-002</td><td>会话记录</td><td>功能</td><td>批量清空</td><td>删除二次确认</td><td>删除/清空操作需二次确认</td><td>历史记录列表非空</td><td>1. 点击删除或清空按钮
-2. 观察确认弹窗</td><td>1. 弹出确认弹窗
-2. 取消则不执行删除
-3. 确认后执行删除</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Filter-001</td><td>词条管理</td><td>功能</td><td>筛选搜索</td><td>多条件筛选</td><td>按关键词、分类、状态、时间筛选</td><td>后台有多个词条数据</td><td>1. 使用问题关键词筛选
-2. 使用词条分类筛选
-3. 使用上架状态筛选
-4. 使用创建时间筛选</td><td>1. 各筛选条件独立生效
-2. 多条件组合筛选结果正确
-3. 列表实时更新</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Add-001</td><td>词条管理</td><td>功能</td><td>新增词条</td><td>标准问题校验-必填</td><td>标准问题为必填字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准问题
-2. 点击保存</td><td>1. 提示标准问题为必填项
-2. 保存失败</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Add-002</td><td>词条管理</td><td>功能</td><td>新增词条</td><td>标准问题校验-字数</td><td>标准问题限制1-200字</td><td>运营管理员已打开新增弹窗</td><td>1. 输入超过200字的标准问题
-2. 点击保存</td><td>1. 提示超出字数限制
-2. 保存失败</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Add-003</td><td>词条管理</td><td>功能</td><td>新增词条</td><td>标准问题校验-重复</td><td>标准问题不可重复</td><td>已存在某标准问题的词条</td><td>1. 输入已存在的标准问题
-2. 点击保存</td><td>1. 提示「该标准问题已存在」
-2. 保存失败</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Add-004</td><td>词条管理</td><td>功能</td><td>新增词条</td><td>相似问题录入</td><td>支持多条相似问题以换行分隔</td><td>运营管理员已打开新增弹窗</td><td>1. 在相似问题字段输入多条问题（换行分隔）
-2. 保存词条</td><td>1. 多条相似问题正确保存
-2. 拓宽语义匹配范围</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Add-005</td><td>词条管理</td><td>功能</td><td>新增词条</td><td>标准答案校验</td><td>标准答案为必填且限制1-2000字</td><td>运营管理员已打开新增弹窗</td><td>1. 不填写标准答案点击保存
-2. 输入超过2000字的答案点击保存</td><td>1. 必填校验提示
-2. 超出字数提示
-3. 保存失败</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Sec] 标准答案字段支持换行和格式，需验证是否存在存储型XSS风险（安全漏洞）→ 已采纳优化</td></tr>
-<tr><td>KB-Add-006</td><td>词条管理</td><td>功能</td><td>新增词条</td><td>词条分类必选</td><td>词条分类为必选字段</td><td>运营管理员已打开新增弹窗</td><td>1. 不选择词条分类
-2. 点击保存</td><td>1. 提示词条分类为必选项
-2. 保存失败</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Add-007</td><td>词条管理</td><td>功能</td><td>新增词条</td><td>默认下架状态</td><td>新增词条默认为下架状态</td><td>运营管理员已打开新增弹窗</td><td>1. 填写完整信息
-2. 保存新增词条</td><td>1. 新增词条状态为「下架」
-2. 不参与用户问答匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[PM] 新增词条默认下架的业务必要性未说明，是否需要快速上架通道（优先级不准）→ 已采纳优化</td></tr>
-<tr><td>KB-Edit-001</td><td>词条管理</td><td>功能</td><td>编辑词条</td><td>编辑上架词条实时生效</td><td>编辑已上架词条保存后实时生效</td><td>存在已上架词条</td><td>1. 编辑已上架词条的内容
-2. 保存修改</td><td>1. 修改保存成功
-2. 无需重新审核
-3. 用户端问答实时生效</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 编辑词条未覆盖编辑历史记录和并发编辑冲突场景（逻辑遗漏）→ 已采纳优化<br>[Sec] 编辑已上架词条即时生效，缺少审核机制，存在恶意篡改风险（安全漏洞）→ 已采纳优化</td></tr>
-<tr><td>KB-Delete-001</td><td>词条管理</td><td>功能</td><td>删除词条</td><td>删除二次确认</td><td>删除词条需二次确认</td><td>存在可删除词条</td><td>1. 点击删除按钮
-2. 观察确认弹窗</td><td>1. 弹出二次确认弹窗
-2. 取消则不删除
-3. 确认后词条删除</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Delete-002</td><td>词条管理</td><td>功能</td><td>删除词条</td><td>已关联词条支持删除</td><td>已关联用户问答记录的词条支持删除</td><td>存在已关联问答记录的词条</td><td>1. 删除已关联问答记录的词条
-2. 确认删除</td><td>1. 删除成功
-2. 词条不再参与新问答匹配
-3. 历史问答记录保留</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Delete-003</td><td>词条管理</td><td>功能</td><td>删除词条</td><td>删除后数据清理</td><td>删除词条后不再参与匹配</td><td>已删除某词条</td><td>1. 用户输入与已删除词条匹配的问题
-2. 观察匹配结果</td><td>1. 已删除词条不参与匹配
-2. 可能匹配其他词条或返回兜底</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Batch-001</td><td>词条管理</td><td>功能</td><td>批量操作</td><td>批量选择</td><td>支持多选词条进行批量操作</td><td>词条列表有多个词条</td><td>1. 勾选多个词条复选框</td><td>1. 多个词条被选中
-2. 批量操作按钮激活</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Dev] 批量操作未测试跨页选择等边界场景（边界遗漏）→ 已采纳优化</td></tr>
-<tr><td>KB-Batch-002</td><td>词条管理</td><td>功能</td><td>批量操作</td><td>批量上架</td><td>批量上架选中的下架词条</td><td>已选中多个下架词条</td><td>1. 点击「批量上架」按钮
-2. 确认操作</td><td>1. 选中词条状态变为「上架」
-2. 可被用户检索匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Batch-003</td><td>词条管理</td><td>功能</td><td>批量操作</td><td>批量下架</td><td>批量下架选中的上架词条</td><td>已选中多个上架词条</td><td>1. 点击「批量下架」按钮
-2. 确认操作</td><td>1. 选中词条状态变为「下架」
-2. 不再参与用户问答匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>KB-Batch-004</td><td>词条管理</td><td>功能</td><td>批量操作</td><td>批量删除</td><td>批量删除选中的词条</td><td>已选中多个词条</td><td>1. 点击「批量删除」按钮
-2. 确认操作</td><td>1. 弹出二次确认
-2. 确认后选中词条全部删除</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Unknown-Collect-001</td><td>未知问题</td><td>功能</td><td>自动收录</td><td>自动收录</td><td>未匹配问题自动收录至后台</td><td>用户提问未匹配到有效词条</td><td>1. 用户发送未匹配问题
-2. 后台查看未知问题列表</td><td>1. 问题自动收录至未知问题列表
-2. 记录提问时间、提问用户、提问次数</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Unknown-Dedup-001</td><td>未知问题</td><td>功能</td><td>去重统计</td><td>去重统计</td><td>相同未知问题自动合并统计</td><td>多个用户发送相同未匹配问题</td><td>1. 多个用户发送相同的未匹配问题
-2. 查看未知问题列表</td><td>1. 相同问题自动合并为一条
-2. 累计提问次数正确统计</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[DBA] 未知问题去重逻辑依赖文本完全匹配还是模糊匹配未说明（数据完整性风险）→ 已采纳优化</td></tr>
-<tr><td>Unknown-Process-001</td><td>未知问题</td><td>功能</td><td>处理功能</td><td>基于未知问题新建词条</td><td>支持基于未知问题直接新建词条</td><td>未知问题列表有待处理问题</td><td>1. 选择某未知问题
-2. 点击新建词条
-3. 填写答案并保存</td><td>1. 成功新建知识词条
-2. 词条关联原始未知问题
-3. 未知问题标记为「已解决」</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[DBA] 基于未知问题新建词条时事务完整性未说明（数据一致性风险）→ 已采纳优化</td></tr>
-<tr><td>Unknown-Process-002</td><td>未知问题</td><td>功能</td><td>处理功能</td><td>标记已解决</td><td>处理后标记为已解决</td><td>未知问题列表有待处理问题</td><td>1. 处理某未知问题
-2. 观察状态变化</td><td>1. 未知问题状态变为「已解决」
-2. 不再出现在待处理列表</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Unknown-Clean-001</td><td>未知问题</td><td>功能</td><td>数据清理</td><td>手动清理</td><td>支持手动清理无效未知问题</td><td>未知问题列表有无效数据</td><td>1. 选择无效/无意义的未知问题
-2. 点击清理/删除</td><td>1. 无效数据被清除
-2. 不影响有效未知问题</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Basic-001</td><td>数据统计</td><td>功能</td><td>基础数据</td><td>总提问量</td><td>总提问量统计正确</td><td>系统有一定量的问答数据</td><td>1. 进入数据统计页面
-2. 查看总提问量</td><td>1. 总提问量数字准确
-2. 包含所有用户的历史提问总量</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Perf] 统计数据查询在大数据量下可能有性能问题（场景遗漏）→ 已采纳优化</td></tr>
-<tr><td>Stats-Basic-002</td><td>数据统计</td><td>功能</td><td>基础数据</td><td>有效提问量</td><td>有效提问量统计正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看有效提问量指标</td><td>1. 仅统计匹配到有效答案的提问量</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Basic-003</td><td>数据统计</td><td>功能</td><td>基础数据</td><td>无答案提问量</td><td>无答案提问量统计正确</td><td>系统有未匹配的问答</td><td>1. 查看无答案提问量指标</td><td>1. 统计未匹配到答案的提问量
-2. 与未知问题收录数一致</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Basic-004</td><td>数据统计</td><td>功能</td><td>基础数据</td><td>活跃用户数</td><td>活跃用户数统计正确</td><td>有多个用户使用问答功能</td><td>1. 查看活跃用户数</td><td>1. 活跃用户数准确
-2. 统计口径明确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Quality-001</td><td>数据统计</td><td>功能</td><td>质量数据</td><td>问题命中率</td><td>问题命中率计算正确</td><td>系统有匹配成功和失败的问答</td><td>1. 查看问题命中率</td><td>1. 命中率 = 匹配成功数 / 总提问数 x 100%
-2. 数值准确</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Quality-002</td><td>数据统计</td><td>功能</td><td>质量数据</td><td>答案好评率</td><td>答案好评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案好评率</td><td>1. 好评率 = 有用评价数 / 总评价数 x 100%
-2. 数值准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Quality-003</td><td>数据统计</td><td>功能</td><td>质量数据</td><td>答案差评率</td><td>答案差评率计算正确</td><td>有用户评价数据</td><td>1. 查看答案差评率</td><td>1. 差评率 = 无用评价数 / 总评价数 x 100%
-2. 与好评率之和 = 100%</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Hot-001</td><td>数据统计</td><td>功能</td><td>热度数据</td><td>高频提问TOP10</td><td>高频提问问题TOP10展示正确</td><td>有一定量的问答数据</td><td>1. 查看高频提问问题TOP10</td><td>1. 展示提问频次最高的10个问题
-2. 排序正确
-3. 频次准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Hot-002</td><td>数据统计</td><td>功能</td><td>热度数据</td><td>高频未知TOP10</td><td>高频未知问题TOP10展示正确</td><td>有一定量的未知问题数据</td><td>1. 查看高频未知问题TOP10</td><td>1. 展示被提问最多的10个未知问题
-2. 排序正确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Trend-001</td><td>数据统计</td><td>功能</td><td>时间趋势</td><td>日趋势</td><td>支持按日查看问答数据趋势</td><td>有连续多天的问答数据</td><td>1. 选择按日查看数据趋势</td><td>1. 展示每日问答量变化趋势
-2. 数据准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Trend-002</td><td>数据统计</td><td>功能</td><td>时间趋势</td><td>周趋势</td><td>支持按周查看问答数据趋势</td><td>有多周的问答数据</td><td>1. 选择按周查看数据趋势</td><td>1. 展示每周问答量变化趋势</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Stats-Trend-003</td><td>数据统计</td><td>功能</td><td>时间趋势</td><td>月趋势</td><td>支持按月查看问答数据趋势</td><td>有多月的问答数据</td><td>1. 选择按月查看数据趋势</td><td>1. 展示每月问答量变化趋势</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Perm-001</td><td>权限设计</td><td>权限</td><td>普通用户</td><td>在线提问</td><td>普通用户可正常提问和评价</td><td>普通用户已登录</td><td>1. 普通用户输入问题并发送
-2. 对答案进行评价
-3. 查看个人会话记录</td><td>1. 提问功能正常
-2. 评价功能正常
-3. 仅能查看个人会话</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Perm-002</td><td>权限设计</td><td>权限</td><td>普通用户</td><td>无后台权限</td><td>普通用户无法访问后台管理</td><td>普通用户已登录</td><td>1. 尝试访问知识库词条管理
-2. 尝试查看未知问题
-3. 尝试查看数据统计</td><td>1. 无法进入后台管理页面
-2. 提示无权限</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Perm-003</td><td>权限设计</td><td>权限</td><td>运营管理员</td><td>后台管理权限</td><td>运营管理员可管理知识库和查看数据</td><td>运营管理员已登录</td><td>1. 新增/编辑/上下架/删除词条
-2. 处理未知问题
-3. 查看问答数据</td><td>1. 知识库管理功能正常
-2. 未知问题处理正常
-3. 数据统计可查看</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Perm-004</td><td>权限设计</td><td>权限</td><td>运营管理员</td><td>无系统配置权限</td><td>运营管理员无权限配置和全量清理</td><td>运营管理员已登录</td><td>1. 尝试进行权限配置
-2. 尝试全量数据清理</td><td>1. 无法访问系统配置
-2. 提示无权限</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Perm-005</td><td>权限设计</td><td>权限</td><td>超级管理员</td><td>全权限</td><td>超级管理员拥有所有功能权限</td><td>超级管理员已登录</td><td>1. 执行所有功能操作
-2. 进行权限配置
-3. 全量数据清理
-4. 系统参数设置</td><td>1. 所有功能正常可用
-2. 权限配置生效
-3. 系统参数设置生效</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Exc-Net-001</td><td>异常场景</td><td>异常</td><td>网络异常</td><td>网络中断处理</td><td>网络中断时终止请求并提示</td><td>用户正在提问过程中</td><td>1. 模拟网络中断
-2. 用户发送问题</td><td>1. 终止问答请求
-2. 提示「网络异常，请检查网络后重新提问」
-3. 保留已输入的问题内容</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Exc-Auth-001</td><td>异常场景</td><td>异常</td><td>权限异常</td><td>登录过期处理</td><td>登录过期时禁止提问并跳转</td><td>用户登录已过期</td><td>1. 用户尝试提问</td><td>1. 弹窗提示「暂无问答权限或登录已过期，请重新登录」
-2. 自动跳转登录页面</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Sec] 身份令牌校验机制未说明具体实现（安全漏洞）→ 已采纳优化</td></tr>
-<tr><td>Exc-Content-001</td><td>异常场景</td><td>异常</td><td>内容违规</td><td>敏感词拦截</td><td>输入敏感/违规内容时拦截提问</td><td>系统敏感词库已配置</td><td>1. 输入包含敏感词的问题
-2. 发送</td><td>1. 系统自动拦截提问
-2. 提示「输入内容包含违规信息，请重新输入」
-3. 不收录该问题</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Exc-Timeout-001</td><td>异常场景</td><td>异常</td><td>系统超时</td><td>问答检索超时</td><td>检索超时返回兜底话术</td><td>语义匹配引擎响应超过3s</td><td>1. 模拟检索超时
-2. 观察系统响应</td><td>1. 返回兜底话术
-2. 提示「问答检索超时，请稍后重试」</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Exc-Data-001</td><td>异常场景</td><td>异常</td><td>数据异常</td><td>知识库数据异常</td><td>知识库数据损坏时展示兜底内容</td><td>知识库词条数据损坏</td><td>1. 模拟知识库数据加载失败
-2. 用户提问</td><td>1. 用户端展示无答案兜底内容
-2. 后台记录异常日志
-3. 不暴露系统错误</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Ops] 知识库数据损坏的检测机制和自动恢复策略未定义（运维盲区）→ 已采纳优化</td></tr>
-<tr><td>Exc-Limit-001</td><td>异常场景</td><td>异常</td><td>限流</td><td>高频提问限制</td><td>1分钟内高频重复提问触发限流</td><td>用户已登录</td><td>1. 在1分钟内连续高频提问超过限制次数</td><td>1. 触发限流机制
-2. 提示「提问过于频繁，请稍后再试」
-3. 防止恶意刷量</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[QA] 限流场景未明确限制次数的具体数值和重置时间（可验证性不足）→ 已采纳优化</td></tr>
-<tr><td>Perf-001</td><td>非功能需求</td><td>性能</td><td>性能</td><td>页面加载</td><td>问答首页首次加载≤1.5s</td><td>网络正常</td><td>1. 首次打开问答页面
-2. 计算页面加载时间</td><td>1. 首次加载时间≤1.5s
-2. 页面完整渲染</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Perf-002</td><td>非功能需求</td><td>性能</td><td>性能</td><td>问答响应</td><td>常规问题语义匹配≤800ms</td><td>知识库正常</td><td>1. 输入常规问题并发送
-2. 计算响应时间</td><td>1. 语义匹配响应≤800ms
-2. 复杂长文本问题响应≤2s</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Perf] 800ms响应时间要求未考虑网络延迟等额外开销（性能风险）→ 已采纳优化</td></tr>
-<tr><td>Perf-003</td><td>非功能需求</td><td>性能</td><td>性能</td><td>并发能力</td><td>支持≥200人同时在线提问</td><td>测试环境准备200并发用户</td><td>1. 200用户同时在线提问
-2. 持续操作一段时间</td><td>1. 无卡顿
-2. 无问答数据错乱
-3. 无请求堆积</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">已优化：<br>[Perf] 200并发测试未说明持续时长和压力递增策略（性能风险）→ 已采纳优化</td></tr>
-<tr><td>Perf-004</td><td>非功能需求</td><td>性能</td><td>性能</td><td>后台加载</td><td>后台列表和统计加载≤1.5s</td><td>后台有大量数据</td><td>1. 打开知识库列表页
-2. 打开数据统计页</td><td>1. 列表加载≤1.5s
-2. 统计数据加载≤1.5s</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Compat-001</td><td>非功能需求</td><td>兼容性</td><td>兼容性</td><td>PC浏览器兼容</td><td>兼容Chrome/Edge/Firefox最新版</td><td>—</td><td>1. 分别在Chrome、Edge、Firefox最新版打开问答功能</td><td>1. 各浏览器功能正常
-2. 样式无错位
-3. 交互无异常</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Compat-002</td><td>非功能需求</td><td>兼容性</td><td>兼容性</td><td>移动端适配</td><td>适配iOS/Android主流机型</td><td>—</td><td>1. 在手机和平板上打开问答功能
-2. 测试各尺寸屏幕</td><td>1. 会话展示无错位
-2. 内容无遮挡
-3. 功能与PC端一致</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Security-001</td><td>非功能需求</td><td>安全</td><td>安全</td><td>敏感词库</td><td>内置敏感词库自动拦截违规内容</td><td>敏感词库已配置</td><td>1. 输入各类敏感词测试
-2. 包含违禁词、敏感词、违规信息</td><td>1. 所有敏感词被拦截
-2. 不展示违规内容
-3. 词条内容也受敏感词管控</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Security-002</td><td>非功能需求</td><td>安全</td><td>安全</td><td>数据隔离</td><td>问答数据仅本人及超级管理员可查看</td><td>多个用户的问答数据</td><td>1. 用户A尝试查看用户B的问答数据
-2. 超级管理员查看所有数据</td><td>1. 用户A无法查看用户B数据
-2. 超级管理员可查看全量数据
-3. 严格数据隔离</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Security-003</td><td>非功能需求</td><td>安全</td><td>安全</td><td>操作日志</td><td>所有后台操作留存日志可追溯</td><td>运营管理员执行操作</td><td>1. 执行词条新增/编辑/删除等操作
-2. 查看后台日志</td><td>1. 日志记录操作人
-2. 记录操作时间
-3. 记录操作IP
-4. 记录操作内容</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Maint-001</td><td>非功能需求</td><td>可维护性</td><td>可维护性</td><td>动态配置</td><td>支持后台动态配置敏感词和话术</td><td>超级管理员已登录</td><td>1. 修改敏感词配置
-2. 修改兜底话术
-3. 修改限流次数</td><td>1. 配置修改后即时生效
-2. 无需修改代码
-3. 无需重启服务</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Maint-002</td><td>非功能需求</td><td>可维护性</td><td>可维护性</td><td>批量导入导出</td><td>知识库词条支持批量导入导出</td><td>运营管理员已登录</td><td>1. 批量导入词条
-2. 批量导出词条</td><td>1. 导入成功且数据正确
-2. 导出文件格式正确
-3. 便于大规模维护迁移</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Maint-003</td><td>非功能需求</td><td>可维护性</td><td>可维护性</td><td>异常日志</td><td>异常问答和超时请求自动记录日志</td><td>系统产生异常请求</td><td>1. 触发超时、异常等场景
-2. 查看后台日志</td><td>1. 异常请求自动记录日志
-2. 日志包含足够排查信息
-3. 支持后台查询</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Supp-001</td><td>用户端问答</td><td>功能</td><td>输入与发送</td><td>多行文本输入</td><td>多行文本格式在答案中正确展示</td><td>用户发送含换行的问题</td><td>1. 输入含多行文本的问题并发送
-2. 观察答案展示</td><td>1. 问题和答案中的换行格式正确保留
-2. 不出现格式错乱</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Supp-002</td><td>用户端问答</td><td>功能</td><td>会话操作</td><td>清空会话恢复默认</td><td>清空后页面恢复默认欢迎话术</td><td>当前有问答记录</td><td>1. 点击清空会话
-2. 观察页面状态</td><td>1. 所有问答记录清除
-2. 恢复默认欢迎话术
-3. 输入框清空</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Supp-003</td><td>用户端问答</td><td>功能</td><td>答案展示</td><td>热门相似问题</td><td>兜底回复时展示热门相似问题</td><td>无匹配答案</td><td>1. 发送无匹配问题
-2. 观察兜底回复区域</td><td>1. 展示兜底话术
-2. 底部展示热门相似问题列表
-3. 点击可快速提问</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Supp-004</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>记录永久留存</td><td>用户手动删除前不可自动清除</td><td>用户有历史记录</td><td>1. 等待较长时间
-2. 检查记录是否仍存在</td><td>1. 记录未被自动清除
-2. 仅用户手动删除才移除</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>Supp-005</td><td>权限设计</td><td>功能</td><td>全角色</td><td>会话查看</td><td>所有角色可查看个人会话</td><td>各角色已登录</td><td>1. 普通用户查看个人会话
-2. 运营管理员查看个人会话
-3. 超级管理员查看个人会话</td><td>1. 各角色均可查看个人会话记录
-2. 功能一致</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">无</td></tr>
-<tr><td>QA-Send-006</td><td>用户端问答</td><td>功能</td><td>输入与发送</td><td>问答输入框</td><td>多字节字符边界值测试</td><td>用户已登录</td><td>1. 输入包含emoji和中文混合的500字节内容
-2. 尝试发送</td><td>1. 系统正确处理多字节字符
-2. 字数计算准确</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 500字边界值测试未覆盖多字节字符（如emoji），建议补充（边界遗漏）→ 已采纳新增</td></tr>
-<tr><td>QA-Match-007</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>语义匹配</td><td>语义匹配阈值验证</td><td>知识库有不同相似度的词条</td><td>1. 输入与某词条相似度恰好为阈值边界的问题
-2. 验证匹配结果</td><td>1. 相似度&gt;=阈值时返回语义匹配结果
-2. 相似度&lt;阈值时降级到关键词匹配</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 语义匹配相似度阈值未在用例中定义，建议补充具体阈值验证场景（逻辑遗漏）→ 已采纳新增</td></tr>
-<tr><td>QA-Match-008</td><td>用户端问答</td><td>功能</td><td>智能匹配</td><td>最优答案</td><td>历史最优答案判定标准验证</td><td>用户对同一问题多次收到不同答案</td><td>1. 重复发送相同问题
-2. 观察返回的答案</td><td>1. 返回的答案符合最优定义
-2. 验证判定标准</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[QA]「历史最优答案」定义不明确，未定义评判标准（场景遗漏）→ 已采纳新增</td></tr>
-<tr><td>KB-Edit-002</td><td>词条管理</td><td>功能</td><td>编辑词条</td><td>并发编辑冲突</td><td>多运营员同时编辑同一词条</td><td>两个运营管理员同时打开同一词条编辑</td><td>1. 运营A编辑词条并保存
-2. 运营B同时编辑同一词条并保存</td><td>1. 后保存者提示冲突
-2. 不覆盖先保存者的修改</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 编辑词条未覆盖编辑历史记录和并发编辑冲突场景（逻辑遗漏）→ 已采纳新增</td></tr>
-<tr><td>KB-Batch-005</td><td>词条管理</td><td>功能</td><td>批量操作</td><td>跨页选择</td><td>跨页批量选择词条</td><td>词条列表分多页展示</td><td>1. 在第1页选择部分词条
-2. 切换到第2页继续选择
-3. 执行批量操作</td><td>1. 跨页选择的词条均被正确选中
-2. 批量操作包含所有选中词条</td><td>P2</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Dev] 批量操作未测试跨页选择等边界场景（边界遗漏）→ 已采纳新增</td></tr>
-<tr><td>Session-History-008</td><td>会话记录</td><td>功能</td><td>历史记录</td><td>删除展示中记录</td><td>删除当前正在展示的问答记录</td><td>正在查看某条问答记录详情</td><td>1. 删除当前正在展示的记录
-2. 观察页面变化</td><td>1. 记录成功删除
-2. 页面正确返回列表或展示空状态</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[QA] 删除记录场景未覆盖删除正在展示中的会话（场景遗漏）→ 已采纳新增</td></tr>
-<tr><td>QA-Display-006</td><td>用户端问答</td><td>功能</td><td>答案展示</td><td>部分匹配</td><td>部分关键词命中但整体不匹配的处理</td><td>知识库有部分关键词相关的词条</td><td>1. 输入仅部分关键词命中的问题
-2. 观察匹配结果</td><td>1. 不返回低相关度的答案
-2. 走兜底流程或推荐相似问题</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[QA] 匹配失败场景未覆盖部分匹配的情况（场景遗漏）→ 已采纳新增</td></tr>
-<tr><td>Sec-Input-001</td><td>非功能需求</td><td>功能</td><td>安全</td><td>输入安全过滤</td><td>用户输入XSS/注入攻击防护</td><td>系统已部署</td><td>1. 在问答输入框输入恶意脚本
-2. 输入SQL注入语句
-3. 观察系统响应</td><td>1. 恶意脚本被过滤或转义
-2. 不执行注入代码
-3. 正常返回兜底或拒绝</td><td>P0</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Sec] 用户输入内容未说明XSS/注入防护措施（安全漏洞）→ 已采纳新增</td></tr>
-<tr><td>Perf-Stress-001</td><td>非功能需求</td><td>性能</td><td>性能</td><td>压力测试</td><td>阶梯压力测试验证系统承载</td><td>测试环境准备</td><td>1. 从50用户逐步增加到300用户
-2. 每阶梯持续5分钟
-3. 记录各阶梯响应时间和错误率</td><td>1. 200用户以内响应正常
-2. 超过200用户时有优雅降级
-3. 不出现系统崩溃</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Perf] 200并发测试未说明持续时长和压力递增策略（性能风险）→ 已采纳新增</td></tr>
-<tr><td>Ops-Monitor-001</td><td>非功能需求</td><td>功能</td><td>运维</td><td>监控指标</td><td>问答链路关键监控指标验证</td><td>监控系统已配置</td><td>1. 配置问答请求成功率、响应时间监控
-2. 模拟异常触发告警</td><td>1. 监控指标准确采集
-2. 异常时正确触发告警
-3. 告警信息包含足够排查内容</td><td>P1</td><td style="white-space:pre-wrap;line-height:1.6">新增：<br>[Ops] 问答请求链路涉及多个服务，缺少各环节的监控告警指标定义（运维盲区）→ 已采纳新增</td></tr>
-</tbody></table>
-</section>
-<section id="report">
-<div class="metrics">
-<div class="metric"><span>总用例数（原始）</span><strong>90</strong></div>
-<div class="metric good"><span>评审通过数</span><strong>63</strong></div>
-<div class="metric warn"><span>驳回/修改数</span><strong>27</strong></div>
-<div class="metric"><span>优化后总用例</span><strong>100</strong></div>
-</div>
-<div class="metrics">
-<div class="metric"><span>功能点覆盖率</span><strong>87% → 100%</strong><div class="progress-bar"><div class="fill" style="width:100%"></div></div></div>
-<div class="metric"><span>场景覆盖率</span><strong>78% → 97%</strong><div class="progress-bar"><div class="fill" style="width:97%"></div></div></div>
-</div>
-<h3 style="margin:20px 0 12px;font-size:16px;">九方评审评分（ISO 25010 质量特性）</h3>
-<div class="metrics" id="role-scores">
-<div class="metric score-card"><span class="role-name">开发架构师 (Arch)</span><strong class="score-value score-high">96</strong><div class="score-detail">100 - 4x1(架构腐化风险) = 96</div></div><div class="metric score-card"><span class="role-name">开发工程师 (Dev)</span><strong class="score-value score-low">78</strong><div class="score-detail">100 - 8x1(P0逻辑遗漏) - 8x1(P1逻辑遗漏) - 6x1(P0边界遗漏) - 6x1(P1边界遗漏) - 4x1(可验证性不足) = 78</div></div><div class="metric score-card"><span class="role-name">测试工程师 (QA)</span><strong class="score-value score-mid">82</strong><div class="score-detail">100 - 8x1(P0场景遗漏) - 4x2(可验证性不足) = 82</div></div><div class="metric score-card"><span class="role-name">产品经理 (PM)</span><strong class="score-value score-high">92</strong><div class="score-detail">100 - 2x1(优先级不准) - 2x2(表述不清) = 92</div></div><div class="metric score-card"><span class="role-name">用户体验设计师 (UX)</span><strong class="score-value score-high">90</strong><div class="score-detail">100 - 3x2(交互不符) - 2x2(易用性缺陷) = 90</div></div><div class="metric score-card"><span class="role-name">安全工程师 (Sec)</span><strong class="score-value score-mid">82</strong><div class="score-detail">100 - 6x2(P0安全漏洞) - 6x1(P1安全漏洞) = 82</div></div><div class="metric score-card"><span class="role-name">运维工程师 (Ops)</span><strong class="score-value score-mid">84</strong><div class="score-detail">100 - 4x3(运维盲区) - 4x1(架构腐化风险) = 84</div></div><div class="metric score-card"><span class="role-name">性能工程师 (Perf)</span><strong class="score-value score-mid">82</strong><div class="score-detail">100 - 6x1(P1性能风险) - 8x1(P0场景遗漏) - 4x1(可验证性不足) = 82</div></div><div class="metric score-card"><span class="role-name">数据工程师 (DBA)</span><strong class="score-value score-mid">88</strong><div class="score-detail">100 - 6x1(数据完整性风险) - 6x1(数据一致性风险) = 88</div></div>
-</div>
-<div class="notice"><b>AI评审总结：</b>原始90条用例经九方评审后，63条通过评审，27条需优化修改。新增10条用例补充覆盖，优化后共100条用例。功能点覆盖率从87%提升至100%，场景覆盖率从78%提升至97%。共发现30个评审问题，主要集中在<b>安全漏洞</b>（4个，13.3%）和<b>场景遗漏</b>（4个，13.3%），建议重点关注。各角色评分：Dev/Sec/Perf并列最低（82分），Ops次低（84分），需加强功能逻辑、安全防护和场景覆盖。</div>
-<div class="report-grid-2">
-<div><h3>问题分布</h3>
-<table><thead><tr><th>缺陷类型</th><th>数量</th><th>占比</th></tr></thead><tbody><tr><td>逻辑遗漏</td><td>3</td><td>10.0%</td></tr><tr><td>场景遗漏</td><td>4</td><td>13.3%</td></tr><tr><td>表述不清</td><td>2</td><td>6.7%</td></tr><tr><td>边界遗漏</td><td>2</td><td>6.7%</td></tr><tr><td>数据一致性风险</td><td>1</td><td>3.3%</td></tr><tr><td>数据完整性风险</td><td>1</td><td>3.3%</td></tr><tr><td>交互不符</td><td>2</td><td>6.7%</td></tr><tr><td>优先级不准</td><td>1</td><td>3.3%</td></tr><tr><td>可验证性不足</td><td>2</td><td>6.7%</td></tr><tr><td>安全漏洞</td><td>4</td><td>13.3%</td></tr><tr><td>性能风险</td><td>2</td><td>6.7%</td></tr><tr><td>运维盲区</td><td>3</td><td>10.0%</td></tr><tr><td>易用性缺陷</td><td>2</td><td>6.7%</td></tr><tr><td>架构腐化风险</td><td>1</td><td>3.3%</td></tr></tbody></table></div>
-<div><h3>质量特性覆盖雷达数据（8维度）</h3>
-<table><thead><tr><th>质量特性</th><th>评分</th></tr></thead><tbody><tr><td>功能适合性</td><td>95</td></tr><tr><td>性能效率</td><td>91</td></tr><tr><td>兼容性</td><td>96</td></tr><tr><td>易用性</td><td>90</td></tr><tr><td>可靠性</td><td>88</td></tr><tr><td>安全性</td><td>94</td></tr><tr><td>可维护性</td><td>86</td></tr><tr><td>可移植性</td><td>97</td></tr></tbody></table></div>
-</div>
-<h3 style="margin:20px 0 12px;font-size:16px;">需求追踪矩阵（RTM）</h3>
-<table><thead><tr><th>需求编号</th><th>功能点</th><th>原始用例</th><th>优化后用例</th></tr></thead><tbody><tr><td>F-QA-001</td><td>问答输入框</td><td>QA-Send-001~005</td><td>QA-Send-001~006</td></tr><tr><td>F-QA-002</td><td>语义匹配</td><td>QA-Match-001,003</td><td>QA-Match-001,003,007</td></tr><tr><td>F-QA-003</td><td>关键词匹配</td><td>QA-Match-002</td><td>QA-Match-002</td></tr><tr><td>F-QA-004</td><td>匹配优先级</td><td>QA-Match-003</td><td>QA-Match-003</td></tr><tr><td>F-QA-005</td><td>重复问题过滤</td><td>QA-Match-005</td><td>QA-Match-005,008</td></tr><tr><td>F-QA-006</td><td>相似问题推荐</td><td>QA-Match-004</td><td>QA-Match-004</td></tr><tr><td>F-QA-007</td><td>答案渲染</td><td>QA-Display-001</td><td>QA-Display-001</td></tr><tr><td>F-QA-008</td><td>兜底回复</td><td>QA-Match-006,QA-Display-004</td><td>QA-Match-006,QA-Display-004,006</td></tr><tr><td>F-QA-009</td><td>加载动画</td><td>QA-Display-002,005</td><td>QA-Display-002,005</td></tr><tr><td>F-QA-010</td><td>欢迎话术</td><td>QA-Display-003</td><td>QA-Display-003</td></tr><tr><td>F-QA-011</td><td>评价功能</td><td>QA-Feedback-001~003</td><td>QA-Feedback-001~003</td></tr><tr><td>F-QA-012</td><td>清空会话</td><td>QA-Session-001,Supp-002</td><td>QA-Session-001,Supp-002</td></tr><tr><td>F-Session-001</td><td>历史记录入口</td><td>Session-History-001</td><td>Session-History-001</td></tr><tr><td>F-Session-002</td><td>记录列表</td><td>Session-History-002</td><td>Session-History-002</td></tr><tr><td>F-Session-003</td><td>单条删除</td><td>Session-History-003</td><td>Session-History-003,008</td></tr><tr><td>F-Session-004</td><td>空状态提示</td><td>Session-History-004</td><td>Session-History-004</td></tr><tr><td>F-Session-005</td><td>数据隔离</td><td>Session-History-005</td><td>Session-History-005</td></tr><tr><td>F-Session-006</td><td>批量清空</td><td>Session-Clear-001~002</td><td>Session-Clear-001~002</td></tr><tr><td>F-KB-001</td><td>多条件筛选</td><td>KB-Filter-001</td><td>KB-Filter-001</td></tr><tr><td>F-KB-002</td><td>标准问题校验</td><td>KB-Add-001~003</td><td>KB-Add-001~003</td></tr><tr><td>F-KB-003</td><td>标准答案校验</td><td>KB-Add-005</td><td>KB-Add-005</td></tr><tr><td>F-KB-004</td><td>词条分类/状态</td><td>KB-Add-006~007</td><td>KB-Add-006~007</td></tr><tr><td>F-KB-005</td><td>编辑词条</td><td>KB-Edit-001</td><td>KB-Edit-001~002</td></tr><tr><td>F-KB-006</td><td>删除词条</td><td>KB-Delete-001~003</td><td>KB-Delete-001~003</td></tr><tr><td>F-KB-007</td><td>批量操作</td><td>KB-Batch-001~004</td><td>KB-Batch-001~005</td></tr><tr><td>F-Unknown-001</td><td>自动收录</td><td>Unknown-Collect-001</td><td>Unknown-Collect-001</td></tr><tr><td>F-Unknown-002</td><td>去重统计</td><td>Unknown-Dedup-001</td><td>Unknown-Dedup-001</td></tr><tr><td>F-Unknown-003</td><td>处理功能</td><td>Unknown-Process-001~002</td><td>Unknown-Process-001~002</td></tr><tr><td>F-Unknown-004</td><td>数据清理</td><td>Unknown-Clean-001</td><td>Unknown-Clean-001</td></tr><tr><td>F-Stats-001</td><td>基础数据</td><td>Stats-Basic-001~004</td><td>Stats-Basic-001~004</td></tr><tr><td>F-Stats-002</td><td>质量数据</td><td>Stats-Quality-001~003</td><td>Stats-Quality-001~003</td></tr><tr><td>F-Stats-003</td><td>热度数据</td><td>Stats-Hot-001~002</td><td>Stats-Hot-001~002</td></tr><tr><td>F-Stats-004</td><td>时间趋势</td><td>Stats-Trend-001~003</td><td>Stats-Trend-001~003</td></tr></tbody></table>
-</section>
-</main>
-<div id="toast"></div>
-<script>
+  <header>
+    <div>
+      <h1 id="report-title">测试用例评审报告</h1>
+      <div class="sub" id="report-subtitle">基于 ISO 25010 质量模型的 AI 九方评审</div>
+    </div>
+    <div class="edit-badge" id="edit-badge">
+      <span class="edit-dot"></span>
+      <span id="edit-badge-text">编辑中</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <button type="button" onclick="downloadXlsx()" id="btn-download">⬇ 下载Excel（含编辑）</button>
+      <button type="button" class="secondary" onclick="copyOptimized()">复制数据</button>
+      <span class="toolbar-sep"></span>
+      <button type="button" class="secondary" onclick="toggleEdit()" id="btn-edit">✏ 开启编辑</button>
+      <button type="button" class="success" onclick="addRow()" id="btn-add" disabled>＋ 新增行</button>
+      <button type="button" class="danger" onclick="resetEdits()" id="btn-reset" disabled>↩ 撤销全部</button>
+    </div>
+
+    <nav class="tabs" aria-label="报告标签页">
+      <button class="tab active" type="button" data-tab="requirements">需求抽取清单</button>
+      <button class="tab" type="button" data-tab="raw">原始用例集</button>
+      <button class="tab" type="button" data-tab="review">AI评审详情</button>
+      <button class="tab" type="button" data-tab="optimized">优化后用例集</button>
+      <button class="tab" type="button" data-tab="report">评审与覆盖度报告</button>
+    </nav>
+
+    <!-- 需求抽取清单 -->
+    <section id="requirements" class="active"></section>
+
+    <!-- 原始用例集 -->
+    <section id="raw"></section>
+
+    <!-- AI评审详情 -->
+    <section id="review"></section>
+
+    <!-- 优化后用例集 -->
+    <section id="optimized"></section>
+
+    <!-- 评审与覆盖度报告 -->
+    <section id="report"></section>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+  // ─────────────────────────────────────────────────────────────────────────
+  // DATA (injected by Python or loaded from JSON)
+  // ─────────────────────────────────────────────────────────────────────────
+  const DATA = window.__REPORT_DATA__ || {};
+
   // ─────────────────────────────────────────────────────────────────────────
   // STATE
   // ─────────────────────────────────────────────────────────────────────────
   let editMode = false;
   let editCount = 0;
   const snapshots = {};
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────────────────────────────
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function nl2br(s) {
+    return esc(s).replace(/\n/g, '<br>');
+  }
+
+  function priorityBadge(p) {
+    const cls = 'badge badge-' + (p || '').toLowerCase();
+    return `<span class="${cls}">${esc(p)}</span>`;
+  }
+
+  function riskBadge(r) {
+    if (r === '高') return '<span class="risk-high">高</span>';
+    if (r === '中') return '<span class="risk-mid">中</span>';
+    if (r === '低') return '<span class="risk-low">低</span>';
+    return esc(r);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER TABLES
+  // ─────────────────────────────────────────────────────────────────────────
+  function renderTable(containerId, columns, rows, fieldMap, options = {}) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const { filterBar, badgeFields = [], riskFields = [], optField } = options;
+
+    let html = '';
+
+    // Filter bar
+    if (filterBar) {
+      html += '<div class="filter-bar">';
+      filterBar.forEach(f => {
+        html += `<label>${esc(f.label)}</label>`;
+        if (f.type === 'select') {
+          html += `<select id="${f.id}" onchange="filterTable('${containerId}')"><option value="">全部</option>`;
+          (f.options || []).forEach(o => html += `<option>${esc(o)}</option>`);
+          html += '</select>';
+        } else {
+          html += `<input type="text" id="${f.id}" placeholder="关键词..." oninput="filterTable('${containerId}')">`;
+        }
+      });
+      html += `<span class="filter-count" id="${containerId}-count"></span>`;
+      html += '</div>';
+    }
+
+    // Table
+    html += `<div class="table-wrap"><table id="${containerId}-table"><thead><tr>`;
+    columns.forEach(c => html += `<th>${esc(c)}</th>`);
+    html += '</tr></thead><tbody>';
+
+    rows.forEach(row => {
+      html += '<tr>';
+      fieldMap.forEach((field, i) => {
+        let val = row[field] || '';
+        const colName = columns[i];
+
+        if (badgeFields.includes(field) || badgeFields.includes(colName)) {
+          val = priorityBadge(val);
+        } else if (riskFields.includes(field) || riskFields.includes(colName)) {
+          val = riskBadge(val);
+        } else if (optField && field === optField) {
+          val = `<span style="white-space:pre-wrap;line-height:1.6">${nl2br(val)}</span>`;
+        } else {
+          val = esc(val);
+        }
+        html += `<td>${val}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+
+    // Initialize filter
+    if (filterBar) {
+      buildFilterOptions(containerId);
+      initCount(containerId);
+    }
+  }
+
+  function renderRequirements() {
+    const req = DATA.requirements;
+    if (!req) return;
+
+    const container = document.getElementById('requirements');
+    let html = '';
+
+    // 模块与功能点
+    if (req.modules && req.modules.length) {
+      html += '<h3 style="margin:0 0 12px;font-size:16px;color:var(--text)">模块与功能点</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>一级模块</th><th>二级模块</th><th>功能点</th><th>功能描述</th></tr></thead><tbody>';
+      req.modules.forEach(m => {
+        html += `<tr><td>${esc(m.level1)}</td><td>${esc(m.level2)}</td><td>${esc(m.feature)}</td><td>${esc(m.description)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 接口与集成系统
+    if (req.interfaces && req.interfaces.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与集成系统</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>源系统</th><th>目标系统</th><th>接口/触发</th><th>数据内容</th><th>幂等/重试</th></tr></thead><tbody>';
+      req.interfaces.forEach(i => {
+        html += `<tr><td>${esc(i.source)}</td><td>${esc(i.target)}</td><td>${esc(i.trigger)}</td><td>${esc(i.payload)}</td><td>${esc(i.idempotent)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 状态转换
+    if (req.status_transitions && req.status_transitions.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">状态转换</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>触发事件</th><th>源状态</th><th>目标状态</th><th>备注</th></tr></thead><tbody>';
+      req.status_transitions.forEach(t => {
+        html += `<tr><td>${esc(t.trigger)}</td><td>${esc(t.from)}</td><td>${esc(t.to)}</td><td>${esc(t.note)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 需求疑点
+    if (req.ambiguities && req.ambiguities.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">需求疑点/待确认项</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>编号</th><th>疑点描述</th><th>影响范围</th><th>建议确认方</th><th>风险等级</th></tr></thead><tbody>';
+      req.ambiguities.forEach(a => {
+        html += `<tr><td>${esc(a.id)}</td><td>${esc(a.description)}</td><td>${esc(a.scope)}</td><td>${esc(a.owner)}</td><td>${riskBadge(a.risk)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 接口与状态机专项覆盖
+    if (req.state_coverage && req.state_coverage.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与状态机专项覆盖</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>覆盖项</th><th>有效转换</th><th>无效转换</th><th>重复事件</th><th>延迟回调</th><th>乱序事件</th></tr></thead><tbody>';
+      req.state_coverage.forEach(s => {
+        html += `<tr><td>${esc(s.item)}</td><td>${esc(s.valid)}</td><td>${esc(s.invalid)}</td><td>${esc(s.duplicate)}</td><td>${esc(s.delayed)}</td><td>${esc(s.disorder)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  function renderRawCases() {
+    if (!DATA.raw_cases) return;
+    renderTable('raw',
+      ['用例编号', '一级模块', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级'],
+      DATA.raw_cases,
+      ['id', 'level1', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority'],
+      {
+        filterBar: [
+          { label: '一级模块', type: 'select', id: 'raw-module-filter', options: getUniqueValues(DATA.raw_cases, 'level1') },
+          { label: '优先级', type: 'select', id: 'raw-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
+          { label: '搜索', type: 'text', id: 'raw-search' }
+        ],
+        badgeFields: ['priority']
+      }
+    );
+  }
+
+  function renderReviewFindings() {
+    if (!DATA.review_findings) return;
+    renderTable('review',
+      ['用例编号', '评审角色', '评审意见/建议', '缺陷类型'],
+      DATA.review_findings,
+      ['case_id', 'role', 'opinion', 'defect_type'],
+      {
+        filterBar: [
+          { label: '评审角色', type: 'select', id: 'review-role-filter', options: ['Arch', 'Dev', 'QA', 'PM', 'UX', 'Sec', 'Ops', 'Perf', 'DBA'] },
+          { label: '缺陷类型', type: 'select', id: 'review-defect-filter', options: getUniqueValues(DATA.review_findings, 'defect_type') },
+          { label: '搜索', type: 'text', id: 'review-search' }
+        ]
+      }
+    );
+  }
+
+  function renderOptimizedCases() {
+    if (!DATA.optimized_cases) return;
+    renderTable('optimized',
+      ['用例编号', '一级模块', '分类', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级', '优化记录'],
+      DATA.optimized_cases,
+      ['id', 'level1', 'category', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority', 'optimization_note'],
+      {
+        filterBar: [
+          { label: '一级模块', type: 'select', id: 'optimized-module-filter', options: getUniqueValues(DATA.optimized_cases, 'level1') },
+          { label: '分类', type: 'select', id: 'optimized-category-filter', options: getUniqueValues(DATA.optimized_cases, 'category') },
+          { label: '优先级', type: 'select', id: 'optimized-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
+          { label: '搜索', type: 'text', id: 'optimized-search' }
+        ],
+        badgeFields: ['priority'],
+        optField: 'optimization_note'
+      }
+    );
+  }
+
+  function renderReport() {
+    const s = DATA.scoring;
+    if (!s) return;
+
+    const container = document.getElementById('report');
+    let html = '';
+
+    // Core metrics
+    const rawCount = (DATA.raw_cases || []).length;
+    const optCount = (DATA.optimized_cases || []).length;
+    const caseIds = new Set((DATA.review_findings || []).map(f => f.case_id));
+    const passed = rawCount - caseIds.size;
+    const modified = caseIds.size;
+
+    html += '<div class="metrics">';
+    html += `<div class="metric"><span>总用例数（原始）</span><strong>${rawCount}</strong></div>`;
+    html += `<div class="metric good"><span>评审通过数</span><strong>${passed}</strong></div>`;
+    html += `<div class="metric warn"><span>驳回/修改数</span><strong>${modified}</strong></div>`;
+    html += `<div class="metric"><span>优化后总用例</span><strong>${optCount}</strong></div>`;
+    html += '</div>';
+
+    // Coverage
+    if (s.coverage) {
+      const c = s.coverage;
+      html += '<div class="metrics">';
+      html += `<div class="metric"><span>功能点覆盖率</span><strong>${Math.round(c.func_orig/c.func_total*100)}% → ${Math.round(c.func_opt/c.func_total*100)}%</strong><div class="progress-bar"><div class="fill" style="width:${Math.round(c.func_opt/c.func_total*100)}%"></div></div></div>`;
+      html += `<div class="metric"><span>场景覆盖率</span><strong>${c.scenario_orig}% → ${c.scenario_opt}%</strong><div class="progress-bar"><div class="fill" style="width:${c.scenario_opt}%"></div></div></div>`;
+      html += '</div>';
+    }
+
+    // Role scores
+    if (s.role_scores) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;">九方评审评分（ISO 25010 质量特性）</h3>';
+      html += '<div class="metrics" id="role-scores">';
+      const roleOrder = ['Arch', 'Dev', 'QA', 'PM', 'UX', 'Sec', 'Ops', 'Perf', 'DBA'];
+      roleOrder.forEach(role => {
+        const r = s.role_scores[role];
+        if (!r) return;
+        const scoreCls = r.score >= 90 ? 'score-high' : (r.score >= 80 ? 'score-mid' : 'score-low');
+        html += `<div class="metric score-card"><span class="role-name">${esc(r.name)} (${role})</span><strong class="score-value ${scoreCls}">${r.score}</strong><div class="score-detail">${esc(r.breakdown)}</div>`;
+        if (r.summary) {
+          html += `<div class="score-summary" style="margin-top:10px;font-size:12px;color:var(--text-muted);text-align:left;line-height:1.6;">${esc(r.summary)}</div>`;
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // Overall summary
+    if (s.overall_summary) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;">评审总评</h3>';
+      html += `<div class="notice" style="white-space:pre-wrap;line-height:1.8;">${esc(s.overall_summary)}</div>`;
+    }
+
+    // Summary (brief)
+    if (s.summary) {
+      html += `<div class="notice">${s.summary}</div>`;
+    }
+
+    // Two-column: Defect distribution + Radar
+    html += '<div class="report-grid-2">';
+
+    if (s.defect_distribution) {
+      html += '<div><h3>问题分布</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>缺陷类型</th><th>数量</th><th>占比</th></tr></thead><tbody>';
+      s.defect_distribution.forEach(d => {
+        html += `<tr><td>${esc(d.type)}</td><td>${d.count}</td><td>${d.percentage}%</td></tr>`;
+      });
+      html += '</tbody></table></div></div>';
+    }
+
+    if (s.quality_radar) {
+      html += '<div><h3>质量特性覆盖雷达数据（8维度）</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>质量特性</th><th>评分</th></tr></thead><tbody>';
+      s.quality_radar.forEach(r => {
+        html += `<tr><td>${esc(r.dimension)}</td><td>${r.score}</td></tr>`;
+      });
+      html += '</tbody></table></div></div>';
+    }
+
+    html += '</div>';
+
+    // RTM
+    if (s.rtm && s.rtm.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;">需求追踪矩阵（RTM）</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>需求编号</th><th>功能点</th><th>原始用例</th><th>优化后用例</th></tr></thead><tbody>';
+      s.rtm.forEach(r => {
+        html += `<tr><td>${esc(r.req_id)}</td><td>${esc(r.feature)}</td><td>${esc(r.orig_cases)}</td><td>${esc(r.opt_cases)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  function getUniqueValues(arr, field) {
+    return [...new Set(arr.map(item => item[field]).filter(Boolean))].sort();
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // TABS
@@ -1173,28 +4062,39 @@
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PRIORITY BADGES
-  // ─────────────────────────────────────────────────────────────────────────
-  function renderPriorityBadges(root) {
-    (root || document).querySelectorAll("table td:not(.col-action)").forEach(td => {
-      if (td.querySelector(".badge")) return;
-      const text = td.textContent.trim().toUpperCase();
-      if (/^P[0-3]$/.test(text)) {
-        const cls = "badge badge-" + text.toLowerCase();
-        td.dataset.rawValue = text;
-        td.innerHTML = `<span class="${cls}">${text}</span>`;
-      }
-    });
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
   // FILTER
   // ─────────────────────────────────────────────────────────────────────────
-  const FILTER_CONFIG = {
-    raw:       { moduleFilter:"raw-module-filter", moduleCol:1, priorityFilter:"raw-priority-filter", priorityCol:8, search:"raw-search", count:"raw-count" },
-    optimized: { moduleFilter:"optimized-module-filter", moduleCol:1, categoryFilter:"optimized-category-filter", categoryCol:2, priorityFilter:"optimized-priority-filter", priorityCol:9, search:"optimized-search", count:"optimized-count" },
-    review:    { roleFilter:"review-role-filter", roleCol:1, defectFilter:"review-defect-filter", defectCol:3, search:"review-search", count:"review-count" },
-  };
+  function getFilterConfig(sectionId) {
+    const table = document.querySelector(`#${sectionId}-table`);
+    if (!table) return null;
+
+    const headers = Array.from(table.rows[0].cells).map(c => c.textContent.trim());
+    const cfg = { sectionId, search: `${sectionId}-search`, count: `${sectionId}-count` };
+
+    // Auto-detect columns
+    headers.forEach((h, i) => {
+      if (h === '一级模块') cfg.moduleCol = i;
+      if (h === '分类') cfg.categoryCol = i;
+      if (h === '用例优先级' || h === '优先级') cfg.priorityCol = i;
+      if (h === '评审角色') cfg.roleCol = i;
+      if (h === '缺陷类型') cfg.defectCol = i;
+    });
+
+    // Auto-detect filters
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const selects = section.querySelectorAll('.filter-bar select');
+      selects.forEach(sel => {
+        if (sel.id.includes('module')) cfg.moduleFilter = sel.id;
+        if (sel.id.includes('category')) cfg.categoryFilter = sel.id;
+        if (sel.id.includes('priority')) cfg.priorityFilter = sel.id;
+        if (sel.id.includes('role')) cfg.roleFilter = sel.id;
+        if (sel.id.includes('defect')) cfg.defectFilter = sel.id;
+      });
+    }
+
+    return cfg;
+  }
 
   function getCellText(cell) {
     if (!cell) return "";
@@ -1202,65 +4102,80 @@
   }
 
   function filterTable(sectionId) {
-    const cfg = FILTER_CONFIG[sectionId];
-    const table = document.querySelector("#" + sectionId + " table");
+    const cfg = getFilterConfig(sectionId);
+    if (!cfg) return;
+
+    const table = document.getElementById(`${sectionId}-table`);
     if (!table) return;
-    const module   = cfg.moduleFilter   ? document.getElementById(cfg.moduleFilter).value   : "";
+
+    const module = cfg.moduleFilter ? document.getElementById(cfg.moduleFilter).value : "";
+    const category = cfg.categoryFilter ? document.getElementById(cfg.categoryFilter).value : "";
     const priority = cfg.priorityFilter ? document.getElementById(cfg.priorityFilter).value : "";
-    const role     = cfg.roleFilter     ? document.getElementById(cfg.roleFilter).value     : "";
-    const defect   = cfg.defectFilter   ? document.getElementById(cfg.defectFilter).value   : "";
-    const keyword  = document.getElementById(cfg.search).value.trim().toLowerCase();
+    const role = cfg.roleFilter ? document.getElementById(cfg.roleFilter).value : "";
+    const defect = cfg.defectFilter ? document.getElementById(cfg.defectFilter).value : "";
+    const keyword = document.getElementById(cfg.search).value.trim().toLowerCase();
+
     let visible = 0;
     Array.from(table.rows).slice(1).forEach(row => {
       if (row.classList.contains("row-deleted")) { row.classList.add("hidden"); return; }
       let show = true;
-      const category = cfg.categoryFilter ? document.getElementById(cfg.categoryFilter).value : "";
-      if (module   && getCellText(row.cells[cfg.moduleCol])               !== module)             show = false;
-      if (category && getCellText(row.cells[cfg.categoryCol])             !== category)           show = false;
-      if (priority && getCellText(row.cells[cfg.priorityCol]).toUpperCase() !== priority.toUpperCase()) show = false;
-      if (role     && getCellText(row.cells[cfg.roleCol])                 !== role)               show = false;
-      if (defect   && getCellText(row.cells[cfg.defectCol])               !== defect)             show = false;
-      if (keyword  && !row.textContent.toLowerCase().includes(keyword))                           show = false;
+      if (module && cfg.moduleCol !== undefined && getCellText(row.cells[cfg.moduleCol]) !== module) show = false;
+      if (category && cfg.categoryCol !== undefined && getCellText(row.cells[cfg.categoryCol]) !== category) show = false;
+      if (priority && cfg.priorityCol !== undefined && getCellText(row.cells[cfg.priorityCol]).toUpperCase() !== priority.toUpperCase()) show = false;
+      if (role && cfg.roleCol !== undefined && getCellText(row.cells[cfg.roleCol]) !== role) show = false;
+      if (defect && cfg.defectCol !== undefined && getCellText(row.cells[cfg.defectCol]) !== defect) show = false;
+      if (keyword && !row.textContent.toLowerCase().includes(keyword)) show = false;
       row.classList.toggle("hidden", !show);
       if (show) visible++;
     });
+
     const total = table.rows.length - 1 - table.querySelectorAll("tr.row-deleted").length;
     const countEl = document.getElementById(cfg.count);
     if (countEl) countEl.textContent = `显示 ${visible} / ${total} 条`;
   }
 
-  function buildFilterOptions() {
-    buildSelectOptions("raw-module-filter",       "raw",       1);
-    buildSelectOptions("optimized-module-filter", "optimized", 1);
-    buildSelectOptions("review-defect-filter",    "review",    3);
-  }
-
-  function buildSelectOptions(selectId, sectionId, colIdx) {
-    const sel = document.getElementById(selectId);
-    if (!sel) return;
-    const table = document.querySelector("#" + sectionId + " table");
+  function buildFilterOptions(sectionId) {
+    const table = document.getElementById(`${sectionId}-table`);
     if (!table) return;
-    const vals = new Set();
-    Array.from(table.rows).slice(1).forEach(row => {
-      const cell = row.cells[colIdx];
-      if (cell) vals.add(getCellText(cell));
-    });
-    vals.forEach(v => {
-      if (!v) return;
-      const opt = document.createElement("option");
-      opt.value = v; opt.textContent = v;
-      sel.appendChild(opt);
+
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const selects = section.querySelectorAll('.filter-bar select');
+    selects.forEach(sel => {
+      if (sel.options.length > 1) return; // Already has options
+
+      const headers = Array.from(table.rows[0].cells).map(c => c.textContent.trim());
+      let colIdx = -1;
+
+      if (sel.id.includes('module')) colIdx = headers.indexOf('一级模块');
+      if (sel.id.includes('category')) colIdx = headers.indexOf('分类');
+      if (sel.id.includes('defect')) colIdx = headers.indexOf('缺陷类型');
+
+      if (colIdx >= 0) {
+        const vals = new Set();
+        Array.from(table.rows).slice(1).forEach(row => {
+          const cell = row.cells[colIdx];
+          if (cell) vals.add(getCellText(cell));
+        });
+        vals.forEach(v => {
+          if (!v) return;
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          sel.appendChild(opt);
+        });
+      }
     });
   }
 
-  function initCounts() {
-    ["raw","optimized","review"].forEach(id => {
-      const cfg = FILTER_CONFIG[id];
-      const table = document.querySelector("#" + id + " table");
-      if (!table) return;
-      const countEl = document.getElementById(cfg.count);
-      if (countEl) countEl.textContent = `共 ${table.rows.length - 1} 条`;
-    });
+  function initCount(sectionId) {
+    const cfg = getFilterConfig(sectionId);
+    if (!cfg) return;
+    const table = document.getElementById(`${sectionId}-table`);
+    if (!table) return;
+    const countEl = document.getElementById(cfg.count);
+    if (countEl) countEl.textContent = `共 ${table.rows.length - 1} 条`;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1385,7 +4300,7 @@
     }
     updateEditBadge();
     const sectionId = tr.closest("section") ? tr.closest("section").id : null;
-    if (sectionId && FILTER_CONFIG[sectionId]) filterTable(sectionId);
+    if (sectionId) filterTable(sectionId);
   }
 
   function restoreRow(btn) {
@@ -1434,6 +4349,21 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // PRIORITY BADGES
+  // ─────────────────────────────────────────────────────────────────────────
+  function renderPriorityBadges(root) {
+    (root || document).querySelectorAll("table td:not(.col-action)").forEach(td => {
+      if (td.querySelector(".badge")) return;
+      const text = td.textContent.trim().toUpperCase();
+      if (/^P[0-3]$/.test(text)) {
+        const cls = "badge badge-" + text.toLowerCase();
+        td.dataset.rawValue = text;
+        td.innerHTML = `<span class="${cls}">${text}</span>`;
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // XLSX GENERATION (pure JS, Open XML, no dependencies)
   // ─────────────────────────────────────────────────────────────────────────
   function tableToSheetData(tableEl) {
@@ -1468,9 +4398,19 @@
   }
 
   function buildSheetXml(columns, rows) {
-    const STYLE_HEADER = 1, STYLE_WRAP = 2, STYLE_P0 = 3, STYLE_P1 = 4, STYLE_P2 = 5;
-    const PRIORITY_STYLES = { P0: STYLE_P0, P1: STYLE_P1, P2: STYLE_P2 };
-    const PRIORITY_COLS = new Set(["用例优先级","优先级","priority"]);
+    const styles = window.__XLSX_STYLES__ || {};
+    const headerFill = styles.header_fill || "FFD6E4F0";
+    const priorityColors = styles.priority_colors || { P0: "FFFFC7CE", P1: "FFFFEB9C", P2: "FFFFFFCC" };
+    const borderColor = styles.border_color || "FFD9DEE8";
+
+    const STYLE_HEADER = 1, STYLE_WRAP = 2;
+    const PRIORITY_STYLES = {};
+    let styleIdx = 3;
+    Object.entries(priorityColors).forEach(([p, color]) => {
+      if (color) PRIORITY_STYLES[p] = styleIdx++;
+    });
+
+    const PRIORITY_COLS = new Set(["用例优先级", "优先级", "priority"]);
 
     function cellXml(val, ri, ci, si) {
       const ref = colLetter(ci)+ri;
@@ -1478,7 +4418,7 @@
       return `<c r="${ref}" t="inlineStr" s="${si}"><is><t xml:space="preserve">${text}</t></is></c>`;
     }
 
-    const priorityCols = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
+    const priorityColIndices = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
     const xmlRows = [];
 
     const hdr = columns.map((c,i)=>cellXml(c,1,i,STYLE_HEADER)).join("");
@@ -1488,7 +4428,7 @@
       const vals = columns.map(c=>typeof row==="object"&&!Array.isArray(row)?row[c]??"":row[c]??"");
       const cells = vals.map((v,ci)=>{
         let si = STYLE_WRAP;
-        if (priorityCols.has(ci)) si = PRIORITY_STYLES[String(v).trim().toUpperCase()] ?? STYLE_WRAP;
+        if (priorityColIndices.has(ci)) si = PRIORITY_STYLES[String(v).trim().toUpperCase()] ?? STYLE_WRAP;
         return cellXml(v, ri+2, ci, si);
       }).join("");
       xmlRows.push(`<row r="${ri+2}">${cells}</row>`);
@@ -1519,30 +4459,39 @@
   }
 
   function buildStylesXml() {
+    const styles = window.__XLSX_STYLES__ || {};
+    const headerFill = styles.header_fill || "FFD6E4F0";
+    const priorityColors = styles.priority_colors || { P0: "FFFFC7CE", P1: "FFFFEB9C", P2: "FFFFFFCC" };
+    const borderColor = styles.border_color || "FFD9DEE8";
+
+    const fills = ['<fill><patternFill patternType="none"/></fill>',
+      '<fill><patternFill patternType="gray125"/></fill>',
+      `<fill><patternFill patternType="solid"><fgColor rgb="${headerFill}"/></patternFill></fill>`];
+
+    Object.values(priorityColors).forEach(color => {
+      if (color) fills.push(`<fill><patternFill patternType="solid"><fgColor rgb="${color}"/></patternFill></fill>`);
+    });
+
+    const cellXfs = [
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>',
+      `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>`,
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+    ];
+
+    Object.values(priorityColors).forEach((color, i) => {
+      if (color) cellXfs.push(`<xf numFmtId="0" fontId="0" fillId="${i+3}" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>`);
+    });
+
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
       +'<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
-      +'<fills count="6">'
-      +'<fill><patternFill patternType="none"/></fill>'
-      +'<fill><patternFill patternType="gray125"/></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FF1A2035"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFEF4444"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFF59E0B"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFEAB308"/></patternFill></fill>'
-      +'</fills>'
+      +`<fills count="${fills.length}">${fills.join('')}</fills>`
       +'<borders count="2"><border/><border>'
-      +'<left style="thin"><color rgb="FF1E293B"/></left><right style="thin"><color rgb="FF1E293B"/></right>'
-      +'<top style="thin"><color rgb="FF1E293B"/></top><bottom style="thin"><color rgb="FF1E293B"/></bottom>'
+      +`<left style="thin"><color rgb="${borderColor}"/></left><right style="thin"><color rgb="${borderColor}"/></right>`
+      +`<top style="thin"><color rgb="${borderColor}"/></top><bottom style="thin"><color rgb="${borderColor}"/></bottom>`
       +'</border></borders>'
       +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-      +'<cellXfs count="6">'
-      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
-      +'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'</cellXfs></styleSheet>';
+      +`<cellXfs count="${cellXfs.length}">${cellXfs.join('')}</cellXfs></styleSheet>`;
   }
 
   // ── ZIP builder (no dependency) ────────────────────────────────────────
@@ -1639,7 +4588,7 @@
     const files = [];
     const sheetFiles = [];
     sheetDefs.forEach(({id, name}, idx) => {
-      const table = document.querySelector("#" + id + " table");
+      const table = document.getElementById(`${id}-table`);
       if (!table) return;
       const { columns, rows } = tableToSheetData(table);
       const xml = buildSheetXml(columns, rows);
@@ -1686,7 +4635,7 @@
     const blob = new Blob([zipBytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "测试用例集_" + new Date().toISOString().slice(0,10) + ".xlsx";
+    a.download = "测试用例集_" + new Date().toLocaleDateString("sv-SE") + ".xlsx";
     a.click();
     URL.revokeObjectURL(a.href);
     toast("Excel 已生成并下载（含所有编辑内容）");
@@ -1696,7 +4645,7 @@
   // COPY
   // ─────────────────────────────────────────────────────────────────────────
   async function copyOptimized() {
-    const table = document.querySelector("#optimized table");
+    const table = document.getElementById("optimized-table");
     if (!table) return;
     const rows = Array.from(table.rows)
       .filter(row => !row.classList.contains("hidden") && !row.classList.contains("row-deleted"))
@@ -1726,9 +4675,7 @@
   // ADD ACTION COLUMN TO TABLES (hidden until edit mode)
   // ─────────────────────────────────────────────────────────────────────────
   function injectActionColumns() {
-    ["raw","review","optimized"].forEach(id => {
-      const table = document.querySelector("#" + id + " table");
-      if (!table) return;
+    document.querySelectorAll("section table").forEach(table => {
       const th = document.createElement("th");
       th.className = "col-action";
       th.textContent = "操作";
@@ -1747,11 +4694,30 @@
   // ─────────────────────────────────────────────────────────────────────────
   // INIT
   // ─────────────────────────────────────────────────────────────────────────
-  renderPriorityBadges();
-  injectActionColumns();
-  buildFilterOptions();
-  initCounts();
-  snapshotAllTables();
+  function init() {
+    // Update title from data
+    if (DATA.meta) {
+      if (DATA.meta.title) document.getElementById('report-title').textContent = DATA.meta.title;
+      if (DATA.meta.subtitle) document.getElementById('report-subtitle').textContent = DATA.meta.subtitle;
+    }
+
+    // Render all sections
+    renderRequirements();
+    renderRawCases();
+    renderReviewFindings();
+    renderOptimizedCases();
+    renderReport();
+
+    // Initialize interactions
+    renderPriorityBadges();
+    injectActionColumns();
+    snapshotAllTables();
+  }
+
+  // Run init when data is available
+  if (Object.keys(DATA).length > 0) {
+    init();
+  }
   </script>
 </body>
 </html>

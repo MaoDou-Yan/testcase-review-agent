@@ -28,3 +28,13 @@ desktop.ini
 !scripts/
 temp_*
 prd_content.txt
+
+# Generated reports (keep report.html template, exclude timestamped versions)
+output/report_*.html
+output/raw-cases.json
+output/review-findings.json
+output/optimized-cases.json
+output/report-data.json
+
+# Claude settings
+.claude/

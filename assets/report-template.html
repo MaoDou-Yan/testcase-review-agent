@@ -409,13 +409,47 @@
 
     /* ── Section headings ── */
     h3 { color: var(--text-bright); }
+
+    /* ── Print styles ── */
+    @media print {
+      :root {
+        --bg: #ffffff;
+        --bg-card: #ffffff;
+        --bg-elevated: #f8f9fa;
+        --text: #1a1a1a;
+        --text-muted: #555;
+        --text-bright: #000;
+        --border: #ccc;
+      }
+      header { background: #fff; border-bottom: 2px solid #333; }
+      header::after { display: none; }
+      .toolbar, .edit-badge, .col-action { display: none !important; }
+      .tab { border: 1px solid #ccc; }
+      .tab.active { background: #e8e8e8; }
+      table { font-size: 10px; }
+      .badge-p0 { background: #fee; color: #c00; }
+      .badge-p1 { background: #fff3e0; color: #e65100; }
+      .badge-p2 { background: #fffde7; color: #f57f17; }
+      .badge-p3 { background: #f5f5f5; color: #666; }
+      body { background-image: none; }
+    }
+
+    /* ── Responsive table scroll ── */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    @media (max-width: 768px) {
+      table { font-size: 12px; }
+      th, td { padding: 6px 8px; white-space: nowrap; }
+    }
   </style>
 </head>
 <body>
   <header>
     <div>
-      <h1>测试用例评审报告</h1>
-      <div class="sub">包含原始用例、AI三方评审、优化后用例、评审与覆盖度分析。点击单元格可直接编辑。</div>
+      <h1 id="report-title">测试用例评审报告</h1>
+      <div class="sub" id="report-subtitle">基于 ISO 25010 质量模型的 AI 九方评审</div>
     </div>
     <div class="edit-badge" id="edit-badge">
       <span class="edit-dot"></span>
@@ -425,113 +459,351 @@
 
   <main>
     <div class="toolbar">
-      <!-- 下载 -->
       <button type="button" onclick="downloadXlsx()" id="btn-download">⬇ 下载Excel（含编辑）</button>
       <button type="button" class="secondary" onclick="copyOptimized()">复制数据</button>
       <span class="toolbar-sep"></span>
-      <!-- 编辑控制 -->
       <button type="button" class="secondary" onclick="toggleEdit()" id="btn-edit">✏ 开启编辑</button>
       <button type="button" class="success" onclick="addRow()" id="btn-add" disabled>＋ 新增行</button>
       <button type="button" class="danger" onclick="resetEdits()" id="btn-reset" disabled>↩ 撤销全部</button>
     </div>
 
     <nav class="tabs" aria-label="报告标签页">
-      <button class="tab active" type="button" data-tab="raw">原始用例集</button>
+      <button class="tab active" type="button" data-tab="requirements">需求抽取清单</button>
+      <button class="tab" type="button" data-tab="raw">原始用例集</button>
       <button class="tab" type="button" data-tab="review">AI评审详情</button>
       <button class="tab" type="button" data-tab="optimized">优化后用例集</button>
       <button class="tab" type="button" data-tab="report">评审与覆盖度报告</button>
     </nav>
 
+    <!-- 需求抽取清单 -->
+    <section id="requirements" class="active"></section>
+
     <!-- 原始用例集 -->
-    <section id="raw" class="active">
-      <div class="filter-bar">
-        <label>一级模块</label>
-        <select id="raw-module-filter" onchange="filterTable('raw')"><option value="">全部</option></select>
-        <label>优先级</label>
-        <select id="raw-priority-filter" onchange="filterTable('raw')">
-          <option value="">全部</option>
-          <option>P0</option><option>P1</option><option>P2</option><option>P3</option>
-        </select>
-        <label>搜索</label>
-        <input type="text" id="raw-search" placeholder="关键词..." oninput="filterTable('raw')">
-        <span class="filter-count" id="raw-count"></span>
-      </div>
-      <!-- INSERT_RAW_CASE_TABLE -->
-    </section>
+    <section id="raw"></section>
 
     <!-- AI评审详情 -->
-    <section id="review">
-      <div class="filter-bar">
-        <label>评审角色</label>
-        <select id="review-role-filter" onchange="filterTable('review')">
-          <option value="">全部</option>
-          <option>Arch</option><option>Dev</option><option>QA</option>
-          <option>PM</option><option>UX</option><option>Sec</option>
-          <option>Ops</option><option>Perf</option><option>DBA</option>
-        </select>
-        <label>缺陷类型</label>
-        <select id="review-defect-filter" onchange="filterTable('review')"><option value="">全部</option></select>
-        <label>搜索</label>
-        <input type="text" id="review-search" placeholder="关键词..." oninput="filterTable('review')">
-        <span class="filter-count" id="review-count"></span>
-      </div>
-      <!-- INSERT_REVIEW_TABLE -->
-    </section>
+    <section id="review"></section>
 
     <!-- 优化后用例集 -->
-    <section id="optimized">
-      <div class="filter-bar">
-        <label>一级模块</label>
-        <select id="optimized-module-filter" onchange="filterTable('optimized')"><option value="">全部</option></select>
-        <label>优先级</label>
-        <select id="optimized-priority-filter" onchange="filterTable('optimized')">
-          <option value="">全部</option>
-          <option>P0</option><option>P1</option><option>P2</option><option>P3</option>
-        </select>
-        <label>搜索</label>
-        <input type="text" id="optimized-search" placeholder="关键词..." oninput="filterTable('optimized')">
-        <span class="filter-count" id="optimized-count"></span>
-      </div>
-      <!-- INSERT_OPTIMIZED_CASE_TABLE -->
-    </section>
+    <section id="optimized"></section>
 
     <!-- 评审与覆盖度报告 -->
-    <section id="report">
-      <div class="metrics">
-        <div class="metric"><span>总用例数</span><strong><!-- TOTAL_CASES --></strong></div>
-        <div class="metric good"><span>评审通过数</span><strong><!-- PASSED_CASES --></strong></div>
-        <div class="metric warn"><span>驳回/修改数</span><strong><!-- MODIFIED_CASES --></strong></div>
-        <div class="metric"><span>功能覆盖提升</span><strong><!-- FUNCTION_LIFT --></strong></div>
-        <div class="metric"><span>场景覆盖提升</span><strong><!-- SCENARIO_LIFT --></strong></div>
-      </div>
-
-      <h3 style="margin:20px 0 12px;font-size:16px;">九方评审评分（ISO 25010 质量特性）</h3>
-      <div class="metrics" id="role-scores">
-        <div class="metric score-card"><span class="role-name">开发架构师 (Arch)</span><strong class="score-value"><!-- ARCH_SCORE --></strong><div class="score-detail"><!-- ARCH_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">开发工程师 (Dev)</span><strong class="score-value"><!-- DEV_SCORE --></strong><div class="score-detail"><!-- DEV_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">测试工程师 (QA)</span><strong class="score-value"><!-- QA_SCORE --></strong><div class="score-detail"><!-- QA_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">产品经理 (PM)</span><strong class="score-value"><!-- PM_SCORE --></strong><div class="score-detail"><!-- PM_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">用户体验设计师 (UX)</span><strong class="score-value"><!-- UX_SCORE --></strong><div class="score-detail"><!-- UX_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">安全工程师 (Sec)</span><strong class="score-value"><!-- SEC_SCORE --></strong><div class="score-detail"><!-- SEC_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">运维工程师 (Ops)</span><strong class="score-value"><!-- OPS_SCORE --></strong><div class="score-detail"><!-- OPS_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">性能工程师 (Perf)</span><strong class="score-value"><!-- PERF_SCORE --></strong><div class="score-detail"><!-- PERF_DETAIL --></div></div>
-        <div class="metric score-card"><span class="role-name">数据工程师 (DBA)</span><strong class="score-value"><!-- DBA_SCORE --></strong><div class="score-detail"><!-- DBA_DETAIL --></div></div>
-      </div>
-
-      <div class="notice"><!-- REPORT_SUMMARY --></div>
-      <!-- INSERT_REPORT_TABLES -->
-    </section>
+    <section id="report"></section>
   </main>
 
   <div id="toast"></div>
 
   <script>
   // ─────────────────────────────────────────────────────────────────────────
+  // DATA (injected by Python or loaded from JSON)
+  // ─────────────────────────────────────────────────────────────────────────
+  const DATA = window.__REPORT_DATA__ || {};
+
+  // ─────────────────────────────────────────────────────────────────────────
   // STATE
   // ─────────────────────────────────────────────────────────────────────────
   let editMode = false;
   let editCount = 0;
   const snapshots = {};
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────────────────────────────
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function nl2br(s) {
+    return esc(s).replace(/\n/g, '<br>');
+  }
+
+  function priorityBadge(p) {
+    const cls = 'badge badge-' + (p || '').toLowerCase();
+    return `<span class="${cls}">${esc(p)}</span>`;
+  }
+
+  function riskBadge(r) {
+    if (r === '高') return '<span class="risk-high">高</span>';
+    if (r === '中') return '<span class="risk-mid">中</span>';
+    if (r === '低') return '<span class="risk-low">低</span>';
+    return esc(r);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER TABLES
+  // ─────────────────────────────────────────────────────────────────────────
+  function renderTable(containerId, columns, rows, fieldMap, options = {}) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const { filterBar, badgeFields = [], riskFields = [], optField } = options;
+
+    let html = '';
+
+    // Filter bar
+    if (filterBar) {
+      html += '<div class="filter-bar">';
+      filterBar.forEach(f => {
+        html += `<label>${esc(f.label)}</label>`;
+        if (f.type === 'select') {
+          html += `<select id="${f.id}" onchange="filterTable('${containerId}')"><option value="">全部</option>`;
+          (f.options || []).forEach(o => html += `<option>${esc(o)}</option>`);
+          html += '</select>';
+        } else {
+          html += `<input type="text" id="${f.id}" placeholder="关键词..." oninput="filterTable('${containerId}')">`;
+        }
+      });
+      html += `<span class="filter-count" id="${containerId}-count"></span>`;
+      html += '</div>';
+    }
+
+    // Table
+    html += `<div class="table-wrap"><table id="${containerId}-table"><thead><tr>`;
+    columns.forEach(c => html += `<th>${esc(c)}</th>`);
+    html += '</tr></thead><tbody>';
+
+    rows.forEach(row => {
+      html += '<tr>';
+      fieldMap.forEach((field, i) => {
+        let val = row[field] || '';
+        const colName = columns[i];
+
+        if (badgeFields.includes(field) || badgeFields.includes(colName)) {
+          val = priorityBadge(val);
+        } else if (riskFields.includes(field) || riskFields.includes(colName)) {
+          val = riskBadge(val);
+        } else if (optField && field === optField) {
+          val = `<span style="white-space:pre-wrap;line-height:1.6">${nl2br(val)}</span>`;
+        } else {
+          val = esc(val);
+        }
+        html += `<td>${val}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+
+    // Initialize filter
+    if (filterBar) {
+      buildFilterOptions(containerId);
+      initCount(containerId);
+    }
+  }
+
+  function renderRequirements() {
+    const req = DATA.requirements;
+    if (!req) return;
+
+    const container = document.getElementById('requirements');
+    let html = '';
+
+    // 模块与功能点
+    if (req.modules && req.modules.length) {
+      html += '<h3 style="margin:0 0 12px;font-size:16px;color:var(--text)">模块与功能点</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>一级模块</th><th>二级模块</th><th>功能点</th><th>功能描述</th></tr></thead><tbody>';
+      req.modules.forEach(m => {
+        html += `<tr><td>${esc(m.level1)}</td><td>${esc(m.level2)}</td><td>${esc(m.feature)}</td><td>${esc(m.description)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 接口与集成系统
+    if (req.interfaces && req.interfaces.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与集成系统</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>源系统</th><th>目标系统</th><th>接口/触发</th><th>数据内容</th><th>幂等/重试</th></tr></thead><tbody>';
+      req.interfaces.forEach(i => {
+        html += `<tr><td>${esc(i.source)}</td><td>${esc(i.target)}</td><td>${esc(i.trigger)}</td><td>${esc(i.payload)}</td><td>${esc(i.idempotent)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 状态转换
+    if (req.status_transitions && req.status_transitions.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">状态转换</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>触发事件</th><th>源状态</th><th>目标状态</th><th>备注</th></tr></thead><tbody>';
+      req.status_transitions.forEach(t => {
+        html += `<tr><td>${esc(t.trigger)}</td><td>${esc(t.from)}</td><td>${esc(t.to)}</td><td>${esc(t.note)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 需求疑点
+    if (req.ambiguities && req.ambiguities.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">需求疑点/待确认项</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>编号</th><th>疑点描述</th><th>影响范围</th><th>建议确认方</th><th>风险等级</th></tr></thead><tbody>';
+      req.ambiguities.forEach(a => {
+        html += `<tr><td>${esc(a.id)}</td><td>${esc(a.description)}</td><td>${esc(a.scope)}</td><td>${esc(a.owner)}</td><td>${riskBadge(a.risk)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // 接口与状态机专项覆盖
+    if (req.state_coverage && req.state_coverage.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与状态机专项覆盖</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>覆盖项</th><th>有效转换</th><th>无效转换</th><th>重复事件</th><th>延迟回调</th><th>乱序事件</th></tr></thead><tbody>';
+      req.state_coverage.forEach(s => {
+        html += `<tr><td>${esc(s.item)}</td><td>${esc(s.valid)}</td><td>${esc(s.invalid)}</td><td>${esc(s.duplicate)}</td><td>${esc(s.delayed)}</td><td>${esc(s.disorder)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  function renderRawCases() {
+    if (!DATA.raw_cases) return;
+    renderTable('raw',
+      ['用例编号', '一级模块', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级'],
+      DATA.raw_cases,
+      ['id', 'level1', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority'],
+      {
+        filterBar: [
+          { label: '一级模块', type: 'select', id: 'raw-module-filter', options: getUniqueValues(DATA.raw_cases, 'level1') },
+          { label: '优先级', type: 'select', id: 'raw-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
+          { label: '搜索', type: 'text', id: 'raw-search' }
+        ],
+        badgeFields: ['priority']
+      }
+    );
+  }
+
+  function renderReviewFindings() {
+    if (!DATA.review_findings) return;
+    renderTable('review',
+      ['用例编号', '评审角色', '评审意见/建议', '缺陷类型'],
+      DATA.review_findings,
+      ['case_id', 'role', 'opinion', 'defect_type'],
+      {
+        filterBar: [
+          { label: '评审角色', type: 'select', id: 'review-role-filter', options: ['Arch', 'Dev', 'QA', 'PM', 'UX', 'Sec', 'Ops', 'Perf', 'DBA'] },
+          { label: '缺陷类型', type: 'select', id: 'review-defect-filter', options: getUniqueValues(DATA.review_findings, 'defect_type') },
+          { label: '搜索', type: 'text', id: 'review-search' }
+        ]
+      }
+    );
+  }
+
+  function renderOptimizedCases() {
+    if (!DATA.optimized_cases) return;
+    renderTable('optimized',
+      ['用例编号', '一级模块', '分类', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级', '优化记录'],
+      DATA.optimized_cases,
+      ['id', 'level1', 'category', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority', 'optimization_note'],
+      {
+        filterBar: [
+          { label: '一级模块', type: 'select', id: 'optimized-module-filter', options: getUniqueValues(DATA.optimized_cases, 'level1') },
+          { label: '分类', type: 'select', id: 'optimized-category-filter', options: getUniqueValues(DATA.optimized_cases, 'category') },
+          { label: '优先级', type: 'select', id: 'optimized-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
+          { label: '搜索', type: 'text', id: 'optimized-search' }
+        ],
+        badgeFields: ['priority'],
+        optField: 'optimization_note'
+      }
+    );
+  }
+
+  function renderReport() {
+    const s = DATA.scoring;
+    if (!s) return;
+
+    const container = document.getElementById('report');
+    let html = '';
+
+    // Core metrics
+    const rawCount = (DATA.raw_cases || []).length;
+    const optCount = (DATA.optimized_cases || []).length;
+    const caseIds = new Set((DATA.review_findings || []).map(f => f.case_id));
+    const passed = rawCount - caseIds.size;
+    const modified = caseIds.size;
+
+    html += '<div class="metrics">';
+    html += `<div class="metric"><span>总用例数（原始）</span><strong>${rawCount}</strong></div>`;
+    html += `<div class="metric good"><span>评审通过数</span><strong>${passed}</strong></div>`;
+    html += `<div class="metric warn"><span>驳回/修改数</span><strong>${modified}</strong></div>`;
+    html += `<div class="metric"><span>优化后总用例</span><strong>${optCount}</strong></div>`;
+    html += '</div>';
+
+    // Coverage
+    if (s.coverage) {
+      const c = s.coverage;
+      html += '<div class="metrics">';
+      html += `<div class="metric"><span>功能点覆盖率</span><strong>${Math.round(c.func_orig/c.func_total*100)}% → ${Math.round(c.func_opt/c.func_total*100)}%</strong><div class="progress-bar"><div class="fill" style="width:${Math.round(c.func_opt/c.func_total*100)}%"></div></div></div>`;
+      html += `<div class="metric"><span>场景覆盖率</span><strong>${c.scenario_orig}% → ${c.scenario_opt}%</strong><div class="progress-bar"><div class="fill" style="width:${c.scenario_opt}%"></div></div></div>`;
+      html += '</div>';
+    }
+
+    // Role scores
+    if (s.role_scores) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;">九方评审评分（ISO 25010 质量特性）</h3>';
+      html += '<div class="metrics" id="role-scores">';
+      const roleOrder = ['Arch', 'Dev', 'QA', 'PM', 'UX', 'Sec', 'Ops', 'Perf', 'DBA'];
+      roleOrder.forEach(role => {
+        const r = s.role_scores[role];
+        if (!r) return;
+        const scoreCls = r.score >= 90 ? 'score-high' : (r.score >= 80 ? 'score-mid' : 'score-low');
+        html += `<div class="metric score-card"><span class="role-name">${esc(r.name)} (${role})</span><strong class="score-value ${scoreCls}">${r.score}</strong><div class="score-detail">${esc(r.breakdown)}</div>`;
+        if (r.summary) {
+          html += `<div class="score-summary" style="margin-top:10px;font-size:12px;color:var(--text-muted);text-align:left;line-height:1.6;">${esc(r.summary)}</div>`;
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    // Overall summary
+    if (s.overall_summary) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;">评审总评</h3>';
+      html += `<div class="notice" style="white-space:pre-wrap;line-height:1.8;">${esc(s.overall_summary)}</div>`;
+    }
+
+    // Summary (brief)
+    if (s.summary) {
+      html += `<div class="notice">${s.summary}</div>`;
+    }
+
+    // Two-column: Defect distribution + Radar
+    html += '<div class="report-grid-2">';
+
+    if (s.defect_distribution) {
+      html += '<div><h3>问题分布</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>缺陷类型</th><th>数量</th><th>占比</th></tr></thead><tbody>';
+      s.defect_distribution.forEach(d => {
+        html += `<tr><td>${esc(d.type)}</td><td>${d.count}</td><td>${d.percentage}%</td></tr>`;
+      });
+      html += '</tbody></table></div></div>';
+    }
+
+    if (s.quality_radar) {
+      html += '<div><h3>质量特性覆盖雷达数据（8维度）</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>质量特性</th><th>评分</th></tr></thead><tbody>';
+      s.quality_radar.forEach(r => {
+        html += `<tr><td>${esc(r.dimension)}</td><td>${r.score}</td></tr>`;
+      });
+      html += '</tbody></table></div></div>';
+    }
+
+    html += '</div>';
+
+    // RTM
+    if (s.rtm && s.rtm.length) {
+      html += '<h3 style="margin:20px 0 12px;font-size:16px;">需求追踪矩阵（RTM）</h3>';
+      html += '<div class="table-wrap"><table><thead><tr><th>需求编号</th><th>功能点</th><th>原始用例</th><th>优化后用例</th></tr></thead><tbody>';
+      s.rtm.forEach(r => {
+        html += `<tr><td>${esc(r.req_id)}</td><td>${esc(r.feature)}</td><td>${esc(r.orig_cases)}</td><td>${esc(r.opt_cases)}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  function getUniqueValues(arr, field) {
+    return [...new Set(arr.map(item => item[field]).filter(Boolean))].sort();
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // TABS
@@ -548,28 +820,39 @@
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PRIORITY BADGES
-  // ─────────────────────────────────────────────────────────────────────────
-  function renderPriorityBadges(root) {
-    (root || document).querySelectorAll("table td:not(.col-action)").forEach(td => {
-      if (td.querySelector(".badge")) return;
-      const text = td.textContent.trim().toUpperCase();
-      if (/^P[0-3]$/.test(text)) {
-        const cls = "badge badge-" + text.toLowerCase();
-        td.dataset.rawValue = text;
-        td.innerHTML = `<span class="${cls}">${text}</span>`;
-      }
-    });
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
   // FILTER
   // ─────────────────────────────────────────────────────────────────────────
-  const FILTER_CONFIG = {
-    raw:       { moduleFilter:"raw-module-filter", moduleCol:1, priorityFilter:"raw-priority-filter", priorityCol:8, search:"raw-search", count:"raw-count" },
-    optimized: { moduleFilter:"optimized-module-filter", moduleCol:1, priorityFilter:"optimized-priority-filter", priorityCol:8, search:"optimized-search", count:"optimized-count" },
-    review:    { roleFilter:"review-role-filter", roleCol:1, defectFilter:"review-defect-filter", defectCol:3, search:"review-search", count:"review-count" },
-  };
+  function getFilterConfig(sectionId) {
+    const table = document.querySelector(`#${sectionId}-table`);
+    if (!table) return null;
+
+    const headers = Array.from(table.rows[0].cells).map(c => c.textContent.trim());
+    const cfg = { sectionId, search: `${sectionId}-search`, count: `${sectionId}-count` };
+
+    // Auto-detect columns
+    headers.forEach((h, i) => {
+      if (h === '一级模块') cfg.moduleCol = i;
+      if (h === '分类') cfg.categoryCol = i;
+      if (h === '用例优先级' || h === '优先级') cfg.priorityCol = i;
+      if (h === '评审角色') cfg.roleCol = i;
+      if (h === '缺陷类型') cfg.defectCol = i;
+    });
+
+    // Auto-detect filters
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const selects = section.querySelectorAll('.filter-bar select');
+      selects.forEach(sel => {
+        if (sel.id.includes('module')) cfg.moduleFilter = sel.id;
+        if (sel.id.includes('category')) cfg.categoryFilter = sel.id;
+        if (sel.id.includes('priority')) cfg.priorityFilter = sel.id;
+        if (sel.id.includes('role')) cfg.roleFilter = sel.id;
+        if (sel.id.includes('defect')) cfg.defectFilter = sel.id;
+      });
+    }
+
+    return cfg;
+  }
 
   function getCellText(cell) {
     if (!cell) return "";
@@ -577,63 +860,80 @@
   }
 
   function filterTable(sectionId) {
-    const cfg = FILTER_CONFIG[sectionId];
-    const table = document.querySelector("#" + sectionId + " table");
+    const cfg = getFilterConfig(sectionId);
+    if (!cfg) return;
+
+    const table = document.getElementById(`${sectionId}-table`);
     if (!table) return;
-    const module   = cfg.moduleFilter   ? document.getElementById(cfg.moduleFilter).value   : "";
+
+    const module = cfg.moduleFilter ? document.getElementById(cfg.moduleFilter).value : "";
+    const category = cfg.categoryFilter ? document.getElementById(cfg.categoryFilter).value : "";
     const priority = cfg.priorityFilter ? document.getElementById(cfg.priorityFilter).value : "";
-    const role     = cfg.roleFilter     ? document.getElementById(cfg.roleFilter).value     : "";
-    const defect   = cfg.defectFilter   ? document.getElementById(cfg.defectFilter).value   : "";
-    const keyword  = document.getElementById(cfg.search).value.trim().toLowerCase();
+    const role = cfg.roleFilter ? document.getElementById(cfg.roleFilter).value : "";
+    const defect = cfg.defectFilter ? document.getElementById(cfg.defectFilter).value : "";
+    const keyword = document.getElementById(cfg.search).value.trim().toLowerCase();
+
     let visible = 0;
     Array.from(table.rows).slice(1).forEach(row => {
       if (row.classList.contains("row-deleted")) { row.classList.add("hidden"); return; }
       let show = true;
-      if (module   && getCellText(row.cells[cfg.moduleCol])               !== module)             show = false;
-      if (priority && getCellText(row.cells[cfg.priorityCol]).toUpperCase() !== priority.toUpperCase()) show = false;
-      if (role     && getCellText(row.cells[cfg.roleCol])                 !== role)               show = false;
-      if (defect   && getCellText(row.cells[cfg.defectCol])               !== defect)             show = false;
-      if (keyword  && !row.textContent.toLowerCase().includes(keyword))                           show = false;
+      if (module && cfg.moduleCol !== undefined && getCellText(row.cells[cfg.moduleCol]) !== module) show = false;
+      if (category && cfg.categoryCol !== undefined && getCellText(row.cells[cfg.categoryCol]) !== category) show = false;
+      if (priority && cfg.priorityCol !== undefined && getCellText(row.cells[cfg.priorityCol]).toUpperCase() !== priority.toUpperCase()) show = false;
+      if (role && cfg.roleCol !== undefined && getCellText(row.cells[cfg.roleCol]) !== role) show = false;
+      if (defect && cfg.defectCol !== undefined && getCellText(row.cells[cfg.defectCol]) !== defect) show = false;
+      if (keyword && !row.textContent.toLowerCase().includes(keyword)) show = false;
       row.classList.toggle("hidden", !show);
       if (show) visible++;
     });
+
     const total = table.rows.length - 1 - table.querySelectorAll("tr.row-deleted").length;
     const countEl = document.getElementById(cfg.count);
     if (countEl) countEl.textContent = `显示 ${visible} / ${total} 条`;
   }
 
-  function buildFilterOptions() {
-    buildSelectOptions("raw-module-filter",       "raw",       1);
-    buildSelectOptions("optimized-module-filter", "optimized", 1);
-    buildSelectOptions("review-defect-filter",    "review",    3);
-  }
-
-  function buildSelectOptions(selectId, sectionId, colIdx) {
-    const sel = document.getElementById(selectId);
-    if (!sel) return;
-    const table = document.querySelector("#" + sectionId + " table");
+  function buildFilterOptions(sectionId) {
+    const table = document.getElementById(`${sectionId}-table`);
     if (!table) return;
-    const vals = new Set();
-    Array.from(table.rows).slice(1).forEach(row => {
-      const cell = row.cells[colIdx];
-      if (cell) vals.add(getCellText(cell));
-    });
-    vals.forEach(v => {
-      if (!v) return;
-      const opt = document.createElement("option");
-      opt.value = v; opt.textContent = v;
-      sel.appendChild(opt);
+
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    const selects = section.querySelectorAll('.filter-bar select');
+    selects.forEach(sel => {
+      if (sel.options.length > 1) return; // Already has options
+
+      const headers = Array.from(table.rows[0].cells).map(c => c.textContent.trim());
+      let colIdx = -1;
+
+      if (sel.id.includes('module')) colIdx = headers.indexOf('一级模块');
+      if (sel.id.includes('category')) colIdx = headers.indexOf('分类');
+      if (sel.id.includes('defect')) colIdx = headers.indexOf('缺陷类型');
+
+      if (colIdx >= 0) {
+        const vals = new Set();
+        Array.from(table.rows).slice(1).forEach(row => {
+          const cell = row.cells[colIdx];
+          if (cell) vals.add(getCellText(cell));
+        });
+        vals.forEach(v => {
+          if (!v) return;
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          sel.appendChild(opt);
+        });
+      }
     });
   }
 
-  function initCounts() {
-    ["raw","optimized","review"].forEach(id => {
-      const cfg = FILTER_CONFIG[id];
-      const table = document.querySelector("#" + id + " table");
-      if (!table) return;
-      const countEl = document.getElementById(cfg.count);
-      if (countEl) countEl.textContent = `共 ${table.rows.length - 1} 条`;
-    });
+  function initCount(sectionId) {
+    const cfg = getFilterConfig(sectionId);
+    if (!cfg) return;
+    const table = document.getElementById(`${sectionId}-table`);
+    if (!table) return;
+    const countEl = document.getElementById(cfg.count);
+    if (countEl) countEl.textContent = `共 ${table.rows.length - 1} 条`;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -758,7 +1058,7 @@
     }
     updateEditBadge();
     const sectionId = tr.closest("section") ? tr.closest("section").id : null;
-    if (sectionId && FILTER_CONFIG[sectionId]) filterTable(sectionId);
+    if (sectionId) filterTable(sectionId);
   }
 
   function restoreRow(btn) {
@@ -807,6 +1107,21 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // PRIORITY BADGES
+  // ─────────────────────────────────────────────────────────────────────────
+  function renderPriorityBadges(root) {
+    (root || document).querySelectorAll("table td:not(.col-action)").forEach(td => {
+      if (td.querySelector(".badge")) return;
+      const text = td.textContent.trim().toUpperCase();
+      if (/^P[0-3]$/.test(text)) {
+        const cls = "badge badge-" + text.toLowerCase();
+        td.dataset.rawValue = text;
+        td.innerHTML = `<span class="${cls}">${text}</span>`;
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // XLSX GENERATION (pure JS, Open XML, no dependencies)
   // ─────────────────────────────────────────────────────────────────────────
   function tableToSheetData(tableEl) {
@@ -841,9 +1156,19 @@
   }
 
   function buildSheetXml(columns, rows) {
-    const STYLE_HEADER = 1, STYLE_WRAP = 2, STYLE_P0 = 3, STYLE_P1 = 4, STYLE_P2 = 5;
-    const PRIORITY_STYLES = { P0: STYLE_P0, P1: STYLE_P1, P2: STYLE_P2 };
-    const PRIORITY_COLS = new Set(["用例优先级","优先级","priority"]);
+    const styles = window.__XLSX_STYLES__ || {};
+    const headerFill = styles.header_fill || "FFD6E4F0";
+    const priorityColors = styles.priority_colors || { P0: "FFFFC7CE", P1: "FFFFEB9C", P2: "FFFFFFCC" };
+    const borderColor = styles.border_color || "FFD9DEE8";
+
+    const STYLE_HEADER = 1, STYLE_WRAP = 2;
+    const PRIORITY_STYLES = {};
+    let styleIdx = 3;
+    Object.entries(priorityColors).forEach(([p, color]) => {
+      if (color) PRIORITY_STYLES[p] = styleIdx++;
+    });
+
+    const PRIORITY_COLS = new Set(["用例优先级", "优先级", "priority"]);
 
     function cellXml(val, ri, ci, si) {
       const ref = colLetter(ci)+ri;
@@ -851,7 +1176,7 @@
       return `<c r="${ref}" t="inlineStr" s="${si}"><is><t xml:space="preserve">${text}</t></is></c>`;
     }
 
-    const priorityCols = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
+    const priorityColIndices = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
     const xmlRows = [];
 
     const hdr = columns.map((c,i)=>cellXml(c,1,i,STYLE_HEADER)).join("");
@@ -861,7 +1186,7 @@
       const vals = columns.map(c=>typeof row==="object"&&!Array.isArray(row)?row[c]??"":row[c]??"");
       const cells = vals.map((v,ci)=>{
         let si = STYLE_WRAP;
-        if (priorityCols.has(ci)) si = PRIORITY_STYLES[String(v).trim().toUpperCase()] ?? STYLE_WRAP;
+        if (priorityColIndices.has(ci)) si = PRIORITY_STYLES[String(v).trim().toUpperCase()] ?? STYLE_WRAP;
         return cellXml(v, ri+2, ci, si);
       }).join("");
       xmlRows.push(`<row r="${ri+2}">${cells}</row>`);
@@ -892,30 +1217,39 @@
   }
 
   function buildStylesXml() {
+    const styles = window.__XLSX_STYLES__ || {};
+    const headerFill = styles.header_fill || "FFD6E4F0";
+    const priorityColors = styles.priority_colors || { P0: "FFFFC7CE", P1: "FFFFEB9C", P2: "FFFFFFCC" };
+    const borderColor = styles.border_color || "FFD9DEE8";
+
+    const fills = ['<fill><patternFill patternType="none"/></fill>',
+      '<fill><patternFill patternType="gray125"/></fill>',
+      `<fill><patternFill patternType="solid"><fgColor rgb="${headerFill}"/></patternFill></fill>`];
+
+    Object.values(priorityColors).forEach(color => {
+      if (color) fills.push(`<fill><patternFill patternType="solid"><fgColor rgb="${color}"/></patternFill></fill>`);
+    });
+
+    const cellXfs = [
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>',
+      `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>`,
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+    ];
+
+    Object.values(priorityColors).forEach((color, i) => {
+      if (color) cellXfs.push(`<xf numFmtId="0" fontId="0" fillId="${i+3}" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>`);
+    });
+
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
       +'<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
-      +'<fills count="6">'
-      +'<fill><patternFill patternType="none"/></fill>'
-      +'<fill><patternFill patternType="gray125"/></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FF1A2035"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFEF4444"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFF59E0B"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFEAB308"/></patternFill></fill>'
-      +'</fills>'
+      +`<fills count="${fills.length}">${fills.join('')}</fills>`
       +'<borders count="2"><border/><border>'
-      +'<left style="thin"><color rgb="FF1E293B"/></left><right style="thin"><color rgb="FF1E293B"/></right>'
-      +'<top style="thin"><color rgb="FF1E293B"/></top><bottom style="thin"><color rgb="FF1E293B"/></bottom>'
+      +`<left style="thin"><color rgb="${borderColor}"/></left><right style="thin"><color rgb="${borderColor}"/></right>`
+      +`<top style="thin"><color rgb="${borderColor}"/></top><bottom style="thin"><color rgb="${borderColor}"/></bottom>`
       +'</border></borders>'
       +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-      +'<cellXfs count="6">'
-      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
-      +'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'<xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-      +'</cellXfs></styleSheet>';
+      +`<cellXfs count="${cellXfs.length}">${cellXfs.join('')}</cellXfs></styleSheet>`;
   }
 
   // ── ZIP builder (no dependency) ────────────────────────────────────────
@@ -1012,7 +1346,7 @@
     const files = [];
     const sheetFiles = [];
     sheetDefs.forEach(({id, name}, idx) => {
-      const table = document.querySelector("#" + id + " table");
+      const table = document.getElementById(`${id}-table`);
       if (!table) return;
       const { columns, rows } = tableToSheetData(table);
       const xml = buildSheetXml(columns, rows);
@@ -1059,7 +1393,7 @@
     const blob = new Blob([zipBytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "测试用例集_" + new Date().toISOString().slice(0,10) + ".xlsx";
+    a.download = "测试用例集_" + new Date().toLocaleDateString("sv-SE") + ".xlsx";
     a.click();
     URL.revokeObjectURL(a.href);
     toast("Excel 已生成并下载（含所有编辑内容）");
@@ -1069,7 +1403,7 @@
   // COPY
   // ─────────────────────────────────────────────────────────────────────────
   async function copyOptimized() {
-    const table = document.querySelector("#optimized table");
+    const table = document.getElementById("optimized-table");
     if (!table) return;
     const rows = Array.from(table.rows)
       .filter(row => !row.classList.contains("hidden") && !row.classList.contains("row-deleted"))
@@ -1099,9 +1433,7 @@
   // ADD ACTION COLUMN TO TABLES (hidden until edit mode)
   // ─────────────────────────────────────────────────────────────────────────
   function injectActionColumns() {
-    ["raw","review","optimized"].forEach(id => {
-      const table = document.querySelector("#" + id + " table");
-      if (!table) return;
+    document.querySelectorAll("section table").forEach(table => {
       const th = document.createElement("th");
       th.className = "col-action";
       th.textContent = "操作";
@@ -1120,11 +1452,30 @@
   // ─────────────────────────────────────────────────────────────────────────
   // INIT
   // ─────────────────────────────────────────────────────────────────────────
-  renderPriorityBadges();
-  injectActionColumns();
-  buildFilterOptions();
-  initCounts();
-  snapshotAllTables();
+  function init() {
+    // Update title from data
+    if (DATA.meta) {
+      if (DATA.meta.title) document.getElementById('report-title').textContent = DATA.meta.title;
+      if (DATA.meta.subtitle) document.getElementById('report-subtitle').textContent = DATA.meta.subtitle;
+    }
+
+    // Render all sections
+    renderRequirements();
+    renderRawCases();
+    renderReviewFindings();
+    renderOptimizedCases();
+    renderReport();
+
+    // Initialize interactions
+    renderPriorityBadges();
+    injectActionColumns();
+    snapshotAllTables();
+  }
+
+  // Run init when data is available
+  if (Object.keys(DATA).length > 0) {
+    init();
+  }
   </script>
 </body>
 </html>
