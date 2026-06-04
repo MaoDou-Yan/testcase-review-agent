@@ -4,444 +4,408 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>测试用例评审报告</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
+    /* ── Design Tokens (Light Theme) ── */
     :root {
-      --bg: #0b0f1a;
-      --bg-card: #111827;
-      --bg-elevated: #1a2035;
-      --bg-hover: #1e2a45;
-      --text: #e2e8f0;
-      --text-muted: #8892a8;
-      --text-bright: #f8fafc;
-      --border: #1e293b;
-      --border-glow: rgba(59,130,246,0.15);
-      --accent: #3b82f6;
-      --accent-glow: rgba(59,130,246,0.25);
-      --cyan: #06b6d4;
-      --purple: #8b5cf6;
-      --green: #10b981;
-      --red: #ef4444;
-      --amber: #f59e0b;
-      --yellow: #eab308;
-      --p0-bg: rgba(239,68,68,0.15);
-      --p0-text: #fca5a5;
-      --p1-bg: rgba(245,158,11,0.15);
-      --p1-text: #fcd34d;
-      --p2-bg: rgba(234,179,8,0.15);
-      --p2-text: #fde68a;
-      --p3-bg: rgba(100,116,139,0.15);
-      --p3-text: #94a3b8;
-      --edit-bg: rgba(245,158,11,0.1);
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f7f7f5;
+      --color-background-tertiary: #f0efeb;
+      --color-border-tertiary: rgba(0,0,0,0.08);
+      --color-border-secondary: rgba(0,0,0,0.15);
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #5c5c5c;
+      --color-text-tertiary: #8a8a8a;
+
+      --page-bg: var(--color-background-tertiary);
+      --surface: var(--color-background-primary);
+      --surface-muted: var(--color-background-secondary);
+      --border: var(--color-border-tertiary);
+      --border-strong: var(--color-border-secondary);
+      --text-primary: var(--color-text-primary);
+      --text-secondary: var(--color-text-secondary);
+      --text-hint: var(--color-text-tertiary);
+
+      --accent: #185FA5;
+      --accent-hover: #0C447C;
+
+      /* Priority colors */
+      --p0-bg: #FCEBEB; --p0-border: #F09595; --p0-text: #791F1F;
+      --p1-bg: #FAEEDA; --p1-border: #FAC775; --p1-text: #633806;
+      --p2-bg: #FEF9E7; --p2-border: #F9E584; --p2-text: #635106;
+      --p3-bg: #F1EFE8; --p3-border: #D3D1C7; --p3-text: #444441;
+
+      /* Role colors */
+      --role-arch-bg: #EEEDFE; --role-arch-text: #3C3489;
+      --role-dev-bg: #EAF3DE; --role-dev-text: #27500A;
+      --role-qa-bg: #E6F1FB; --role-qa-text: #0C447C;
+      --role-pm-bg: #FAEEDA; --role-pm-text: #633806;
+      --role-ux-bg: #FBEAF0; --role-ux-text: #72243E;
+      --role-sec-bg: #FCEBEB; --role-sec-text: #791F1F;
+      --role-ops-bg: #E1F5EE; --role-ops-text: #085041;
+      --role-perf-bg: #FAECE7; --role-perf-text: #712B13;
+      --role-dba-bg: #F1EFE8; --role-dba-text: #444441;
+
+      /* Defect colors */
+      --defect-scenario-bg: #E6F1FB; --defect-scenario-text: #0C447C;
+      --defect-logic-bg: #EEEDFE; --defect-logic-text: #3C3489;
+      --defect-arch-bg: #FAEEDA; --defect-arch-text: #633806;
+      --defect-sec-bg: #FCEBEB; --defect-sec-text: #791F1F;
+      --defect-data-bg: #EAF3DE; --defect-data-text: #27500A;
+      --defect-ux-bg: #FBEAF0; --defect-ux-text: #72243E;
+      --defect-perf-bg: #FAECE7; --defect-perf-text: #712B13;
+      --defect-ops-bg: #E1F5EE; --defect-ops-text: #085041;
+      --defect-vague-bg: #F1EFE8; --defect-vague-text: #444441;
+
+      --edit-bg: rgba(245,158,11,0.08);
       --edit-border: #f59e0b;
-      --new-row: rgba(16,185,129,0.1);
-      --del-row: rgba(239,68,68,0.1);
+      --new-row: rgba(16,185,129,0.06);
+      --del-row: rgba(239,68,68,0.06);
     }
+
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      background-image:
-        radial-gradient(circle at 25% 25%, rgba(59,130,246,0.03) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(139,92,246,0.03) 0%, transparent 50%);
+      font-family: "Microsoft YaHei", "PingFang SC", -apple-system, Arial, sans-serif;
+      background: var(--page-bg);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
     }
 
     /* ── Header ── */
     header {
-      padding: 28px 36px 20px;
-      background: linear-gradient(135deg, #0f1629 0%, #1a1040 50%, #0d1b3e 100%);
-      border-bottom: 1px solid var(--border);
+      padding: 20px 36px 0;
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 12px;
-      position: relative;
     }
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), var(--purple), transparent);
+    h1 { margin: 0 0 4px; font-size: 16px; font-weight: 500; color: var(--text-primary); }
+    .sub { color: var(--text-hint); font-size: 12px; }
+    .header-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .h-badge {
+      background: #E6F1FB; color: #0C447C; border: 0.5px solid #B5D4F4;
+      border-radius: 20px; font-size: 11px; padding: 3px 8px;
     }
-    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; color: var(--text-bright); }
-    .sub { color: var(--text-muted); font-size: 13px; }
     .edit-badge {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      background: rgba(245,158,11,0.12);
-      border: 1px solid rgba(245,158,11,0.3);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 13px;
-      color: #fcd34d;
-      font-weight: 600;
-      backdrop-filter: blur(8px);
+      display: none; align-items: center; gap: 6px;
+      background: #FAEEDA; border: 0.5px solid #FAC775;
+      border-radius: 20px; padding: 3px 8px; font-size: 11px; color: #633806;
     }
     .edit-badge.visible { display: flex; }
-    .edit-dot {
-      width: 8px; height: 8px;
-      background: #f59e0b;
-      border-radius: 50%;
-      animation: blink 1.2s infinite;
-    }
+    .edit-dot { width: 6px; height: 6px; background: #F59E0B; border-radius: 50%; animation: blink 1.2s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
     /* ── Main ── */
-    main { padding: 20px 36px 40px; }
+    main { padding: 16px 36px 40px; }
 
     /* ── Toolbar ── */
     .toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-      align-items: center;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 14px; align-items: center;
+      background: var(--surface); padding: 10px 16px;
+      border-radius: 12px; border: 0.5px solid var(--border);
     }
-    .toolbar-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+    .toolbar-sep { width: 1px; height: 24px; background: var(--border); margin: 0 2px; }
 
     /* ── Buttons ── */
     button {
-      border: 1px solid var(--accent);
-      background: var(--accent);
-      color: #fff;
-      height: 34px;
-      padding: 0 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-      box-shadow: 0 0 12px rgba(59,130,246,0.2);
+      border: none; background: var(--accent); color: #fff;
+      padding: 5px 11px; border-radius: 8px; cursor: pointer;
+      font-size: 12px; white-space: nowrap; transition: all 0.15s;
+      height: auto; line-height: 1.5;
     }
-    button:hover { box-shadow: 0 0 20px rgba(59,130,246,0.35); }
-    button.secondary { background: transparent; color: var(--accent); border-color: rgba(59,130,246,0.4); box-shadow: none; }
-    button.secondary:hover { background: rgba(59,130,246,0.1); box-shadow: none; }
-    button.danger { background: transparent; color: #fca5a5; border-color: rgba(239,68,68,0.4); box-shadow: none; }
-    button.danger:hover { background: rgba(239,68,68,0.1); box-shadow: none; }
-    button.success { background: transparent; color: #6ee7b7; border-color: rgba(16,185,129,0.4); box-shadow: none; }
-    button.success:hover { background: rgba(16,185,129,0.1); box-shadow: none; }
-    button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
+    button:hover { background: var(--accent-hover); }
+    button.secondary {
+      background: var(--surface); color: var(--text-primary);
+      border: 0.5px solid var(--border-strong);
+    }
+    button.secondary:hover { background: var(--surface-muted); }
+    button.danger {
+      background: transparent; color: #A32D2D;
+      border: 0.5px solid #F09595;
+    }
+    button.danger:hover { background: #FCEBEB; }
+    button.success {
+      background: transparent; color: #085041;
+      border: 0.5px solid #9FE1CB;
+    }
+    button.success:hover { background: #E1F5EE; }
+    button:disabled { opacity: .35; cursor: not-allowed; }
 
     /* ── Tabs ── */
     .tabs {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      margin-bottom: 0;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0;
+      display: flex; gap: 0; flex-wrap: wrap;
+      border-bottom: 0.5px solid var(--border); margin-bottom: 0;
     }
     .tab {
-      background: transparent;
-      color: var(--text-muted);
-      border: none;
-      border-bottom: 2px solid transparent;
-      border-radius: 0;
-      height: 40px;
-      padding: 0 18px;
-      font-size: 14px;
-      box-shadow: none;
-      transition: all 0.2s ease;
+      background: transparent; color: var(--text-secondary); border: none;
+      border-bottom: 2px solid transparent; border-radius: 0;
+      padding: 10px 18px; font-size: 13px; height: auto;
+      cursor: pointer; transition: all 0.15s;
     }
-    .tab:hover { color: var(--text); background: rgba(255,255,255,0.03); box-shadow: none; }
+    .tab:hover { color: var(--text-primary); background: var(--surface-muted); }
     .tab.active {
-      color: var(--text-bright);
-      font-weight: 700;
-      border-bottom-color: var(--accent);
-      background: transparent;
-      box-shadow: 0 2px 8px rgba(59,130,246,0.2);
+      color: var(--accent); font-weight: 500;
+      border-bottom-color: var(--accent); background: transparent;
     }
 
     /* ── Sections ── */
     section {
-      display: none;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 0 0 12px 12px;
-      padding: 20px;
-      overflow: auto;
+      display: none; background: var(--surface);
+      border: 0.5px solid var(--border); border-top: none;
+      border-radius: 0 0 12px 12px; padding: 20px; overflow: auto;
     }
     section.active { display: block; }
 
     /* ── Filter bar ── */
     .filter-bar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-      align-items: center;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 14px; align-items: center;
     }
-    .filter-bar label { font-size: 13px; color: var(--text-muted); }
+    .filter-bar label { font-size: 12px; color: var(--text-secondary); }
     .filter-bar select, .filter-bar input[type="text"] {
-      height: 32px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0 10px;
-      font-size: 13px;
-      background: var(--bg-elevated);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
+      background: var(--surface); border: 0.5px solid var(--border-strong);
+      padding: 5px 8px; border-radius: 8px; font-size: 12px;
+      color: var(--text-primary); outline: none; height: auto;
     }
     .filter-bar select:focus, .filter-bar input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 8px rgba(59,130,246,0.2);
     }
-    .filter-count { font-size: 12px; color: var(--text-muted); }
+    .filter-count {
+      margin-left: auto; font-size: 12px; color: var(--text-hint);
+    }
 
     /* ── Table ── */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 980px;
-      font-size: 13px;
+    .table-wrap {
+      border-radius: 12px; border: 0.5px solid var(--border);
+      overflow: hidden; overflow-x: auto; background: var(--surface);
     }
-    th, td {
-      border: none;
-      border-bottom: 1px solid var(--border);
-      padding: 10px 12px;
-      vertical-align: top;
-      text-align: left;
-      line-height: 1.5;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th {
-      background: var(--bg-elevated);
-      color: var(--text-bright);
-      font-weight: 700;
-      white-space: nowrap;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      user-select: none;
-      border-bottom: 2px solid var(--border);
+      background: var(--surface-muted); color: var(--text-secondary);
+      font-weight: 500; padding: 9px 12px;
+      border-bottom: 0.5px solid var(--border);
+      white-space: nowrap; position: sticky; top: 0; z-index: 1;
     }
-    th.col-action { width: 64px; text-align: center; }
-    td.col-action { text-align: center; vertical-align: middle; padding: 4px; white-space: nowrap; }
-
-    tbody tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
-    tr:hover td:not(.col-action) {
-      background: var(--bg-hover);
-      box-shadow: inset 3px 0 0 var(--accent);
+    td {
+      padding: 8px 12px; border-bottom: 0.5px solid var(--border);
+      vertical-align: top; line-height: 1.5;
     }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-muted); }
+    th.col-action { width: 50px; text-align: center; }
+    td.col-action { text-align: center; vertical-align: middle; padding: 4px; }
     tr.row-new td { background: var(--new-row) !important; }
     tr.row-deleted td { background: var(--del-row) !important; opacity: .5; text-decoration: line-through; }
     tr.hidden { display: none; }
 
     /* ── Editable cell ── */
-    td[contenteditable="true"] {
-      outline: none;
-      min-width: 60px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
+    td[contenteditable="true"] { outline: none; min-width: 60px; white-space: pre-wrap; word-break: break-word; }
     td[contenteditable="true"]:focus {
       background: var(--edit-bg) !important;
-      box-shadow: inset 0 0 0 2px var(--edit-border);
-      border-radius: 2px;
+      box-shadow: inset 0 0 0 2px var(--edit-border); border-radius: 2px;
     }
     td[contenteditable="true"]:empty::before {
-      content: attr(data-placeholder);
-      color: #475569;
-      font-style: italic;
+      content: attr(data-placeholder); color: var(--text-hint); font-style: italic;
     }
 
-    /* ── Priority badge ── */
+    /* ── Priority badges ── */
     .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 700;
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 500;
     }
-    .badge-p0 { background: var(--p0-bg); color: var(--p0-text); }
-    .badge-p1 { background: var(--p1-bg); color: var(--p1-text); }
-    .badge-p2 { background: var(--p2-bg); color: var(--p2-text); }
-    .badge-p3 { background: var(--p3-bg); color: var(--p3-text); }
+    .badge-p0 { background: var(--p0-bg); color: var(--p0-text); border: 0.5px solid var(--p0-border); }
+    .badge-p1 { background: var(--p1-bg); color: var(--p1-text); border: 0.5px solid var(--p1-border); }
+    .badge-p2 { background: var(--p2-bg); color: var(--p2-text); border: 0.5px solid var(--p2-border); }
+    .badge-p3 { background: var(--p3-bg); color: var(--p3-text); border: 0.5px solid var(--p3-border); }
 
-    /* ── Risk badge ── */
-    .risk-high { background: var(--p0-bg); color: var(--p0-text); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 12px; }
-    .risk-mid  { background: var(--p1-bg); color: var(--p1-text); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 12px; }
-    .risk-low  { background: var(--p2-bg); color: var(--p2-text); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 12px; }
+    /* ── Role badges ── */
+    .role-badge {
+      display: inline-block; padding: 2px 7px; border-radius: 4px;
+      font-size: 11px; font-weight: 500;
+    }
+    .role-Arch { background: var(--role-arch-bg); color: var(--role-arch-text); }
+    .role-Dev  { background: var(--role-dev-bg);  color: var(--role-dev-text); }
+    .role-QA   { background: var(--role-qa-bg);   color: var(--role-qa-text); }
+    .role-PM   { background: var(--role-pm-bg);   color: var(--role-pm-text); }
+    .role-UX   { background: var(--role-ux-bg);   color: var(--role-ux-text); }
+    .role-Sec  { background: var(--role-sec-bg);  color: var(--role-sec-text); }
+    .role-Ops  { background: var(--role-ops-bg);  color: var(--role-ops-text); }
+    .role-Perf { background: var(--role-perf-bg); color: var(--role-perf-text); }
+    .role-DBA  { background: var(--role-dba-bg);  color: var(--role-dba-text); }
+
+    /* ── Defect type badges ── */
+    .defect-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 500;
+    }
+    .defect-场景遗漏     { background: var(--defect-scenario-bg); color: var(--defect-scenario-text); }
+    .defect-逻辑遗漏     { background: var(--defect-logic-bg);    color: var(--defect-logic-text); }
+    .defect-架构腐化风险 { background: var(--defect-arch-bg);     color: var(--defect-arch-text); }
+    .defect-安全漏洞     { background: var(--defect-sec-bg);      color: var(--defect-sec-text); }
+    .defect-数据一致性风险 { background: var(--defect-data-bg);   color: var(--defect-data-text); }
+    .defect-易用性缺陷   { background: var(--defect-ux-bg);       color: var(--defect-ux-text); }
+    .defect-性能风险     { background: var(--defect-perf-bg);     color: var(--defect-perf-text); }
+    .defect-运维盲区     { background: var(--defect-ops-bg);      color: var(--defect-ops-text); }
+    .defect-表述不清     { background: var(--defect-vague-bg);    color: var(--defect-vague-text); }
+    .defect-边界遗漏     { background: var(--defect-scenario-bg); color: var(--defect-scenario-text); }
+    .defect-可验证性不足 { background: var(--defect-vague-bg);    color: var(--defect-vague-text); }
+    .defect-交互不符     { background: var(--defect-ux-bg);       color: var(--defect-ux-text); }
+    .defect-优先级不准   { background: var(--defect-arch-bg);     color: var(--defect-arch-text); }
+    .defect-数据完整性风险 { background: var(--defect-data-bg);   color: var(--defect-data-text); }
+    .defect-性能风险     { background: var(--defect-perf-bg);     color: var(--defect-perf-text); }
+
+    /* ── Risk badges ── */
+    .risk-high { background: var(--p0-bg); color: var(--p0-text); padding: 2px 8px; border-radius: 10px; font-weight: 500; font-size: 11px; }
+    .risk-mid  { background: var(--p1-bg); color: var(--p1-text); padding: 2px 8px; border-radius: 10px; font-weight: 500; font-size: 11px; }
+    .risk-low  { background: var(--p2-bg); color: var(--p2-text); padding: 2px 8px; border-radius: 10px; font-weight: 500; font-size: 11px; }
+
+    /* ── Optimization note badges ── */
+    .opt-new { background: #EAF3DE; color: #27500A; border: 0.5px solid #C0DD97; padding: 2px 7px; border-radius: 10px; font-size: 11px; display: inline-block; }
+    .opt-update { background: #E6F1FB; color: #0C447C; border: 0.5px solid #B5D4F4; padding: 2px 7px; border-radius: 10px; font-size: 11px; display: inline-block; }
+    .opt-none { color: var(--text-hint); font-size: 11px; }
 
     /* ── Row action buttons ── */
     .btn-row {
-      border: none;
-      background: none;
-      cursor: pointer;
-      padding: 3px 5px;
-      border-radius: 4px;
-      font-size: 15px;
-      height: auto;
-      line-height: 1;
-      box-shadow: none;
+      border: none; background: none; cursor: pointer;
+      padding: 3px 5px; border-radius: 4px; font-size: 14px;
+      height: auto; line-height: 1;
     }
-    .btn-row:hover { background: rgba(255,255,255,0.08); }
-    .btn-row.del { color: #f87171; }
-    .btn-row.restore { color: #6ee7b7; }
+    .btn-row:hover { background: var(--surface-muted); }
+    .btn-row.del { color: #A32D2D; }
+    .btn-row.restore { color: #085041; }
 
-    /* ── Metrics ── */
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
+    /* ── Section headings ── */
+    .section-title {
+      margin: 0 0 12px; font-size: 13px; font-weight: 500; color: var(--text-primary);
+      border-left: 3px solid #378ADD; padding-left: 10px;
     }
-    .metric {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      background: var(--bg-elevated);
-      transition: all 0.2s ease;
+
+    /* ── Metrics grid (4 col) ── */
+    .metrics-4 {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 10px; margin-bottom: 16px;
     }
-    .metric:hover {
-      border-color: rgba(59,130,246,0.3);
-      box-shadow: 0 0 16px rgba(59,130,246,0.08);
+    .metric-card {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
     }
-    .metric span { color: var(--text-muted); font-size: 13px; }
-    .metric strong {
-      display: block;
-      font-size: 28px;
-      margin-top: 6px;
-      color: var(--cyan);
-      font-weight: 700;
+    .metric-card .label {
+      font-size: 11px; color: var(--text-hint);
+      letter-spacing: 0.3px; margin-bottom: 6px;
     }
-    .metric.good strong { color: var(--green); }
-    .metric.warn strong { color: var(--amber); }
-    .metric .sub { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
+    .metric-card .value { font-size: 26px; font-weight: 500; line-height: 1.2; }
+    .metric-card .aux { font-size: 11px; color: var(--text-hint); margin-top: 3px; }
+
+    /* ── Coverage grid (2 col) ── */
+    .metrics-2 {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 20px;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      width: 100%; height: 5px; background: var(--surface-muted);
+      border-radius: 3px; overflow: hidden; margin-top: 8px;
+    }
+    .progress-bar .fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .fill-green { background: #1D9E75; }
+    .fill-amber { background: #BA7517; }
+    .fill-accent { background: var(--accent); }
+
+    /* ── Score cards + Radar layout ── */
+    .score-radar-grid {
+      display: grid; grid-template-columns: 1fr 260px;
+      gap: 16px; align-items: start; margin-bottom: 20px;
+    }
+    .score-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .score-card {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: 12px; padding: 12px 14px;
+    }
+    .score-card .role-name { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+    .score-card .score-value { font-size: 24px; font-weight: 500; line-height: 1; }
+    .score-card .score-bar { height: 3px; background: var(--surface-muted); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .score-card .score-bar-fill { height: 100%; border-radius: 2px; }
+    .score-card .defect-tags { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 3px; }
+    .score-card .defect-tag {
+      font-size: 10px; background: var(--surface-muted); color: var(--text-hint);
+      padding: 1px 5px; border-radius: 6px;
+    }
+    .score-green { color: #0F6E56; }
+    .score-blue  { color: #185FA5; }
+    .score-purple { color: #534AB7; }
+    .score-amber { color: #854F0B; }
+
+    /* ── Radar card ── */
+    .radar-card {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: 12px; padding: 16px;
+    }
+    .radar-card .radar-title { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; }
+    .radar-wrapper { position: relative; height: 230px; }
+
+    /* ── Summary card ── */
+    .summary-card {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-left: 3px solid #378ADD;
+      border-radius: 0 12px 12px 0; padding: 18px 20px;
+      font-size: 13px; color: var(--text-secondary); line-height: 1.8;
+    }
+    .summary-card strong { font-weight: 500; color: var(--text-primary); }
+    .summary-sep { border-top: 0.5px solid var(--border); padding-top: 10px; margin-top: 10px; }
 
     /* ── Notice ── */
     .notice {
-      margin: 16px 0;
-      padding: 14px 16px;
+      margin: 16px 0; padding: 14px 16px;
       border-left: 3px solid var(--accent);
-      background: rgba(59,130,246,0.08);
-      border-radius: 0 8px 8px 0;
-      color: var(--text);
-      font-size: 13px;
-      line-height: 1.7;
+      background: #E6F1FB; border-radius: 0 8px 8px 0;
+      color: #0C447C; font-size: 13px; line-height: 1.7;
     }
-
-    /* ── Score cards (report tab) ── */
-    .score-card {
-      text-align: center;
-      padding: 20px 14px;
-    }
-    .score-card .role-name {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-    .score-card .score-value {
-      font-size: 36px;
-      font-weight: 800;
-      line-height: 1;
-      margin: 8px 0;
-    }
-    .score-card .score-detail {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-    .score-high { color: var(--green); }
-    .score-mid { color: var(--cyan); }
-    .score-low { color: var(--amber); }
-
-    /* ── Progress bar (coverage) ── */
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-    .progress-bar .fill {
-      height: 100%;
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--accent), var(--cyan));
-      transition: width 0.6s ease;
-    }
-
-    /* ── Two-column report layout ── */
-    .report-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-    @media (max-width: 900px) {
-      .report-grid-2 { grid-template-columns: 1fr; }
-    }
-    .report-grid-2 h3 { margin: 0 0 12px; font-size: 15px; color: var(--text-bright); }
-    .report-grid-2 table { min-width: auto; }
 
     /* ── Toast ── */
     #toast {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      background: var(--bg-elevated);
-      color: var(--text-bright);
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .25s;
-      z-index: 9999;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--surface); color: var(--text-primary);
+      padding: 10px 18px; border-radius: 8px; font-size: 13px;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+      z-index: 9999; border: 0.5px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
     #toast.show { opacity: 1; }
 
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #4a5568; }
-
-    /* ── Section headings ── */
-    h3 { color: var(--text-bright); }
-
-    /* ── Print styles ── */
-    @media print {
-      :root {
-        --bg: #ffffff;
-        --bg-card: #ffffff;
-        --bg-elevated: #f8f9fa;
-        --text: #1a1a1a;
-        --text-muted: #555;
-        --text-bright: #000;
-        --border: #ccc;
-      }
-      header { background: #fff; border-bottom: 2px solid #333; }
-      header::after { display: none; }
-      .toolbar, .edit-badge, .col-action { display: none !important; }
-      .tab { border: 1px solid #ccc; }
-      .tab.active { background: #e8e8e8; }
-      table { font-size: 10px; }
-      .badge-p0 { background: #fee; color: #c00; }
-      .badge-p1 { background: #fff3e0; color: #e65100; }
-      .badge-p2 { background: #fffde7; color: #f57f17; }
-      .badge-p3 { background: #f5f5f5; color: #666; }
-      body { background-image: none; }
-    }
-
-    /* ── Responsive table scroll ── */
-    .table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .metrics-4 { grid-template-columns: repeat(2, 1fr); }
+      .metrics-2 { grid-template-columns: 1fr; }
+      .score-radar-grid { grid-template-columns: 1fr; }
+      .score-grid { grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 768px) {
-      table { font-size: 12px; }
-      th, td { padding: 6px 8px; white-space: nowrap; }
+      main { padding: 12px 16px 24px; }
+      header { padding: 16px; }
+      .score-grid { grid-template-columns: repeat(2, 1fr); }
+      th, td { padding: 6px 8px; }
+    }
+
+    /* ── Print ── */
+    @media print {
+      :root {
+        --surface: #fff; --surface-muted: #f8f9fa;
+        --border: #ddd; --text-primary: #1a1a1a;
+        --text-secondary: #555; --text-hint: #888;
+        --page-bg: #fff;
+      }
+      header { background: #fff; }
+      .toolbar, .edit-badge, .col-action, .filter-bar { display: none !important; }
+      section { border: 1px solid #ddd; }
     }
   </style>
 </head>
@@ -451,43 +415,38 @@
       <h1 id="report-title">测试用例评审报告</h1>
       <div class="sub" id="report-subtitle">基于 ISO 25010 质量模型的 AI 九方评审</div>
     </div>
-    <div class="edit-badge" id="edit-badge">
-      <span class="edit-dot"></span>
-      <span id="edit-badge-text">编辑中</span>
+    <div class="header-badges">
+      <span class="h-badge" id="badge-cases" style="display:none"></span>
+      <span class="h-badge" id="badge-findings" style="display:none"></span>
+      <div class="edit-badge" id="edit-badge">
+        <span class="edit-dot"></span>
+        <span id="edit-badge-text">编辑中</span>
+      </div>
     </div>
   </header>
 
   <main>
     <div class="toolbar">
-      <button type="button" onclick="downloadXlsx()" id="btn-download">⬇ 下载Excel（含编辑）</button>
+      <button type="button" onclick="downloadXlsx()" id="btn-download">下载 Excel</button>
       <button type="button" class="secondary" onclick="copyOptimized()">复制数据</button>
       <span class="toolbar-sep"></span>
-      <button type="button" class="secondary" onclick="toggleEdit()" id="btn-edit">✏ 开启编辑</button>
-      <button type="button" class="success" onclick="addRow()" id="btn-add" disabled>＋ 新增行</button>
-      <button type="button" class="danger" onclick="resetEdits()" id="btn-reset" disabled>↩ 撤销全部</button>
+      <button type="button" class="secondary" onclick="toggleEdit()" id="btn-edit">开启编辑</button>
+      <button type="button" class="success" onclick="addRow()" id="btn-add" disabled>新增行</button>
+      <button type="button" class="danger" onclick="resetEdits()" id="btn-reset" disabled>撤销全部</button>
     </div>
 
     <nav class="tabs" aria-label="报告标签页">
       <button class="tab active" type="button" data-tab="requirements">需求抽取清单</button>
       <button class="tab" type="button" data-tab="raw">原始用例集</button>
-      <button class="tab" type="button" data-tab="review">AI评审详情</button>
+      <button class="tab" type="button" data-tab="review">AI 评审详情</button>
       <button class="tab" type="button" data-tab="optimized">优化后用例集</button>
       <button class="tab" type="button" data-tab="report">评审与覆盖度报告</button>
     </nav>
 
-    <!-- 需求抽取清单 -->
     <section id="requirements" class="active"></section>
-
-    <!-- 原始用例集 -->
     <section id="raw"></section>
-
-    <!-- AI评审详情 -->
     <section id="review"></section>
-
-    <!-- 优化后用例集 -->
     <section id="optimized"></section>
-
-    <!-- 评审与覆盖度报告 -->
     <section id="report"></section>
   </main>
 
@@ -495,7 +454,7 @@
 
   <script>
   // ─────────────────────────────────────────────────────────────────────────
-  // DATA (injected by Python or loaded from JSON)
+  // DATA
   // ─────────────────────────────────────────────────────────────────────────
   const DATA = window.__REPORT_DATA__ || {};
 
@@ -515,13 +474,25 @@
     return d.innerHTML;
   }
 
-  function nl2br(s) {
-    return esc(s).replace(/\n/g, '<br>');
-  }
+  function nl2br(s) { return esc(s).replace(/\n/g, '<br>'); }
 
   function priorityBadge(p) {
     const cls = 'badge badge-' + (p || '').toLowerCase();
     return `<span class="${cls}">${esc(p)}</span>`;
+  }
+
+  function roleBadge(r) {
+    return `<span class="role-badge role-${esc(r)}">${esc(r)}</span>`;
+  }
+
+  function defectBadge(d) {
+    return `<span class="defect-badge defect-${esc(d)}">${esc(d)}</span>`;
+  }
+
+  function optBadge(note) {
+    if (!note || note === '无') return '<span class="opt-none">无</span>';
+    if (note.startsWith('新增')) return `<span class="opt-new">${esc(note)}</span>`;
+    return `<span class="opt-update">${esc(note)}</span>`;
   }
 
   function riskBadge(r) {
@@ -532,13 +503,12 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // RENDER TABLES
+  // RENDER TABLE
   // ─────────────────────────────────────────────────────────────────────────
   function renderTable(containerId, columns, rows, fieldMap, options = {}) {
     const container = document.getElementById(containerId);
     if (!container) return;
-
-    const { filterBar, badgeFields = [], riskFields = [], optField } = options;
+    const { filterBar, badgeFields = [], riskFields = [], roleFields = [], defectFields = [], optField } = options;
 
     let html = '';
 
@@ -559,7 +529,6 @@
       html += '</div>';
     }
 
-    // Table
     html += `<div class="table-wrap"><table id="${containerId}-table"><thead><tr>`;
     columns.forEach(c => html += `<th>${esc(c)}</th>`);
     html += '</tr></thead><tbody>';
@@ -572,10 +541,14 @@
 
         if (badgeFields.includes(field) || badgeFields.includes(colName)) {
           val = priorityBadge(val);
+        } else if (roleFields.includes(field) || roleFields.includes(colName)) {
+          val = roleBadge(val);
+        } else if (defectFields.includes(field) || defectFields.includes(colName)) {
+          val = defectBadge(val);
         } else if (riskFields.includes(field) || riskFields.includes(colName)) {
           val = riskBadge(val);
         } else if (optField && field === optField) {
-          val = `<span style="white-space:pre-wrap;line-height:1.6">${nl2br(val)}</span>`;
+          val = optBadge(val);
         } else {
           val = esc(val);
         }
@@ -587,43 +560,49 @@
     html += '</tbody></table></div>';
     container.innerHTML = html;
 
-    // Initialize filter
     if (filterBar) {
       buildFilterOptions(containerId);
       initCount(containerId);
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER: Requirements
+  // ─────────────────────────────────────────────────────────────────────────
   function renderRequirements() {
     const req = DATA.requirements;
     if (!req) return;
-
     const container = document.getElementById('requirements');
     let html = '';
 
-    // 模块与功能点
     if (req.modules && req.modules.length) {
-      html += '<h3 style="margin:0 0 12px;font-size:16px;color:var(--text)">模块与功能点</h3>';
+      html += '<h3 class="section-title">模块与功能点</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>一级模块</th><th>二级模块</th><th>功能点</th><th>功能描述</th></tr></thead><tbody>';
+      let lastLevel2 = '';
       req.modules.forEach(m => {
-        html += `<tr><td>${esc(m.level1)}</td><td>${esc(m.level2)}</td><td>${esc(m.feature)}</td><td>${esc(m.description)}</td></tr>`;
+        const l2Display = m.level2 !== lastLevel2
+          ? `<span style="color:var(--accent);font-weight:500">${esc(m.level2)}</span>`
+          : esc(m.level2);
+        if (m.level2) lastLevel2 = m.level2;
+        html += `<tr><td>${esc(m.level1)}</td><td>${l2Display}</td><td style="font-weight:500">${esc(m.feature)}</td><td style="color:var(--text-secondary);line-height:1.6">${esc(m.description)}</td></tr>`;
       });
       html += '</tbody></table></div>';
     }
 
-    // 接口与集成系统
     if (req.interfaces && req.interfaces.length) {
-      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与集成系统</h3>';
+      html += '<h3 class="section-title" style="margin-top:20px">接口与集成系统</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>源系统</th><th>目标系统</th><th>接口/触发</th><th>数据内容</th><th>幂等/重试</th></tr></thead><tbody>';
       req.interfaces.forEach(i => {
-        html += `<tr><td>${esc(i.source)}</td><td>${esc(i.target)}</td><td>${esc(i.trigger)}</td><td>${esc(i.payload)}</td><td>${esc(i.idempotent)}</td></tr>`;
+        const idempotent = i.idempotent === '待确认'
+          ? '<span style="background:#FAEEDA;color:#633806;padding:2px 6px;border-radius:8px;font-size:11px">待确认</span>'
+          : esc(i.idempotent);
+        html += `<tr><td style="font-family:monospace;font-size:11px;color:var(--accent)">${esc(i.source)}</td><td style="font-family:monospace;font-size:11px;color:var(--accent)">${esc(i.target)}</td><td>${esc(i.trigger)}</td><td>${esc(i.payload)}</td><td>${idempotent}</td></tr>`;
       });
       html += '</tbody></table></div>';
     }
 
-    // 状态转换
     if (req.status_transitions && req.status_transitions.length) {
-      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">状态转换</h3>';
+      html += '<h3 class="section-title" style="margin-top:20px">状态转换</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>触发事件</th><th>源状态</th><th>目标状态</th><th>备注</th></tr></thead><tbody>';
       req.status_transitions.forEach(t => {
         html += `<tr><td>${esc(t.trigger)}</td><td>${esc(t.from)}</td><td>${esc(t.to)}</td><td>${esc(t.note)}</td></tr>`;
@@ -631,9 +610,8 @@
       html += '</tbody></table></div>';
     }
 
-    // 需求疑点
     if (req.ambiguities && req.ambiguities.length) {
-      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">需求疑点/待确认项</h3>';
+      html += '<h3 class="section-title" style="margin-top:20px">需求疑点 / 待确认项</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>编号</th><th>疑点描述</th><th>影响范围</th><th>建议确认方</th><th>风险等级</th></tr></thead><tbody>';
       req.ambiguities.forEach(a => {
         html += `<tr><td>${esc(a.id)}</td><td>${esc(a.description)}</td><td>${esc(a.scope)}</td><td>${esc(a.owner)}</td><td>${riskBadge(a.risk)}</td></tr>`;
@@ -641,9 +619,8 @@
       html += '</tbody></table></div>';
     }
 
-    // 接口与状态机专项覆盖
     if (req.state_coverage && req.state_coverage.length) {
-      html += '<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">接口与状态机专项覆盖</h3>';
+      html += '<h3 class="section-title" style="margin-top:20px">接口与状态机专项覆盖</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>覆盖项</th><th>有效转换</th><th>无效转换</th><th>重复事件</th><th>延迟回调</th><th>乱序事件</th></tr></thead><tbody>';
       req.state_coverage.forEach(s => {
         html += `<tr><td>${esc(s.item)}</td><td>${esc(s.valid)}</td><td>${esc(s.invalid)}</td><td>${esc(s.duplicate)}</td><td>${esc(s.delayed)}</td><td>${esc(s.disorder)}</td></tr>`;
@@ -654,23 +631,26 @@
     container.innerHTML = html;
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER: Raw Cases
+  // ─────────────────────────────────────────────────────────────────────────
   function renderRawCases() {
     if (!DATA.raw_cases) return;
-    renderTable('raw',
-      ['用例编号', '一级模块', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级'],
-      DATA.raw_cases,
-      ['id', 'level1', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority'],
-      {
-        filterBar: [
-          { label: '一级模块', type: 'select', id: 'raw-module-filter', options: getUniqueValues(DATA.raw_cases, 'level1') },
-          { label: '优先级', type: 'select', id: 'raw-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
-          { label: '搜索', type: 'text', id: 'raw-search' }
-        ],
-        badgeFields: ['priority']
-      }
-    );
+    const tc = DATA.template_columns;
+    const cols = (tc && tc.raw) ? tc.raw : ['用例编号', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级'];
+    const fields = (tc && tc.raw_fields) ? tc.raw_fields : ['id', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority'];
+    renderTable('raw', cols, DATA.raw_cases, fields, {
+      filterBar: [
+        { label: '优先级', type: 'select', id: 'raw-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
+        { label: '搜索', type: 'text', id: 'raw-search' }
+      ],
+      badgeFields: ['priority']
+    });
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER: Review Findings
+  // ─────────────────────────────────────────────────────────────────────────
   function renderReviewFindings() {
     if (!DATA.review_findings) return;
     renderTable('review',
@@ -682,106 +662,162 @@
           { label: '评审角色', type: 'select', id: 'review-role-filter', options: ['Arch', 'Dev', 'QA', 'PM', 'UX', 'Sec', 'Ops', 'Perf', 'DBA'] },
           { label: '缺陷类型', type: 'select', id: 'review-defect-filter', options: getUniqueValues(DATA.review_findings, 'defect_type') },
           { label: '搜索', type: 'text', id: 'review-search' }
-        ]
+        ],
+        roleFields: ['role'],
+        defectFields: ['defect_type']
       }
     );
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER: Optimized Cases
+  // ─────────────────────────────────────────────────────────────────────────
   function renderOptimizedCases() {
     if (!DATA.optimized_cases) return;
-    renderTable('optimized',
-      ['用例编号', '一级模块', '分类', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级', '优化记录'],
-      DATA.optimized_cases,
-      ['id', 'level1', 'category', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority', 'optimization_note'],
-      {
-        filterBar: [
-          { label: '一级模块', type: 'select', id: 'optimized-module-filter', options: getUniqueValues(DATA.optimized_cases, 'level1') },
-          { label: '分类', type: 'select', id: 'optimized-category-filter', options: getUniqueValues(DATA.optimized_cases, 'category') },
-          { label: '优先级', type: 'select', id: 'optimized-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
-          { label: '搜索', type: 'text', id: 'optimized-search' }
-        ],
-        badgeFields: ['priority'],
-        optField: 'optimization_note'
-      }
-    );
+    const tc = DATA.template_columns;
+    const cols = (tc && tc.optimized) ? tc.optimized : ['用例编号', '分类', '二级模块', '功能点', '用例标题', '前置条件', '用例步骤', '预期结果', '用例优先级', '优化记录'];
+    const fields = (tc && tc.optimized_fields) ? tc.optimized_fields : ['id', 'category', 'level2', 'feature', 'title', 'precondition', 'steps', 'expected', 'priority', 'optimization_note'];
+    renderTable('optimized', cols, DATA.optimized_cases, fields, {
+      filterBar: [
+        { label: '分类', type: 'select', id: 'optimized-category-filter', options: getUniqueValues(DATA.optimized_cases, 'category') },
+        { label: '优先级', type: 'select', id: 'optimized-priority-filter', options: ['P0', 'P1', 'P2', 'P3'] },
+        { label: '搜索', type: 'text', id: 'optimized-search' }
+      ],
+      badgeFields: ['priority'],
+      optField: 'optimization_note'
+    });
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER: Report (Tab 5)
+  // ─────────────────────────────────────────────────────────────────────────
   function renderReport() {
     const s = DATA.scoring;
     if (!s) return;
-
     const container = document.getElementById('report');
     let html = '';
 
-    // Core metrics
+    // ── 5.1 Stats cards (4 col) ──
     const rawCount = (DATA.raw_cases || []).length;
     const optCount = (DATA.optimized_cases || []).length;
     const caseIds = new Set((DATA.review_findings || []).map(f => f.case_id));
     const passed = rawCount - caseIds.size;
     const modified = caseIds.size;
+    const passRate = rawCount > 0 ? Math.round(passed / rawCount * 100) : 0;
+    const rejectRate = rawCount > 0 ? Math.round(modified / rawCount * 100) : 0;
+    const netChange = optCount - rawCount;
 
-    html += '<div class="metrics">';
-    html += `<div class="metric"><span>总用例数（原始）</span><strong>${rawCount}</strong></div>`;
-    html += `<div class="metric good"><span>评审通过数</span><strong>${passed}</strong></div>`;
-    html += `<div class="metric warn"><span>驳回/修改数</span><strong>${modified}</strong></div>`;
-    html += `<div class="metric"><span>优化后总用例</span><strong>${optCount}</strong></div>`;
+    html += '<div class="metrics-4">';
+    html += `<div class="metric-card"><div class="label">总用例数（原始）</div><div class="value" style="color:var(--accent)">${rawCount}</div></div>`;
+    html += `<div class="metric-card"><div class="label">评审通过数</div><div class="value score-green">${passed}</div><div class="aux">通过率 ${passRate}%</div></div>`;
+    html += `<div class="metric-card"><div class="label">驳回 / 修改数</div><div class="value score-amber">${modified}</div><div class="aux">驳回率 ${rejectRate}%</div></div>`;
+    html += `<div class="metric-card"><div class="label">优化后总用例</div><div class="value score-purple">${optCount}</div><div class="aux">净增 ${netChange >= 0 ? '+' : ''}${netChange}</div></div>`;
     html += '</div>';
 
-    // Coverage
+    // ── 5.2 Coverage cards (2 col) ──
     if (s.coverage) {
       const c = s.coverage;
-      html += '<div class="metrics">';
-      html += `<div class="metric"><span>功能点覆盖率</span><strong>${Math.round(c.func_orig/c.func_total*100)}% → ${Math.round(c.func_opt/c.func_total*100)}%</strong><div class="progress-bar"><div class="fill" style="width:${Math.round(c.func_opt/c.func_total*100)}%"></div></div></div>`;
-      html += `<div class="metric"><span>场景覆盖率</span><strong>${c.scenario_orig}% → ${c.scenario_opt}%</strong><div class="progress-bar"><div class="fill" style="width:${c.scenario_opt}%"></div></div></div>`;
+      const funcPct = c.func_total > 0 ? Math.round(c.func_opt / c.func_total * 100) : 0;
+      const funcOrigPct = c.func_total > 0 ? Math.round(c.func_orig / c.func_total * 100) : 0;
+
+      html += '<div class="metrics-2">';
+      html += `<div class="metric-card">
+        <div class="label">功能点覆盖率</div>
+        <div><span style="font-size:20px;color:var(--text-hint)">${funcOrigPct}%</span> <span style="color:var(--text-hint)">→</span> <span style="font-size:26px;font-weight:500;color:#0F6E56">${funcPct}%</span></div>
+        <div class="progress-bar"><div class="fill fill-green" style="width:${funcPct}%"></div></div>
+        <div class="aux">覆盖 ${c.func_opt}/${c.func_total} 个功能点</div>
+      </div>`;
+      html += `<div class="metric-card">
+        <div class="label">场景覆盖率</div>
+        <div><span style="font-size:20px;color:var(--text-hint)">${c.scenario_orig}%</span> <span style="color:var(--text-hint)">→</span> <span style="font-size:26px;font-weight:500;color:#BA7517">${c.scenario_opt}%</span></div>
+        <div class="progress-bar"><div class="fill fill-amber" style="width:${c.scenario_opt}%"></div></div>
+        <div class="aux">原始 → 优化后场景数对比</div>
+      </div>`;
       html += '</div>';
     }
 
-    // Role scores
+    // ── 5.3 Role scores + Radar ──
     if (s.role_scores) {
-      html += '<h3 style="margin:20px 0 12px;font-size:16px;">九方评审评分（ISO 25010 质量特性）</h3>';
-      html += '<div class="metrics" id="role-scores">';
+      html += '<h3 class="section-title" style="margin-bottom:12px">九方评审评分（ISO 25010 质量特性）</h3>';
+      html += '<div class="score-radar-grid">';
+
+      // Left: score cards (3 col)
+      html += '<div class="score-grid">';
       const roleOrder = ['Arch', 'Dev', 'QA', 'PM', 'UX', 'Sec', 'Ops', 'Perf', 'DBA'];
+      const scoreData = [];
       roleOrder.forEach(role => {
         const r = s.role_scores[role];
         if (!r) return;
-        const scoreCls = r.score >= 90 ? 'score-high' : (r.score >= 80 ? 'score-mid' : 'score-low');
-        html += `<div class="metric score-card"><span class="role-name">${esc(r.name)} (${role})</span><strong class="score-value ${scoreCls}">${r.score}</strong><div class="score-detail">${esc(r.breakdown)}</div>`;
-        if (r.summary) {
-          html += `<div class="score-summary" style="margin-top:10px;font-size:12px;color:var(--text-muted);text-align:left;line-height:1.6;">${esc(r.summary)}</div>`;
+        scoreData.push(r.score);
+        const scoreColor = r.score >= 95 ? 'score-green' : (r.score >= 90 ? 'score-blue' : (r.score >= 85 ? 'score-purple' : 'score-amber'));
+        const barColor = r.score >= 95 ? '#0F6E56' : (r.score >= 90 ? '#185FA5' : (r.score >= 85 ? '#534AB7' : '#854F0B'));
+
+        // Extract defect tags from breakdown
+        const defectTags = [];
+        if (r.breakdown && r.breakdown.includes('(')) {
+          const matches = r.breakdown.match(/\(([^)]+)\)/g);
+          if (matches) {
+            const seen = new Set();
+            matches.forEach(m => {
+              const text = m.slice(1, -1);
+              if (!seen.has(text)) { seen.add(text); defectTags.push(text); }
+            });
+          }
         }
-        html += '</div>';
+
+        html += `<div class="score-card">
+          <div class="role-name">${esc(r.name)} (${role})</div>
+          <div class="score-value ${scoreColor}">${r.score}</div>
+          <div class="score-bar"><div class="score-bar-fill" style="width:${r.score}%;background:${barColor}"></div></div>
+          ${defectTags.length ? `<div class="defect-tags">${defectTags.map(t => `<span class="defect-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+        </div>`;
       });
       html += '</div>';
+
+      // Right: radar chart
+      html += `<div class="radar-card">
+        <div class="radar-title">九方评审雷达图</div>
+        <div class="radar-wrapper"><canvas id="radar-chart"></canvas></div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:10px;font-size:11px">
+          <span><span style="width:10px;height:10px;background:#378ADD;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle"></span>实际得分</span>
+          <span><span style="width:10px;height:10px;background:#97C459;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle"></span>基准线 80</span>
+        </div>
+      </div>`;
+
+      html += '</div>';
+
+      // Render radar chart after DOM is ready
+      setTimeout(() => renderRadarChart(roleOrder, scoreData), 100);
     }
 
-    // Overall summary
+    // ── 5.4 Summary card ──
     if (s.overall_summary) {
-      html += '<h3 style="margin:20px 0 12px;font-size:16px;">评审总评</h3>';
-      html += `<div class="notice" style="white-space:pre-wrap;line-height:1.8;">${esc(s.overall_summary)}</div>`;
+      html += '<h3 class="section-title" style="margin-top:20px;margin-bottom:12px">评审总评</h3>';
+      html += `<div class="summary-card">${esc(s.overall_summary)}</div>`;
     }
 
-    // Summary (brief)
     if (s.summary) {
-      html += `<div class="notice">${s.summary}</div>`;
+      html += `<div class="notice" style="margin-top:16px">${s.summary}</div>`;
     }
 
-    // Two-column: Defect distribution + Radar
-    html += '<div class="report-grid-2">';
+    // Defect distribution + Quality radar data
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">';
 
     if (s.defect_distribution) {
-      html += '<div><h3>问题分布</h3>';
+      html += '<div><h3 class="section-title">问题分布</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>缺陷类型</th><th>数量</th><th>占比</th></tr></thead><tbody>';
       s.defect_distribution.forEach(d => {
-        html += `<tr><td>${esc(d.type)}</td><td>${d.count}</td><td>${d.percentage}%</td></tr>`;
+        html += `<tr><td>${defectBadge(d.type)}</td><td>${d.count}</td><td>${d.percentage}%</td></tr>`;
       });
       html += '</tbody></table></div></div>';
     }
 
     if (s.quality_radar) {
-      html += '<div><h3>质量特性覆盖雷达数据（8维度）</h3>';
+      html += '<div><h3 class="section-title">质量特性覆盖</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>质量特性</th><th>评分</th></tr></thead><tbody>';
       s.quality_radar.forEach(r => {
-        html += `<tr><td>${esc(r.dimension)}</td><td>${r.score}</td></tr>`;
+        const scoreColor = r.score >= 90 ? '#0F6E56' : (r.score >= 80 ? '#185FA5' : '#854F0B');
+        html += `<tr><td>${esc(r.dimension)}</td><td style="font-weight:500;color:${scoreColor}">${r.score}</td></tr>`;
       });
       html += '</tbody></table></div></div>';
     }
@@ -790,7 +826,7 @@
 
     // RTM
     if (s.rtm && s.rtm.length) {
-      html += '<h3 style="margin:20px 0 12px;font-size:16px;">需求追踪矩阵（RTM）</h3>';
+      html += '<h3 class="section-title" style="margin-top:20px;margin-bottom:12px">需求追踪矩阵（RTM）</h3>';
       html += '<div class="table-wrap"><table><thead><tr><th>需求编号</th><th>功能点</th><th>原始用例</th><th>优化后用例</th></tr></thead><tbody>';
       s.rtm.forEach(r => {
         html += `<tr><td>${esc(r.req_id)}</td><td>${esc(r.feature)}</td><td>${esc(r.orig_cases)}</td><td>${esc(r.opt_cases)}</td></tr>`;
@@ -799,6 +835,53 @@
     }
 
     container.innerHTML = html;
+  }
+
+  function renderRadarChart(labels, data) {
+    const canvas = document.getElementById('radar-chart');
+    if (!canvas || !window.Chart) return;
+
+    new Chart(canvas, {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: '实际得分',
+            data: data,
+            backgroundColor: 'rgba(55,138,221,0.12)',
+            borderColor: '#378ADD',
+            borderWidth: 2,
+            pointBackgroundColor: '#378ADD',
+            pointBorderColor: '#fff',
+            pointRadius: 4,
+          },
+          {
+            label: '基准线 80',
+            data: Array(9).fill(80),
+            backgroundColor: 'rgba(192,221,151,0.08)',
+            borderColor: '#97C459',
+            borderWidth: 1,
+            pointRadius: 0,
+            borderDash: [4, 3],
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          r: {
+            min: 70, max: 100,
+            ticks: { stepSize: 10, font: { size: 10 }, backdropColor: 'transparent' },
+            grid: { color: 'rgba(136,135,128,0.2)' },
+            pointLabels: { font: { size: 11 } },
+            angleLines: { color: 'rgba(136,135,128,0.2)' },
+          }
+        }
+      }
+    });
   }
 
   function getUniqueValues(arr, field) {
@@ -825,11 +908,8 @@
   function getFilterConfig(sectionId) {
     const table = document.querySelector(`#${sectionId}-table`);
     if (!table) return null;
-
     const headers = Array.from(table.rows[0].cells).map(c => c.textContent.trim());
     const cfg = { sectionId, search: `${sectionId}-search`, count: `${sectionId}-count` };
-
-    // Auto-detect columns
     headers.forEach((h, i) => {
       if (h === '一级模块') cfg.moduleCol = i;
       if (h === '分类') cfg.categoryCol = i;
@@ -837,12 +917,9 @@
       if (h === '评审角色') cfg.roleCol = i;
       if (h === '缺陷类型') cfg.defectCol = i;
     });
-
-    // Auto-detect filters
     const section = document.getElementById(sectionId);
     if (section) {
-      const selects = section.querySelectorAll('.filter-bar select');
-      selects.forEach(sel => {
+      section.querySelectorAll('.filter-bar select').forEach(sel => {
         if (sel.id.includes('module')) cfg.moduleFilter = sel.id;
         if (sel.id.includes('category')) cfg.categoryFilter = sel.id;
         if (sel.id.includes('priority')) cfg.priorityFilter = sel.id;
@@ -850,7 +927,6 @@
         if (sel.id.includes('defect')) cfg.defectFilter = sel.id;
       });
     }
-
     return cfg;
   }
 
@@ -862,10 +938,8 @@
   function filterTable(sectionId) {
     const cfg = getFilterConfig(sectionId);
     if (!cfg) return;
-
     const table = document.getElementById(`${sectionId}-table`);
     if (!table) return;
-
     const module = cfg.moduleFilter ? document.getElementById(cfg.moduleFilter).value : "";
     const category = cfg.categoryFilter ? document.getElementById(cfg.categoryFilter).value : "";
     const priority = cfg.priorityFilter ? document.getElementById(cfg.priorityFilter).value : "";
@@ -895,21 +969,15 @@
   function buildFilterOptions(sectionId) {
     const table = document.getElementById(`${sectionId}-table`);
     if (!table) return;
-
     const section = document.getElementById(sectionId);
     if (!section) return;
-
-    const selects = section.querySelectorAll('.filter-bar select');
-    selects.forEach(sel => {
-      if (sel.options.length > 1) return; // Already has options
-
+    section.querySelectorAll('.filter-bar select').forEach(sel => {
+      if (sel.options.length > 1) return;
       const headers = Array.from(table.rows[0].cells).map(c => c.textContent.trim());
       let colIdx = -1;
-
       if (sel.id.includes('module')) colIdx = headers.indexOf('一级模块');
       if (sel.id.includes('category')) colIdx = headers.indexOf('分类');
       if (sel.id.includes('defect')) colIdx = headers.indexOf('缺陷类型');
-
       if (colIdx >= 0) {
         const vals = new Set();
         Array.from(table.rows).slice(1).forEach(row => {
@@ -919,8 +987,7 @@
         vals.forEach(v => {
           if (!v) return;
           const opt = document.createElement("option");
-          opt.value = v;
-          opt.textContent = v;
+          opt.value = v; opt.textContent = v;
           sel.appendChild(opt);
         });
       }
@@ -937,7 +1004,7 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // SNAPSHOT (for reset)
+  // SNAPSHOT
   // ─────────────────────────────────────────────────────────────────────────
   function snapshotTable(tableId) {
     const table = document.getElementById(tableId);
@@ -949,10 +1016,7 @@
       })
     );
   }
-
-  function snapshotAllTables() {
-    document.querySelectorAll("table[id]").forEach(t => snapshotTable(t.id));
-  }
+  function snapshotAllTables() { document.querySelectorAll("table[id]").forEach(t => snapshotTable(t.id)); }
 
   // ─────────────────────────────────────────────────────────────────────────
   // EDIT MODE
@@ -962,20 +1026,17 @@
     const btn = document.getElementById("btn-edit");
     const addBtn = document.getElementById("btn-add");
     const resetBtn = document.getElementById("btn-reset");
-    btn.textContent = editMode ? "✔ 完成编辑" : "✏ 开启编辑";
-    btn.className = editMode ? "button" : "secondary";
+    btn.textContent = editMode ? "完成编辑" : "开启编辑";
+    btn.className = editMode ? "" : "secondary";
     addBtn.disabled = !editMode;
     resetBtn.disabled = !editMode;
 
-    document.querySelectorAll("table tbody tr:not(.row-deleted) td:not(.col-action), table tr:not(:first-child) td:not(.col-action)").forEach(td => {
+    document.querySelectorAll("table tbody tr:not(.row-deleted) td:not(.col-action)").forEach(td => {
       if (editMode) {
         td.setAttribute("contenteditable", "true");
-        td.dataset.placeholder = "输入内容…";
+        td.dataset.placeholder = "输入内容...";
         const badge = td.querySelector(".badge");
-        if (badge) {
-          td.dataset.rawValue = badge.textContent.trim();
-          td.textContent = badge.textContent.trim();
-        }
+        if (badge) { td.dataset.rawValue = badge.textContent.trim(); td.textContent = badge.textContent.trim(); }
         td.addEventListener("input", onCellInput);
       } else {
         td.removeAttribute("contenteditable");
@@ -983,22 +1044,13 @@
       }
     });
 
-    document.querySelectorAll(".col-action").forEach(el => {
-      el.style.display = editMode ? "" : "none";
-    });
+    document.querySelectorAll(".col-action").forEach(el => { el.style.display = editMode ? "" : "none"; });
 
-    if (!editMode) {
-      renderPriorityBadges();
-      updateEditBadge();
-    }
-
-    toast(editMode ? "编辑模式已开启，点击单元格直接修改" : "编辑已完成");
+    if (!editMode) { renderPriorityBadges(); updateEditBadge(); }
+    toast(editMode ? "编辑模式已开启" : "编辑已完成");
   }
 
-  function onCellInput(e) {
-    editCount++;
-    updateEditBadge();
-  }
+  function onCellInput() { editCount++; updateEditBadge(); }
 
   function updateEditBadge() {
     const badge = document.getElementById("edit-badge");
@@ -1015,7 +1067,7 @@
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // ADD ROW
+  // ADD / DELETE / RESTORE ROW
   // ─────────────────────────────────────────────────────────────────────────
   function addRow() {
     const activeSection = document.querySelector("section.active");
@@ -1033,28 +1085,27 @@
         td.innerHTML = buildRowActionBtns();
       } else {
         td.setAttribute("contenteditable", "true");
-        td.dataset.placeholder = "输入内容…";
+        td.dataset.placeholder = "输入内容...";
         td.addEventListener("input", onCellInput);
       }
       tr.appendChild(td);
     }
     table.tBodies[0] ? table.tBodies[0].appendChild(tr) : table.appendChild(tr);
     updateEditBadge();
-    toast("已新增一行，请填写内容");
+    toast("已新增一行");
   }
 
   function buildRowActionBtns() {
-    return `<button class="btn-row del" title="删除此行" onclick="deleteRow(this)">🗑</button>`;
+    return `<button class="btn-row del" title="删除" onclick="deleteRow(this)">✖</button>`;
   }
 
   function deleteRow(btn) {
     const tr = btn.closest("tr");
-    if (tr.classList.contains("row-new")) {
-      tr.remove();
-    } else {
+    if (tr.classList.contains("row-new")) { tr.remove(); }
+    else {
       tr.classList.add("row-deleted");
       tr.querySelectorAll("td:not(.col-action)").forEach(td => td.removeAttribute("contenteditable"));
-      btn.outerHTML = `<button class="btn-row restore" title="恢复此行" onclick="restoreRow(this)">↩</button>`;
+      btn.outerHTML = `<button class="btn-row restore" title="恢复" onclick="restoreRow(this)">↩</button>`;
     }
     updateEditBadge();
     const sectionId = tr.closest("section") ? tr.closest("section").id : null;
@@ -1064,24 +1115,20 @@
   function restoreRow(btn) {
     const tr = btn.closest("tr");
     tr.classList.remove("row-deleted");
-    tr.querySelectorAll("td:not(.col-action)").forEach(td => {
-      if (editMode) td.setAttribute("contenteditable", "true");
-    });
+    tr.querySelectorAll("td:not(.col-action)").forEach(td => { if (editMode) td.setAttribute("contenteditable", "true"); });
     btn.outerHTML = buildRowActionBtns();
     updateEditBadge();
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // RESET ALL EDITS
+  // RESET
   // ─────────────────────────────────────────────────────────────────────────
   function resetEdits() {
-    if (!confirm("确认撤销所有编辑，恢复到初始状态？")) return;
+    if (!confirm("确认撤销所有编辑？")) return;
     document.querySelectorAll("tr.row-new").forEach(tr => tr.remove());
     document.querySelectorAll("tr.row-deleted").forEach(tr => {
       tr.classList.remove("row-deleted");
-      tr.querySelectorAll("td:not(.col-action)").forEach(td => {
-        if (editMode) td.setAttribute("contenteditable", "true");
-      });
+      tr.querySelectorAll("td:not(.col-action)").forEach(td => { if (editMode) td.setAttribute("contenteditable", "true"); });
       const restoreBtn = tr.querySelector(".btn-row.restore");
       if (restoreBtn) restoreBtn.outerHTML = buildRowActionBtns();
     });
@@ -1114,15 +1161,14 @@
       if (td.querySelector(".badge")) return;
       const text = td.textContent.trim().toUpperCase();
       if (/^P[0-3]$/.test(text)) {
-        const cls = "badge badge-" + text.toLowerCase();
         td.dataset.rawValue = text;
-        td.innerHTML = `<span class="${cls}">${text}</span>`;
+        td.innerHTML = priorityBadge(text);
       }
     });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // XLSX GENERATION (pure JS, Open XML, no dependencies)
+  // XLSX GENERATION
   // ─────────────────────────────────────────────────────────────────────────
   function tableToSheetData(tableEl) {
     if (!tableEl) return { columns: [], rows: [] };
@@ -1135,25 +1181,15 @@
       if (row.classList.contains("row-deleted")) continue;
       const dataCells = Array.from(row.cells).filter(c => !c.classList.contains("col-action"));
       const rowData = {};
-      dataCells.forEach((cell, ci) => {
-        rowData[columns[ci]] = (cell.dataset.rawValue !== undefined ? cell.dataset.rawValue : cell.textContent).trim();
-      });
+      dataCells.forEach((cell, ci) => { rowData[columns[ci]] = (cell.dataset.rawValue !== undefined ? cell.dataset.rawValue : cell.textContent).trim(); });
       rows.push(rowData);
     }
     return { columns, rows };
   }
 
-  function escXml(s) {
-    return String(s == null ? "" : s)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;").replace(/'/g,"&apos;");
-  }
+  function escXml(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;"); }
 
-  function colLetter(idx) {
-    let name = ""; idx++;
-    while (idx) { const r = (idx-1)%26; name = String.fromCharCode(65+r)+name; idx=Math.floor((idx-1)/26); }
-    return name;
-  }
+  function colLetter(idx) { let name = ""; idx++; while (idx) { const r = (idx-1)%26; name = String.fromCharCode(65+r)+name; idx=Math.floor((idx-1)/26); } return name; }
 
   function buildSheetXml(columns, rows) {
     const styles = window.__XLSX_STYLES__ || {};
@@ -1164,10 +1200,7 @@
     const STYLE_HEADER = 1, STYLE_WRAP = 2;
     const PRIORITY_STYLES = {};
     let styleIdx = 3;
-    Object.entries(priorityColors).forEach(([p, color]) => {
-      if (color) PRIORITY_STYLES[p] = styleIdx++;
-    });
-
+    Object.entries(priorityColors).forEach(([p, color]) => { if (color) PRIORITY_STYLES[p] = styleIdx++; });
     const PRIORITY_COLS = new Set(["用例优先级", "优先级", "priority"]);
 
     function cellXml(val, ri, ci, si) {
@@ -1178,42 +1211,24 @@
 
     const priorityColIndices = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
     const xmlRows = [];
-
-    const hdr = columns.map((c,i)=>cellXml(c,1,i,STYLE_HEADER)).join("");
-    xmlRows.push(`<row r="1">${hdr}</row>`);
+    xmlRows.push(`<row r="1">${columns.map((c,i)=>cellXml(c,1,i,STYLE_HEADER)).join("")}</row>`);
 
     rows.forEach((row,ri) => {
       const vals = columns.map(c=>typeof row==="object"&&!Array.isArray(row)?row[c]??"":row[c]??"");
-      const cells = vals.map((v,ci)=>{
-        let si = STYLE_WRAP;
-        if (priorityColIndices.has(ci)) si = PRIORITY_STYLES[String(v).trim().toUpperCase()] ?? STYLE_WRAP;
-        return cellXml(v, ri+2, ci, si);
-      }).join("");
+      const cells = vals.map((v,ci)=>{ let si=STYLE_WRAP; if(priorityColIndices.has(ci)) si=PRIORITY_STYLES[String(v).trim().toUpperCase()]??STYLE_WRAP; return cellXml(v,ri+2,ci,si); }).join("");
       xmlRows.push(`<row r="${ri+2}">${cells}</row>`);
     });
 
     const lastCol = colLetter(Math.max(columns.length-1,0));
     const lastRow = Math.max(rows.length+1,1);
     const dim = columns.length ? `A1:${lastCol}${lastRow}` : "A1";
-
-    const colWidths = columns.map((c,ci)=>{
-      const maxLen = Math.max(c.length, ...rows.map(r=>{
-        const v = typeof r==="object"&&!Array.isArray(r)?r[c]??"":r[ci]??"";
-        return String(v).length;
-      }));
-      return Math.min(Math.max(maxLen*1.2,8),60);
-    });
+    const colWidths = columns.map((c,ci)=>{ const maxLen=Math.max(c.length,...rows.map(r=>{const v=typeof r==="object"&&!Array.isArray(r)?r[c]??"":r[ci]??"";return String(v).length;})); return Math.min(Math.max(maxLen*1.2,8),60); });
     const colsXml = colWidths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w.toFixed(1)}" bestFit="1" customWidth="1"/>`).join("");
 
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-      +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-      +`<dimension ref="${dim}"/>`
-      +'<sheetViews><sheetView workbookViewId="0"/></sheetViews>'
-      +'<sheetFormatPr defaultRowHeight="15"/>'
-      +`<cols>${colsXml}</cols>`
-      +`<sheetData>${xmlRows.join("")}</sheetData>`
-      +'</worksheet>';
+      +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+      +`<dimension ref="${dim}"/>`+'<sheetViews><sheetView workbookViewId="0"/></sheetViews>'+'<sheetFormatPr defaultRowHeight="15"/>'
+      +`<cols>${colsXml}</cols>`+`<sheetData>${xmlRows.join("")}</sheetData>`+'</worksheet>';
   }
 
   function buildStylesXml() {
@@ -1222,229 +1237,94 @@
     const priorityColors = styles.priority_colors || { P0: "FFFFC7CE", P1: "FFFFEB9C", P2: "FFFFFFCC" };
     const borderColor = styles.border_color || "FFD9DEE8";
 
-    const fills = ['<fill><patternFill patternType="none"/></fill>',
-      '<fill><patternFill patternType="gray125"/></fill>',
-      `<fill><patternFill patternType="solid"><fgColor rgb="${headerFill}"/></patternFill></fill>`];
+    const fills = ['<fill><patternFill patternType="none"/></fill>','<fill><patternFill patternType="gray125"/></fill>',`<fill><patternFill patternType="solid"><fgColor rgb="${headerFill}"/></patternFill></fill>`];
+    Object.values(priorityColors).forEach(color => { if (color) fills.push(`<fill><patternFill patternType="solid"><fgColor rgb="${color}"/></patternFill></fill>`); });
 
-    Object.values(priorityColors).forEach(color => {
-      if (color) fills.push(`<fill><patternFill patternType="solid"><fgColor rgb="${color}"/></patternFill></fill>`);
-    });
-
-    const cellXfs = [
-      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>',
-      `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>`,
-      '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-    ];
-
-    Object.values(priorityColors).forEach((color, i) => {
-      if (color) cellXfs.push(`<xf numFmtId="0" fontId="0" fillId="${i+3}" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>`);
-    });
+    const cellXfs = ['<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>',`<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf>`,'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'];
+    Object.values(priorityColors).forEach((color, i) => { if (color) cellXfs.push(`<xf numFmtId="0" fontId="0" fillId="${i+3}" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>`); });
 
     return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
       +'<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
       +`<fills count="${fills.length}">${fills.join('')}</fills>`
-      +'<borders count="2"><border/><border>'
-      +`<left style="thin"><color rgb="${borderColor}"/></left><right style="thin"><color rgb="${borderColor}"/></right>`
-      +`<top style="thin"><color rgb="${borderColor}"/></top><bottom style="thin"><color rgb="${borderColor}"/></bottom>`
-      +'</border></borders>'
+      +'<borders count="2"><border/><border>'+`<left style="thin"><color rgb="${borderColor}"/></left><right style="thin"><color rgb="${borderColor}"/></right><top style="thin"><color rgb="${borderColor}"/></top><bottom style="thin"><color rgb="${borderColor}"/></bottom>`+'</border></borders>'
       +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
       +`<cellXfs count="${cellXfs.length}">${cellXfs.join('')}</cellXfs></styleSheet>`;
   }
 
-  // ── ZIP builder (no dependency) ────────────────────────────────────────
+  // ── ZIP builder ──
   function strToU8(str) { return new TextEncoder().encode(str); }
-  function u8concat(arrays) {
-    const total = arrays.reduce((s,a)=>s+a.length,0);
-    const out = new Uint8Array(total);
-    let offset=0;
-    arrays.forEach(a=>{out.set(a,offset);offset+=a.length;});
-    return out;
-  }
+  function u8concat(arrays) { const total=arrays.reduce((s,a)=>s+a.length,0); const out=new Uint8Array(total); let offset=0; arrays.forEach(a=>{out.set(a,offset);offset+=a.length;}); return out; }
 
   function crc32(data) {
-    const table = crc32.table || (crc32.table = (()=>{
-      const t=new Uint32Array(256);
-      for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}
-      return t;
-    })());
-    let crc=0xFFFFFFFF;
-    for(let i=0;i<data.length;i++) crc=table[(crc^data[i])&0xFF]^(crc>>>8);
-    return (crc^0xFFFFFFFF)>>>0;
+    const table = crc32.table || (crc32.table = (()=>{ const t=new Uint32Array(256); for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;} return t; })());
+    let crc=0xFFFFFFFF; for(let i=0;i<data.length;i++) crc=table[(crc^data[i])&0xFF]^(crc>>>8); return (crc^0xFFFFFFFF)>>>0;
   }
-
-  function dosTime() {
-    const d=new Date();
-    return ((d.getFullYear()-1980)<<25|(d.getMonth()+1)<<21|d.getDate()<<16|d.getHours()<<11|d.getMinutes()<<5|Math.floor(d.getSeconds()/2))>>>0;
-  }
-
+  function dosTime() { const d=new Date(); return ((d.getFullYear()-1980)<<25|(d.getMonth()+1)<<21|d.getDate()<<16|d.getHours()<<11|d.getMinutes()<<5|Math.floor(d.getSeconds()/2))>>>0; }
   function u32le(n){const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n,true);return b;}
   function u16le(n){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,true);return b;}
 
   function zipStore(files) {
-    const entries=[];
-    let offset=0;
-    const dt=dosTime();
-    const localHeaders=[];
-
-    files.forEach(f=>{
-      const nameBytes=strToU8(f.name);
-      const crc=crc32(f.data);
-      const size=f.data.length;
-      const lh=u8concat([
-        new Uint8Array([0x50,0x4B,0x03,0x04]),
-        u16le(20), u16le(0), u16le(0),
-        u16le(dt&0xFFFF), u16le(dt>>>16),
-        u32le(crc),
-        u32le(size), u32le(size),
-        u16le(nameBytes.length), u16le(0),
-        nameBytes,
-      ]);
-      localHeaders.push(lh);
-      entries.push({nameBytes,crc,size,offset});
-      offset+=lh.length+size;
-    });
-
-    const cdParts=[];
-    entries.forEach((e,i)=>{
-      const dt2=dosTime();
-      cdParts.push(u8concat([
-        new Uint8Array([0x50,0x4B,0x01,0x02]),
-        u16le(20), u16le(20), u16le(0), u16le(0),
-        u16le(dt2&0xFFFF), u16le(dt2>>>16),
-        u32le(e.crc), u32le(e.size), u32le(e.size),
-        u16le(e.nameBytes.length), u16le(0), u16le(0),
-        u16le(0), u16le(0), u32le(0),
-        u32le(e.offset),
-        e.nameBytes,
-      ]));
-    });
-    const cd=u8concat(cdParts);
-    const cdOffset=offset;
-    const eocd=u8concat([
-      new Uint8Array([0x50,0x4B,0x05,0x06]),
-      u16le(0),u16le(0),
-      u16le(files.length),u16le(files.length),
-      u32le(cd.length), u32le(cdOffset),
-      u16le(0),
-    ]);
-
-    const parts=[];
-    files.forEach((f,i)=>{parts.push(localHeaders[i]);parts.push(f.data);});
-    parts.push(cd); parts.push(eocd);
+    const entries=[]; let offset=0; const dt=dosTime(); const localHeaders=[];
+    files.forEach(f=>{ const nameBytes=strToU8(f.name); const crc=crc32(f.data); const size=f.data.length; const lh=u8concat([new Uint8Array([0x50,0x4B,0x03,0x04]),u16le(20),u16le(0),u16le(0),u16le(dt&0xFFFF),u16le(dt>>>16),u32le(crc),u32le(size),u32le(size),u16le(nameBytes.length),u16le(0),nameBytes]); localHeaders.push(lh); entries.push({nameBytes,crc,size,offset}); offset+=lh.length+size; });
+    const cdParts=[]; entries.forEach((e,i)=>{ const dt2=dosTime(); cdParts.push(u8concat([new Uint8Array([0x50,0x4B,0x01,0x02]),u16le(20),u16le(20),u16le(0),u16le(0),u16le(dt2&0xFFFF),u16le(dt2>>>16),u32le(e.crc),u32le(e.size),u32le(e.size),u16le(e.nameBytes.length),u16le(0),u16le(0),u16le(0),u16le(0),u32le(0),u32le(e.offset),e.nameBytes])); });
+    const cd=u8concat(cdParts); const cdOffset=offset;
+    const eocd=u8concat([new Uint8Array([0x50,0x4B,0x05,0x06]),u16le(0),u16le(0),u16le(files.length),u16le(files.length),u32le(cd.length),u32le(cdOffset),u16le(0)]);
+    const parts=[]; files.forEach((f,i)=>{parts.push(localHeaders[i]);parts.push(f.data);}); parts.push(cd); parts.push(eocd);
     return u8concat(parts);
   }
 
-  // ── Main download ──────────────────────────────────────────────────────
   function downloadXlsx() {
-    const sheetDefs = [
-      { id: "raw",       name: "原始用例集" },
-      { id: "review",    name: "AI评审详情" },
-      { id: "optimized", name: "优化后用例集" },
-    ];
-
-    const files = [];
-    const sheetFiles = [];
+    const sheetDefs = [{ id: "raw", name: "原始用例集" }, { id: "review", name: "AI评审详情" }, { id: "optimized", name: "优化后用例集" }];
+    const files = []; const sheetFiles = [];
     sheetDefs.forEach(({id, name}, idx) => {
-      const table = document.getElementById(`${id}-table`);
-      if (!table) return;
+      const table = document.getElementById(`${id}-table`); if (!table) return;
       const { columns, rows } = tableToSheetData(table);
-      const xml = buildSheetXml(columns, rows);
-      sheetFiles.push({ sheetName: name, idx: idx+1, xml });
+      sheetFiles.push({ sheetName: name, idx: idx+1, xml: buildSheetXml(columns, rows) });
     });
 
     const workbookSheetsXml = sheetFiles.map(s=>`<sheet name="${escXml(s.sheetName)}" sheetId="${s.idx}" r:id="rId${s.idx}"/>`).join("");
-    const workbookRelsXml = sheetFiles.map(s=>`<Relationship Id="rId${s.idx}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${s.idx}.xml"/>`).join("")
-      + `<Relationship Id="rId${sheetFiles.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+    const workbookRelsXml = sheetFiles.map(s=>`<Relationship Id="rId${s.idx}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${s.idx}.xml"/>`).join("") + `<Relationship Id="rId${sheetFiles.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
     const contentOverrides = sheetFiles.map(s=>`<Override PartName="/xl/worksheets/sheet${s.idx}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("");
 
-    files.push({ name: "[Content_Types].xml", data: strToU8(
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-      +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-      +'<Default Extension="xml" ContentType="application/xml"/>'
-      +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-      +'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
-      +contentOverrides+'</Types>'
-    )});
-    files.push({ name: "_rels/.rels", data: strToU8(
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-      +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
-      +'</Relationships>'
-    )});
-    files.push({ name: "xl/workbook.xml", data: strToU8(
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      +'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
-      +'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-      +`<sheets>${workbookSheetsXml}</sheets></workbook>`
-    )});
-    files.push({ name: "xl/_rels/workbook.xml.rels", data: strToU8(
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-      +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-      +workbookRelsXml+'</Relationships>'
-    )});
+    files.push({ name: "[Content_Types].xml", data: strToU8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+'<Default Extension="xml" ContentType="application/xml"/>'+'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+contentOverrides+'</Types>')});
+    files.push({ name: "_rels/.rels", data: strToU8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'+'</Relationships>')});
+    files.push({ name: "xl/workbook.xml", data: strToU8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+`<sheets>${workbookSheetsXml}</sheets></workbook>`)});
+    files.push({ name: "xl/_rels/workbook.xml.rels", data: strToU8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+workbookRelsXml+'</Relationships>')});
     files.push({ name: "xl/styles.xml", data: strToU8(buildStylesXml()) });
-    sheetFiles.forEach(s => {
-      files.push({ name: `xl/worksheets/sheet${s.idx}.xml`, data: strToU8(s.xml) });
-    });
+    sheetFiles.forEach(s => { files.push({ name: `xl/worksheets/sheet${s.idx}.xml`, data: strToU8(s.xml) }); });
 
     const zipBytes = zipStore(files);
     const blob = new Blob([zipBytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "测试用例集_" + new Date().toLocaleDateString("sv-SE") + ".xlsx";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast("Excel 已生成并下载（含所有编辑内容）");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "测试用例集_" + new Date().toLocaleDateString("sv-SE") + ".xlsx"; a.click();
+    URL.revokeObjectURL(a.href); toast("Excel 已下载");
   }
 
   // ─────────────────────────────────────────────────────────────────────────
   // COPY
   // ─────────────────────────────────────────────────────────────────────────
   async function copyOptimized() {
-    const table = document.getElementById("optimized-table");
-    if (!table) return;
-    const rows = Array.from(table.rows)
-      .filter(row => !row.classList.contains("hidden") && !row.classList.contains("row-deleted"))
-      .map(row =>
-        Array.from(row.cells)
-          .filter(c => !c.classList.contains("col-action"))
-          .map(cell => (cell.dataset.rawValue||cell.innerText).trim().replace(/\s+/g," "))
-          .join("\t")
-      ).join("\n");
-    await navigator.clipboard.writeText(rows);
-    toast("已复制优化后用例（含当前筛选 + 编辑结果）");
+    const table = document.getElementById("optimized-table"); if (!table) return;
+    const rows = Array.from(table.rows).filter(row => !row.classList.contains("hidden") && !row.classList.contains("row-deleted")).map(row => Array.from(row.cells).filter(c => !c.classList.contains("col-action")).map(cell => (cell.dataset.rawValue||cell.innerText).trim().replace(/\s+/g," ")).join("\t")).join("\n");
+    await navigator.clipboard.writeText(rows); toast("已复制优化后用例");
   }
 
   // ─────────────────────────────────────────────────────────────────────────
   // TOAST
   // ─────────────────────────────────────────────────────────────────────────
   let toastTimer;
-  function toast(msg) {
-    const el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=>el.classList.remove("show"), 2600);
-  }
+  function toast(msg) { const el = document.getElementById("toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove("show"), 2600); }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // ADD ACTION COLUMN TO TABLES (hidden until edit mode)
+  // ACTION COLUMN
   // ─────────────────────────────────────────────────────────────────────────
   function injectActionColumns() {
     document.querySelectorAll("section table").forEach(table => {
-      const th = document.createElement("th");
-      th.className = "col-action";
-      th.textContent = "操作";
-      th.style.display = "none";
+      const th = document.createElement("th"); th.className = "col-action"; th.textContent = "操作"; th.style.display = "none";
       if (table.rows[0]) table.rows[0].appendChild(th);
       Array.from(table.rows).slice(1).forEach(row => {
-        const td = document.createElement("td");
-        td.className = "col-action";
-        td.style.display = "none";
-        td.innerHTML = buildRowActionBtns();
-        row.appendChild(td);
+        const td = document.createElement("td"); td.className = "col-action"; td.style.display = "none"; td.innerHTML = buildRowActionBtns(); row.appendChild(td);
       });
     });
   }
@@ -1453,29 +1333,36 @@
   // INIT
   // ─────────────────────────────────────────────────────────────────────────
   function init() {
-    // Update title from data
     if (DATA.meta) {
       if (DATA.meta.title) document.getElementById('report-title').textContent = DATA.meta.title;
       if (DATA.meta.subtitle) document.getElementById('report-subtitle').textContent = DATA.meta.subtitle;
     }
 
-    // Render all sections
+    // Header badges
+    const rawCount = (DATA.raw_cases || []).length;
+    const findingsCount = (DATA.review_findings || []).length;
+    if (rawCount > 0) {
+      const bc = document.getElementById('badge-cases');
+      bc.textContent = `${rawCount} 条用例`;
+      bc.style.display = '';
+    }
+    if (findingsCount > 0) {
+      const bf = document.getElementById('badge-findings');
+      bf.textContent = `${findingsCount} 条评审意见`;
+      bf.style.display = '';
+    }
+
     renderRequirements();
     renderRawCases();
     renderReviewFindings();
     renderOptimizedCases();
     renderReport();
-
-    // Initialize interactions
     renderPriorityBadges();
     injectActionColumns();
     snapshotAllTables();
   }
 
-  // Run init when data is available
-  if (Object.keys(DATA).length > 0) {
-    init();
-  }
+  if (Object.keys(DATA).length > 0) { init(); }
   </script>
 </body>
 </html>

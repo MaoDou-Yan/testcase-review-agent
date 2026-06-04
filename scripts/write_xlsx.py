@@ -88,11 +88,12 @@ def cell_xml(value: Any, row_idx: int, col_idx: int, style_idx: int = STYLE_WRAP
     )
 
 
-def sheet_xml(columns: list[str], rows: list[Any]) -> tuple[str, list[int]]:
+def sheet_xml(columns: list[str], rows: list[Any], priority_cols: set[str] | None = None) -> tuple[str, list[int]]:
     """Return (sheet XML string, list of estimated col widths)."""
     # Determine which column indices are priority columns
+    pcols = priority_cols if priority_cols is not None else PRIORITY_COL_NAMES
     priority_col_indices = {
-        i for i, c in enumerate(columns) if c in PRIORITY_COL_NAMES
+        i for i, c in enumerate(columns) if c in pcols
     }
 
     xml_rows = []
@@ -220,10 +221,19 @@ def build_styles_xml() -> str:
 # Main writer
 # ---------------------------------------------------------------------------
 
-def write_xlsx(payload: dict[str, Any], output: Path) -> None:
+def write_xlsx(payload: dict[str, Any], output: Path, template_context: dict[str, Any] | None = None) -> None:
     sheets = payload.get("sheets") or []
     if not sheets:
         raise ValueError("JSON must contain at least one sheet")
+
+    # Build dynamic priority column set from template context
+    extra_priority_cols: set[str] = set()
+    if template_context:
+        for sheet_ctx in template_context.get("sheets", []):
+            for col_name, field in sheet_ctx.get("column_mapping", {}).items():
+                if field == "priority":
+                    extra_priority_cols.add(col_name)
+    all_priority_cols = PRIORITY_COL_NAMES | extra_priority_cols
 
     normalized = []
     used: set[str] = set()
@@ -295,7 +305,7 @@ def write_xlsx(payload: dict[str, Any], output: Path) -> None:
         z.writestr("xl/styles.xml", build_styles_xml())
 
         for idx, sheet in enumerate(normalized, start=1):
-            xml, _ = sheet_xml(sheet["columns"], sheet["rows"])
+            xml, _ = sheet_xml(sheet["columns"], sheet["rows"], all_priority_cols)
             z.writestr(f"xl/worksheets/sheet{idx}.xml", xml)
 
 
@@ -303,8 +313,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("input_json", type=Path)
     parser.add_argument("output_xlsx", type=Path)
+    parser.add_argument("--template", type=Path, default=None,
+                        help="Template context JSON for dynamic column mapping")
     args = parser.parse_args()
-    write_xlsx(json.loads(args.input_json.read_text(encoding="utf-8")), args.output_xlsx)
+    template_ctx = None
+    if args.template and args.template.exists():
+        template_ctx = json.loads(args.template.read_text(encoding="utf-8"))
+    write_xlsx(json.loads(args.input_json.read_text(encoding="utf-8")), args.output_xlsx, template_ctx)
 
 
 if __name__ == "__main__":

@@ -70,6 +70,26 @@ Within a single project or conversation session:
 
 **ID format**: `PrimaryModule-SecondaryModule-NNN` (e.g., `Login-Password-001`) or `Module-NNN` for non-functional cases (e.g., `Perf-001`).
 
+## Stage -1: Template Parsing (Optional)
+
+When the user provides a template Excel file (historical test cases or format template):
+
+1. Run `python scripts/parse_template.py <template.xlsx>` to generate `output/template-context.json`
+2. Read the generated `template-context.json` to understand:
+   - Column structure and column-to-field mapping
+   - Extra columns beyond the standard 9 fields
+   - ID naming pattern (e.g., `XX-NNN` or `XX-XX-NNN`)
+   - Priority value format (e.g., `P0/P1/P2` or `高/中/低`)
+   - Sample rows showing the expected writing style
+3. In all subsequent stages, follow the template's format:
+   - Use the template's column names when generating output
+   - Fill extra columns with contextually appropriate values (e.g., "编写人" → "AI", "用例类型" → infer from scenario)
+   - Match the template's ID naming pattern
+   - Match the template's priority value format
+   - Follow the writing style observed in sample rows (step granularity, expected result detail level, etc.)
+
+If no template is provided, use the default 9-column format.
+
 ## Stage 0: Requirement Extraction
 
 Before creating cases, extract a structured requirement inventory:
@@ -89,6 +109,23 @@ Output as `requirements` in report-data.json with keys: `modules`, `interfaces`,
 
 Create cases with these fields:
 - `id`, `level1`, `level2`, `feature`, `title`, `precondition`, `steps`, `expected`, `priority`
+
+**Template-aware generation**: If `output/template-context.json` exists from Stage -1:
+- Include all template columns as fields in each case object (use template column names as keys)
+- Map internal fields to template column names using `column_mapping`
+- Fill `extra_columns` with contextually appropriate values
+- Use the template's `id_pattern` for case IDs
+- Use the template's `priority_values` for priority field
+- Add a `template_columns` field to `report-data.json` with the following structure:
+  ```json
+  "template_columns": {
+    "raw": ["模板列名1", "模板列名2", ...],
+    "raw_fields": ["field1", "field2", ...],
+    "optimized": ["模板列名1", ...],
+    "optimized_fields": ["field1", ...]
+  }
+  ```
+  This enables the HTML report to render columns in the template's order.
 
 Priority standard:
 - **P0**: main chain blockers, settlement/stock/voucher impact, irreversible data impact
