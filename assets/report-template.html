@@ -6,22 +6,35 @@
   <title>测试用例评审报告</title>
   <style>
     :root {
-      --bg: #f7f8fb;
-      --panel: #ffffff;
-      --text: #1f2937;
-      --muted: #667085;
-      --line: #d9dee8;
-      --accent: #1769aa;
-      --accent-soft: #e8f2fb;
-      --warn: #b45309;
-      --good: #047857;
-      --p0: #ffc7ce;
-      --p1: #ffeb9c;
-      --p2: #ffffcc;
-      --edit-bg: #fffde7;
+      --bg: #0b0f1a;
+      --bg-card: #111827;
+      --bg-elevated: #1a2035;
+      --bg-hover: #1e2a45;
+      --text: #e2e8f0;
+      --text-muted: #8892a8;
+      --text-bright: #f8fafc;
+      --border: #1e293b;
+      --border-glow: rgba(59,130,246,0.15);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59,130,246,0.25);
+      --cyan: #06b6d4;
+      --purple: #8b5cf6;
+      --green: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --yellow: #eab308;
+      --p0-bg: rgba(239,68,68,0.15);
+      --p0-text: #fca5a5;
+      --p1-bg: rgba(245,158,11,0.15);
+      --p1-text: #fcd34d;
+      --p2-bg: rgba(234,179,8,0.15);
+      --p2-text: #fde68a;
+      --p3-bg: rgba(100,116,139,0.15);
+      --p3-text: #94a3b8;
+      --edit-bg: rgba(245,158,11,0.1);
       --edit-border: #f59e0b;
-      --new-row: #e8f5e9;
-      --del-row: #fdecea;
+      --new-row: rgba(16,185,129,0.1);
+      --del-row: rgba(239,68,68,0.1);
     }
     * { box-sizing: border-box; }
     body {
@@ -29,41 +42,60 @@
       font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(59,130,246,0.03) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(139,92,246,0.03) 0%, transparent 50%);
     }
+
+    /* ── Header ── */
     header {
-      padding: 24px 32px 16px;
-      background: var(--panel);
-      border-bottom: 1px solid var(--line);
+      padding: 28px 36px 20px;
+      background: linear-gradient(135deg, #0f1629 0%, #1a1040 50%, #0d1b3e 100%);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 12px;
+      position: relative;
     }
-    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; }
-    .sub { color: var(--muted); font-size: 13px; }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--purple), transparent);
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; color: var(--text-bright); }
+    .sub { color: var(--text-muted); font-size: 13px; }
     .edit-badge {
       display: none;
       align-items: center;
       gap: 6px;
-      background: var(--edit-bg);
-      border: 1px solid var(--edit-border);
-      border-radius: 6px;
-      padding: 6px 12px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 20px;
+      padding: 6px 14px;
       font-size: 13px;
-      color: #92400e;
+      color: #fcd34d;
       font-weight: 600;
+      backdrop-filter: blur(8px);
     }
     .edit-badge.visible { display: flex; }
     .edit-dot {
       width: 8px; height: 8px;
-      background: var(--edit-border);
+      background: #f59e0b;
       border-radius: 50%;
       animation: blink 1.2s infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-    main { padding: 20px 32px 36px; }
+    /* ── Main ── */
+    main { padding: 20px 36px 40px; }
+
+    /* ── Toolbar ── */
     .toolbar {
       display: flex;
       gap: 8px;
@@ -71,73 +103,99 @@
       margin-bottom: 16px;
       align-items: center;
     }
-    .toolbar-sep { width: 1px; height: 28px; background: var(--line); margin: 0 4px; }
+    .toolbar-sep { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+
+    /* ── Buttons ── */
     button {
       border: 1px solid var(--accent);
       background: var(--accent);
       color: #fff;
       height: 34px;
-      padding: 0 14px;
+      padding: 0 16px;
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
       white-space: nowrap;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 12px rgba(59,130,246,0.2);
     }
-    button.secondary { background: #fff; color: var(--accent); }
-    button.danger { background: #fff; color: #b91c1c; border-color: #fca5a5; }
-    button.success { background: #fff; color: var(--good); border-color: #6ee7b7; }
-    button:disabled { opacity: .45; cursor: not-allowed; }
+    button:hover { box-shadow: 0 0 20px rgba(59,130,246,0.35); }
+    button.secondary { background: transparent; color: var(--accent); border-color: rgba(59,130,246,0.4); box-shadow: none; }
+    button.secondary:hover { background: rgba(59,130,246,0.1); box-shadow: none; }
+    button.danger { background: transparent; color: #fca5a5; border-color: rgba(239,68,68,0.4); box-shadow: none; }
+    button.danger:hover { background: rgba(239,68,68,0.1); box-shadow: none; }
+    button.success { background: transparent; color: #6ee7b7; border-color: rgba(16,185,129,0.4); box-shadow: none; }
+    button.success:hover { background: rgba(16,185,129,0.1); box-shadow: none; }
+    button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 
+    /* ── Tabs ── */
     .tabs {
       display: flex;
-      gap: 8px;
+      gap: 4px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
     }
     .tab {
-      background: #fff;
-      color: var(--text);
-      border-color: var(--line);
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      height: 40px;
+      padding: 0 18px;
+      font-size: 14px;
+      box-shadow: none;
+      transition: all 0.2s ease;
     }
+    .tab:hover { color: var(--text); background: rgba(255,255,255,0.03); box-shadow: none; }
     .tab.active {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-color: var(--accent);
+      color: var(--text-bright);
       font-weight: 700;
+      border-bottom-color: var(--accent);
+      background: transparent;
+      box-shadow: 0 2px 8px rgba(59,130,246,0.2);
     }
+
+    /* ── Sections ── */
     section {
       display: none;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0 0 12px 12px;
+      padding: 20px;
       overflow: auto;
     }
     section.active { display: block; }
 
-    /* Filter bar */
+    /* ── Filter bar ── */
     .filter-bar {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       align-items: center;
     }
-    .filter-bar label { font-size: 13px; color: var(--muted); }
+    .filter-bar label { font-size: 13px; color: var(--text-muted); }
     .filter-bar select, .filter-bar input[type="text"] {
       height: 32px;
-      border: 1px solid var(--line);
-      border-radius: 5px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
       padding: 0 10px;
       font-size: 13px;
-      background: #fff;
+      background: var(--bg-elevated);
       color: var(--text);
       outline: none;
+      transition: border-color 0.2s;
     }
-    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent); }
-    .filter-count { font-size: 12px; color: var(--muted); }
+    .filter-bar select:focus, .filter-bar input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 8px rgba(59,130,246,0.2);
+    }
+    .filter-count { font-size: 12px; color: var(--text-muted); }
 
-    /* Table */
+    /* ── Table ── */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -145,31 +203,37 @@
       font-size: 13px;
     }
     th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
       vertical-align: top;
       text-align: left;
-      line-height: 1.45;
+      line-height: 1.5;
     }
     th {
-      background: #d6e4f0;
+      background: var(--bg-elevated);
+      color: var(--text-bright);
       font-weight: 700;
       white-space: nowrap;
       position: sticky;
       top: 0;
       z-index: 1;
       user-select: none;
+      border-bottom: 2px solid var(--border);
     }
-    /* action column header */
     th.col-action { width: 64px; text-align: center; }
     td.col-action { text-align: center; vertical-align: middle; padding: 4px; white-space: nowrap; }
 
-    tr:hover td:not(.col-action) { background: #f0f6fb; }
+    tbody tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+    tr:hover td:not(.col-action) {
+      background: var(--bg-hover);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
     tr.row-new td { background: var(--new-row) !important; }
-    tr.row-deleted td { background: var(--del-row) !important; opacity: .6; text-decoration: line-through; }
+    tr.row-deleted td { background: var(--del-row) !important; opacity: .5; text-decoration: line-through; }
     tr.hidden { display: none; }
 
-    /* Editable cell */
+    /* ── Editable cell ── */
     td[contenteditable="true"] {
       outline: none;
       min-width: 60px;
@@ -183,24 +247,29 @@
     }
     td[contenteditable="true"]:empty::before {
       content: attr(data-placeholder);
-      color: #ccc;
+      color: #475569;
       font-style: italic;
     }
 
-    /* Priority badge */
+    /* ── Priority badge ── */
     .badge {
       display: inline-block;
-      padding: 2px 7px;
-      border-radius: 4px;
+      padding: 2px 8px;
+      border-radius: 10px;
       font-size: 12px;
       font-weight: 700;
     }
-    .badge-p0 { background: var(--p0); color: #9b1c1c; }
-    .badge-p1 { background: var(--p1); color: #7c4a00; }
-    .badge-p2 { background: var(--p2); color: #6b5900; }
-    .badge-p3 { background: #e5e7eb; color: #374151; }
+    .badge-p0 { background: var(--p0-bg); color: var(--p0-text); }
+    .badge-p1 { background: var(--p1-bg); color: var(--p1-text); }
+    .badge-p2 { background: var(--p2-bg); color: var(--p2-text); }
+    .badge-p3 { background: var(--p3-bg); color: var(--p3-text); }
 
-    /* Row action buttons */
+    /* ── Risk badge ── */
+    .risk-high { background: var(--p0-bg); color: var(--p0-text); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 12px; }
+    .risk-mid  { background: var(--p1-bg); color: var(--p1-text); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 12px; }
+    .risk-low  { background: var(--p2-bg); color: var(--p2-text); padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 12px; }
+
+    /* ── Row action buttons ── */
     .btn-row {
       border: none;
       background: none;
@@ -210,12 +279,13 @@
       font-size: 15px;
       height: auto;
       line-height: 1;
+      box-shadow: none;
     }
-    .btn-row:hover { background: #f3f4f6; }
-    .btn-row.del { color: #ef4444; }
-    .btn-row.restore { color: var(--good); }
+    .btn-row:hover { background: rgba(255,255,255,0.08); }
+    .btn-row.del { color: #f87171; }
+    .btn-row.restore { color: #6ee7b7; }
 
-    /* Metrics */
+    /* ── Metrics ── */
     .metrics {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -223,29 +293,102 @@
       margin-bottom: 18px;
     }
     .metric {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: var(--bg-elevated);
+      transition: all 0.2s ease;
     }
-    .metric strong { display: block; font-size: 26px; margin-top: 6px; color: var(--accent); }
-    .metric.good strong { color: var(--good); }
-    .metric.warn strong { color: var(--warn); }
+    .metric:hover {
+      border-color: rgba(59,130,246,0.3);
+      box-shadow: 0 0 16px rgba(59,130,246,0.08);
+    }
+    .metric span { color: var(--text-muted); font-size: 13px; }
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      margin-top: 6px;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+    .metric.good strong { color: var(--green); }
+    .metric.warn strong { color: var(--amber); }
+    .metric .sub { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
+
+    /* ── Notice ── */
     .notice {
-      margin: 12px 0;
-      padding: 10px 12px;
-      border-left: 4px solid var(--accent);
-      background: var(--accent-soft);
-      color: #123;
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-left: 3px solid var(--accent);
+      background: rgba(59,130,246,0.08);
+      border-radius: 0 8px 8px 0;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.7;
     }
 
-    /* Toast */
+    /* ── Score cards (report tab) ── */
+    .score-card {
+      text-align: center;
+      padding: 20px 14px;
+    }
+    .score-card .role-name {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .score-card .score-value {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1;
+      margin: 8px 0;
+    }
+    .score-card .score-detail {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .score-high { color: var(--green); }
+    .score-mid { color: var(--cyan); }
+    .score-low { color: var(--amber); }
+
+    /* ── Progress bar (coverage) ── */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-bar .fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      transition: width 0.6s ease;
+    }
+
+    /* ── Two-column report layout ── */
+    .report-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 900px) {
+      .report-grid-2 { grid-template-columns: 1fr; }
+    }
+    .report-grid-2 h3 { margin: 0 0 12px; font-size: 15px; color: var(--text-bright); }
+    .report-grid-2 table { min-width: auto; }
+
+    /* ── Toast ── */
     #toast {
       position: fixed;
       bottom: 28px;
       right: 28px;
-      background: #1f2937;
-      color: #fff;
+      background: var(--bg-elevated);
+      color: var(--text-bright);
       padding: 10px 18px;
       border-radius: 8px;
       font-size: 13px;
@@ -253,8 +396,19 @@
       pointer-events: none;
       transition: opacity .25s;
       z-index: 9999;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     #toast.show { opacity: 1; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4a5568; }
+
+    /* ── Section headings ── */
+    h3 { color: var(--text-bright); }
   </style>
 </head>
 <body>
@@ -351,17 +505,17 @@
         <div class="metric"><span>场景覆盖提升</span><strong><!-- SCENARIO_LIFT --></strong></div>
       </div>
 
-      <h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">九方评审评分（ISO 25010 质量特性）</h3>
+      <h3 style="margin:20px 0 12px;font-size:16px;">九方评审评分（ISO 25010 质量特性）</h3>
       <div class="metrics" id="role-scores">
-        <div class="metric"><span>开发架构师 (Arch)</span><strong><!-- ARCH_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- ARCH_DETAIL --></div></div>
-        <div class="metric"><span>开发工程师 (Dev)</span><strong><!-- DEV_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- DEV_DETAIL --></div></div>
-        <div class="metric"><span>测试工程师 (QA)</span><strong><!-- QA_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- QA_DETAIL --></div></div>
-        <div class="metric"><span>产品经理 (PM)</span><strong><!-- PM_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- PM_DETAIL --></div></div>
-        <div class="metric"><span>用户体验设计师 (UX)</span><strong><!-- UX_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- UX_DETAIL --></div></div>
-        <div class="metric"><span>安全工程师 (Sec)</span><strong><!-- SEC_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- SEC_DETAIL --></div></div>
-        <div class="metric"><span>运维工程师 (Ops)</span><strong><!-- OPS_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- OPS_DETAIL --></div></div>
-        <div class="metric"><span>性能工程师 (Perf)</span><strong><!-- PERF_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- PERF_DETAIL --></div></div>
-        <div class="metric"><span>数据工程师 (DBA)</span><strong><!-- DBA_SCORE --></strong><div class="sub" style="font-size:11px;margin-top:4px"><!-- DBA_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">开发架构师 (Arch)</span><strong class="score-value"><!-- ARCH_SCORE --></strong><div class="score-detail"><!-- ARCH_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">开发工程师 (Dev)</span><strong class="score-value"><!-- DEV_SCORE --></strong><div class="score-detail"><!-- DEV_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">测试工程师 (QA)</span><strong class="score-value"><!-- QA_SCORE --></strong><div class="score-detail"><!-- QA_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">产品经理 (PM)</span><strong class="score-value"><!-- PM_SCORE --></strong><div class="score-detail"><!-- PM_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">用户体验设计师 (UX)</span><strong class="score-value"><!-- UX_SCORE --></strong><div class="score-detail"><!-- UX_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">安全工程师 (Sec)</span><strong class="score-value"><!-- SEC_SCORE --></strong><div class="score-detail"><!-- SEC_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">运维工程师 (Ops)</span><strong class="score-value"><!-- OPS_SCORE --></strong><div class="score-detail"><!-- OPS_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">性能工程师 (Perf)</span><strong class="score-value"><!-- PERF_SCORE --></strong><div class="score-detail"><!-- PERF_DETAIL --></div></div>
+        <div class="metric score-card"><span class="role-name">数据工程师 (DBA)</span><strong class="score-value"><!-- DBA_SCORE --></strong><div class="score-detail"><!-- DBA_DETAIL --></div></div>
       </div>
 
       <div class="notice"><!-- REPORT_SUMMARY --></div>
@@ -376,8 +530,7 @@
   // STATE
   // ─────────────────────────────────────────────────────────────────────────
   let editMode = false;
-  let editCount = 0;         // unsaved edit count for badge
-  // Snapshot: { tableId -> [ [cell texts...], ... ] }  (header + all rows at init)
+  let editCount = 0;
   const snapshots = {};
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -514,12 +667,10 @@
     addBtn.disabled = !editMode;
     resetBtn.disabled = !editMode;
 
-    // Toggle contenteditable on all data cells (not action col, not header)
     document.querySelectorAll("table tbody tr:not(.row-deleted) td:not(.col-action), table tr:not(:first-child) td:not(.col-action)").forEach(td => {
       if (editMode) {
         td.setAttribute("contenteditable", "true");
         td.dataset.placeholder = "输入内容…";
-        // If cell has a badge, unwrap it for editing
         const badge = td.querySelector(".badge");
         if (badge) {
           td.dataset.rawValue = badge.textContent.trim();
@@ -532,13 +683,11 @@
       }
     });
 
-    // Show/hide action column
     document.querySelectorAll(".col-action").forEach(el => {
       el.style.display = editMode ? "" : "none";
     });
 
     if (!editMode) {
-      // Re-render badges after edit
       renderPriorityBadges();
       updateEditBadge();
     }
@@ -554,11 +703,9 @@
   function updateEditBadge() {
     const badge = document.getElementById("edit-badge");
     const text = document.getElementById("edit-badge-text");
-    // Count dirty cells
     let changed = 0;
     document.querySelectorAll("table tr.row-new").forEach(() => changed++);
     document.querySelectorAll("table tr.row-deleted").forEach(() => changed++);
-    // Simple heuristic: if editMode is on, show badge
     if (editMode || changed > 0) {
       badge.classList.add("visible");
       text.textContent = changed > 0 ? `已修改 ${changed} 行` : "编辑中";
@@ -571,7 +718,6 @@
   // ADD ROW
   // ─────────────────────────────────────────────────────────────────────────
   function addRow() {
-    // Add to the currently active tab's table
     const activeSection = document.querySelector("section.active");
     if (!activeSection) return;
     const table = activeSection.querySelector("table");
@@ -611,7 +757,6 @@
       btn.outerHTML = `<button class="btn-row restore" title="恢复此行" onclick="restoreRow(this)">↩</button>`;
     }
     updateEditBadge();
-    // re-run filter to hide deleted row
     const sectionId = tr.closest("section") ? tr.closest("section").id : null;
     if (sectionId && FILTER_CONFIG[sectionId]) filterTable(sectionId);
   }
@@ -631,9 +776,7 @@
   // ─────────────────────────────────────────────────────────────────────────
   function resetEdits() {
     if (!confirm("确认撤销所有编辑，恢复到初始状态？")) return;
-    // Remove new rows
     document.querySelectorAll("tr.row-new").forEach(tr => tr.remove());
-    // Restore deleted rows
     document.querySelectorAll("tr.row-deleted").forEach(tr => {
       tr.classList.remove("row-deleted");
       tr.querySelectorAll("td:not(.col-action)").forEach(td => {
@@ -642,7 +785,6 @@
       const restoreBtn = tr.querySelector(".btn-row.restore");
       if (restoreBtn) restoreBtn.outerHTML = buildRowActionBtns();
     });
-    // Restore cell content from snapshots
     Object.entries(snapshots).forEach(([tableId, rows]) => {
       const table = document.getElementById(tableId);
       if (!table) return;
@@ -670,10 +812,8 @@
   function tableToSheetData(tableEl) {
     if (!tableEl) return { columns: [], rows: [] };
     const allRows = Array.from(tableEl.rows).filter(r => !r.classList.contains("row-deleted") && !r.classList.contains("hidden") || r === tableEl.rows[0]);
-    // header
     const headerCells = Array.from(allRows[0].cells).filter(c => !c.classList.contains("col-action"));
     const columns = headerCells.map(c => c.textContent.trim());
-    // data rows
     const rows = [];
     for (let i = 1; i < allRows.length; i++) {
       const row = allRows[i];
@@ -688,7 +828,6 @@
     return { columns, rows };
   }
 
-  // ── Minimal Open XML xlsx builder ─────────────────────────────────────
   function escXml(s) {
     return String(s == null ? "" : s)
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
@@ -715,7 +854,6 @@
     const priorityCols = new Set(columns.reduce((a,c,i)=>PRIORITY_COLS.has(c)?[...a,i]:a,[]));
     const xmlRows = [];
 
-    // header
     const hdr = columns.map((c,i)=>cellXml(c,1,i,STYLE_HEADER)).join("");
     xmlRows.push(`<row r="1">${hdr}</row>`);
 
@@ -733,7 +871,6 @@
     const lastRow = Math.max(rows.length+1,1);
     const dim = columns.length ? `A1:${lastCol}${lastRow}` : "A1";
 
-    // column widths
     const colWidths = columns.map((c,ci)=>{
       const maxLen = Math.max(c.length, ...rows.map(r=>{
         const v = typeof r==="object"&&!Array.isArray(r)?r[c]??"":r[ci]??"";
@@ -761,14 +898,14 @@
       +'<fills count="6">'
       +'<fill><patternFill patternType="none"/></fill>'
       +'<fill><patternFill patternType="gray125"/></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFD6E4F0"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFC7CE"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFEB9C"/></patternFill></fill>'
-      +'<fill><patternFill patternType="solid"><fgColor rgb="FFFFFF99"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FF1A2035"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFEF4444"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFF59E0B"/></patternFill></fill>'
+      +'<fill><patternFill patternType="solid"><fgColor rgb="FFEAB308"/></patternFill></fill>'
       +'</fills>'
       +'<borders count="2"><border/><border>'
-      +'<left style="thin"><color rgb="FFD9DEE8"/></left><right style="thin"><color rgb="FFD9DEE8"/></right>'
-      +'<top style="thin"><color rgb="FFD9DEE8"/></top><bottom style="thin"><color rgb="FFD9DEE8"/></bottom>'
+      +'<left style="thin"><color rgb="FF1E293B"/></left><right style="thin"><color rgb="FF1E293B"/></right>'
+      +'<top style="thin"><color rgb="FF1E293B"/></top><bottom style="thin"><color rgb="FF1E293B"/></bottom>'
       +'</border></borders>'
       +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
       +'<cellXfs count="6">'
@@ -782,12 +919,7 @@
   }
 
   // ── ZIP builder (no dependency) ────────────────────────────────────────
-  // Uses a minimal DEFLATE-less zip (store method) for broad compatibility.
-  // For large files the base64 size is acceptable for test-case workbooks.
-  function strToU8(str) {
-    return new TextEncoder().encode(str);
-  }
-
+  function strToU8(str) { return new TextEncoder().encode(str); }
   function u8concat(arrays) {
     const total = arrays.reduce((s,a)=>s+a.length,0);
     const out = new Uint8Array(total);
@@ -816,7 +948,6 @@
   function u16le(n){const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,true);return b;}
 
   function zipStore(files) {
-    // files: [{name:string, data:Uint8Array}]
     const entries=[];
     let offset=0;
     const dt=dosTime();
@@ -826,16 +957,13 @@
       const nameBytes=strToU8(f.name);
       const crc=crc32(f.data);
       const size=f.data.length;
-      // local file header
       const lh=u8concat([
-        new Uint8Array([0x50,0x4B,0x03,0x04]),  // signature
-        u16le(20),      // version needed
-        u16le(0),       // flags
-        u16le(0),       // compression: store
-        u16le(dt&0xFFFF), u16le(dt>>>16), // mod time, mod date
+        new Uint8Array([0x50,0x4B,0x03,0x04]),
+        u16le(20), u16le(0), u16le(0),
+        u16le(dt&0xFFFF), u16le(dt>>>16),
         u32le(crc),
-        u32le(size), u32le(size), // compressed = uncompressed
-        u16le(nameBytes.length), u16le(0), // name len, extra len
+        u32le(size), u32le(size),
+        u16le(nameBytes.length), u16le(0),
         nameBytes,
       ]);
       localHeaders.push(lh);
@@ -843,7 +971,6 @@
       offset+=lh.length+size;
     });
 
-    // central directory
     const cdParts=[];
     entries.forEach((e,i)=>{
       const dt2=dosTime();
@@ -883,8 +1010,6 @@
     ];
 
     const files = [];
-
-    // workbook entries
     const sheetFiles = [];
     sheetDefs.forEach(({id, name}, idx) => {
       const table = document.querySelector("#" + id + " table");
@@ -977,13 +1102,11 @@
     ["raw","review","optimized"].forEach(id => {
       const table = document.querySelector("#" + id + " table");
       if (!table) return;
-      // header
       const th = document.createElement("th");
       th.className = "col-action";
       th.textContent = "操作";
       th.style.display = "none";
       if (table.rows[0]) table.rows[0].appendChild(th);
-      // data rows
       Array.from(table.rows).slice(1).forEach(row => {
         const td = document.createElement("td");
         td.className = "col-action";

@@ -369,7 +369,8 @@ role_scores = {
 role_html = ""
 for key in ["Arch","Dev","QA","PM","UX","Sec","Ops","Perf","DBA"]:
     name, score, detail = role_scores[key]
-    role_html += '<div class="metric"><span>' + e(name) + ' (' + key + ')</span><strong>' + str(score) + '</strong><div class="sub" style="font-size:11px;margin-top:4px">' + e(detail) + '</div></div>'
+    score_cls = "score-high" if score >= 90 else ("score-mid" if score >= 80 else "score-low")
+    role_html += '<div class="metric score-card"><span class="role-name">' + e(name) + ' (' + key + ')</span><strong class="score-value ' + score_cls + '">' + str(score) + '</strong><div class="score-detail">' + e(detail) + '</div></div>'
 
 # Defect distribution (total=30 findings)
 defect_dist = [
@@ -562,24 +563,44 @@ h.append('</section>')
 
 # Tab 5: Report
 h.append('<section id="report">')
+
+# Core metrics
 h.append('<div class="metrics">')
 h.append('<div class="metric"><span>总用例数（原始）</span><strong>' + str(total) + '</strong></div>')
 h.append('<div class="metric good"><span>评审通过数</span><strong>' + str(passed) + '</strong></div>')
 h.append('<div class="metric warn"><span>驳回/修改数</span><strong>' + str(modified) + '</strong></div>')
 h.append('<div class="metric"><span>优化后总用例</span><strong>' + str(opt_total) + '</strong></div>')
-h.append('<div class="metric"><span>功能点覆盖提升</span><strong>' + str(int(func_orig/40*100)) + '% → ' + str(int(func_opt/40*100)) + '%</strong></div>')
-h.append('<div class="metric"><span>场景覆盖提升</span><strong>' + str(scen_orig) + '% → ' + str(scen_opt) + '%</strong></div>')
 h.append('</div>')
-h.append('<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">九方评审评分（ISO 25010 质量特性）</h3>')
+
+# Coverage with progress bars
+func_pct_orig = int(func_orig/40*100)
+func_pct_opt = int(func_opt/40*100)
+scen_pct_orig = scen_orig
+scen_pct_opt = scen_opt
+h.append('<div class="metrics">')
+h.append('<div class="metric"><span>功能点覆盖率</span><strong>' + str(func_pct_orig) + '% → ' + str(func_pct_opt) + '%</strong><div class="progress-bar"><div class="fill" style="width:' + str(func_pct_opt) + '%"></div></div></div>')
+h.append('<div class="metric"><span>场景覆盖率</span><strong>' + str(scen_pct_orig) + '% → ' + str(scen_pct_opt) + '%</strong><div class="progress-bar"><div class="fill" style="width:' + str(scen_pct_opt) + '%"></div></div></div>')
+h.append('</div>')
+
+# Role scores
+h.append('<h3 style="margin:20px 0 12px;font-size:16px;">九方评审评分（ISO 25010 质量特性）</h3>')
 h.append('<div class="metrics" id="role-scores">')
 h.append(role_html)
 h.append('</div>')
+
+# Summary notice
 h.append('<div class="notice">' + summary + '</div>')
-h.append('<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">问题分布</h3>')
-h.append('<table><thead><tr><th>缺陷类型</th><th>数量</th><th>占比</th></tr></thead><tbody>' + defect_rows + '</tbody></table>')
-h.append('<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">质量特性覆盖雷达数据（8维度）</h3>')
-h.append('<table><thead><tr><th>质量特性</th><th>评分</th></tr></thead><tbody>' + radar_rows + '</tbody></table>')
-h.append('<h3 style="margin:20px 0 12px;font-size:16px;color:var(--text)">需求追踪矩阵（RTM）</h3>')
+
+# Two-column: Defect distribution + Radar
+h.append('<div class="report-grid-2">')
+h.append('<div><h3>问题分布</h3>')
+h.append('<table><thead><tr><th>缺陷类型</th><th>数量</th><th>占比</th></tr></thead><tbody>' + defect_rows + '</tbody></table></div>')
+h.append('<div><h3>质量特性覆盖雷达数据（8维度）</h3>')
+h.append('<table><thead><tr><th>质量特性</th><th>评分</th></tr></thead><tbody>' + radar_rows + '</tbody></table></div>')
+h.append('</div>')
+
+# RTM
+h.append('<h3 style="margin:20px 0 12px;font-size:16px;">需求追踪矩阵（RTM）</h3>')
 h.append('<table><thead><tr><th>需求编号</th><th>功能点</th><th>原始用例</th><th>优化后用例</th></tr></thead><tbody>' + rtm_rows + '</tbody></table>')
 h.append('</section>')
 
